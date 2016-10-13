@@ -17,9 +17,34 @@ Version 2, June 1991
 
 See License.md
 
-Documentation
-=============
-Documentation on how to use and tune the renderer is available in the [wiki]( https://github.com/bourgesl/marlin-fx/wiki)
+Build
+=====
+
+Needs Maven + Oracle or Open JDK 1.8 (with JavaFX)
+
+MarlinFX build produces a (big) JavaFX library patched with MarlinFX (com.sun.marlin + custom OpenPiscesRasterizer).
+
+First time, import your local jfxrt.jar (from ${java.home}/lib/ext/jfxrt.jar) to your local maven repository or when you get the error 'Could not find artifact javafx:jfxrt:jar:local in central (https://repo.maven.apache.org/maven2)' :
+mvn process-resources
+
+Then build MarlinFX:
+mvn clean install
+
+The MarlinFX jar is available in the target folder like:
+target/marlinfx-0.7.5-Unsafe.jar
+
+
+Usage
+=====
+
+For testing purposes (only ?), MarlinFX can be used with any JavaFX application running on Oracle or Open JDK 1.8.
+
+Just put it in your bootclasspath to make JavaFX use MarlinFX instead of OpenPisces:
+
+java -Xbootclasspath/p:[absolute or relative path]/marlinfx-0.7.5-Unsafe.jar -Dprism.nativepisces=false ...
+
+Enjoy !
+
 
 Getting in touch
 ================
