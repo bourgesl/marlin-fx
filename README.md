@@ -43,6 +43,9 @@ Just put it in your bootclasspath to make JavaFX use MarlinFX instead of OpenPis
 
 java -Xbootclasspath/p:[absolute or relative path]/marlinfx-0.7.5-Unsafe.jar -Dprism.nativepisces=false ...
 
+For example:
+java -Xbootclasspath/p:/home/bourgesl/libs/marlin/branches/marlin-fx/target/marlinfx-0.7.5-Unsafe.jar -jar Ensemble8.jar 
+
 Enjoy !
 
 
