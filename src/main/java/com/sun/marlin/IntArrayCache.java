@@ -245,7 +245,7 @@ public final class IntArrayCache implements MarlinConst {
         }
     }
 
-    static void check(final int[] array, final int fromIndex,
+    public static void check(final int[] array, final int fromIndex,
                       final int toIndex, final int value)
     {
         if (DO_CHECKS) {

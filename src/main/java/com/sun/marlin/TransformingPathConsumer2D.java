@@ -73,7 +73,7 @@ public final class TransformingPathConsumer2D {
     private final DeltaScaleFilter     iv_DeltaScaleFilter     = new DeltaScaleFilter();
     private final DeltaTransformFilter iv_DeltaTransformFilter = new DeltaTransformFilter();
 
-    PathConsumer2D inverseDeltaTransformConsumer(PathConsumer2D out,
+    public PathConsumer2D inverseDeltaTransformConsumer(PathConsumer2D out,
                                                  BaseTransform at)
     {
         if (at == null) {

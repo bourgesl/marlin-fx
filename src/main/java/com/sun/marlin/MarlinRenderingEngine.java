@@ -738,14 +738,11 @@ public class MarlinRenderingEngine implements MarlinConst
                 + MarlinConst.SUBPIXEL_LG_POSITIONS_X);
         logInfo("sun.java2d.renderer.subPixel_log2_Y  = "
                 + MarlinConst.SUBPIXEL_LG_POSITIONS_Y);
-        
+
         logInfo("sun.java2d.renderer.tileSize_log2    = "
                 + MarlinConst.TILE_H_LG);
         logInfo("sun.java2d.renderer.tileWidth_log2   = "
                 + MarlinConst.TILE_W_LG);
-        
-        logInfo("sun.java2d.renderer.blockSize_log2   = "
-                + MarlinConst.BLOCK_SIZE_LG);
 
         logInfo("sun.java2d.renderer.blockSize_log2   = "
                 + MarlinConst.BLOCK_SIZE_LG);
@@ -778,6 +775,8 @@ public class MarlinRenderingEngine implements MarlinConst
                 + MarlinConst.DO_CHECKS);
 
         // logging parameters
+        logInfo("sun.java2d.renderer.log              = "
+                + MarlinConst.ENABLE_LOGS);
         logInfo("sun.java2d.renderer.useLogger        = "
                 + MarlinConst.USE_LOGGER);
         logInfo("sun.java2d.renderer.logCreateContext = "
@@ -806,7 +805,7 @@ public class MarlinRenderingEngine implements MarlinConst
      * @return RendererContext instance
      */
     @SuppressWarnings({"unchecked"})
-    static RendererContext getRendererContext() {
+    public static RendererContext getRendererContext() {
         final RendererContext rdrCtx = RDR_CTX_PROVIDER.acquire();
         if (DO_MONITORS) {
             rdrCtx.stats.mon_pre_getAATileGenerator.start();
@@ -818,7 +817,7 @@ public class MarlinRenderingEngine implements MarlinConst
      * Reset and return the given RendererContext instance for reuse
      * @param rdrCtx RendererContext instance
      */
-    static void returnRendererContext(final RendererContext rdrCtx) {
+    public static void returnRendererContext(final RendererContext rdrCtx) {
         rdrCtx.dispose();
 
         if (DO_MONITORS) {

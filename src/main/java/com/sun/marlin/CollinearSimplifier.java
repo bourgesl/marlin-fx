@@ -27,7 +27,7 @@ package com.sun.marlin;
 
 import com.sun.javafx.geom.PathConsumer2D;
 
-final class CollinearSimplifier implements PathConsumer2D {
+public final class CollinearSimplifier implements PathConsumer2D {
 
     private static final int STATE_PREV_LINE = 0;
     private static final int STATE_PREV_POINT = 1;

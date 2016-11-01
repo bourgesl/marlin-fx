@@ -37,6 +37,10 @@ public final class MarlinProperties {
 
     // marlin system properties
 
+    public static boolean isMarlinEnabled() {
+        return getBoolean("sun.javafx.marlin", "false");
+    }
+
     public static boolean isUseThreadLocal() {
         return getBoolean("sun.java2d.renderer.useThreadLocal", "true");
     }
@@ -98,7 +102,7 @@ public final class MarlinProperties {
     public static int getTileWidth_Log2() {
         return getInteger("sun.java2d.renderer.tileWidth_log2", 5, 3, 10);
     }
-    
+
     /**
      * Return the log(2) corresponding to the block size in pixels
      *

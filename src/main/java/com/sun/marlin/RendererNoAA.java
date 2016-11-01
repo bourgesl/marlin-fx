@@ -29,7 +29,7 @@ import static com.sun.marlin.OffHeapArray.SIZE_INT;
 //import jdk.internal.misc.Unsafe;
 import sun.misc.Unsafe;
 
-public final class Renderer implements MarlinRenderer, MarlinConst {
+public final class RendererNoAA implements MarlinRenderer, MarlinConst {
 
     static final boolean DISABLE_RENDER = false;
 
@@ -50,17 +50,8 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
 
     private static final double POWER_2_TO_32 = 0x1.0p32;
 
-    // use float to make tosubpix methods faster (no int to float conversion)
-    public static final float F_SUBPIXEL_POSITIONS_X
-        = (float) SUBPIXEL_POSITIONS_X;
-    public static final float F_SUBPIXEL_POSITIONS_Y
-        = (float) SUBPIXEL_POSITIONS_Y;
-    public static final int SUBPIXEL_MASK_X = SUBPIXEL_POSITIONS_X - 1;
-    public static final int SUBPIXEL_MASK_Y = SUBPIXEL_POSITIONS_Y - 1;
-
     // 2048 (pixelSize) pixels (height) x 8 subpixels = 64K
-    static final int INITIAL_BUCKET_ARRAY
-        = INITIAL_PIXEL_DIM * SUBPIXEL_POSITIONS_Y;
+    static final int INITIAL_BUCKET_ARRAY = INITIAL_PIXEL_DIM;
 
     // crossing capacity = edges count / 4 ~ 1024
     static final int INITIAL_CROSSING_COUNT = INITIAL_EDGES_COUNT >> 2;
@@ -81,10 +72,10 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
     // curve break into lines
     // cubic error in subpixels to decrement step
     private static final float CUB_DEC_ERR_SUBPIX
-        = 1f * (NORM_SUBPIXELS / 8f); // 1 subpixel for typical 8x8 subpixels
+        = 1f * (1f / 8f); // 1 pixel for typical 1x1 subpixels
     // cubic error in subpixels to increment step
     private static final float CUB_INC_ERR_SUBPIX
-        = 0.4f * (NORM_SUBPIXELS / 8f); // 0.4 subpixel for typical 8x8 subpixels
+        = 0.4f * (1f / 8f); // 0.4 pixel for typical 1x1 subpixels
 
     // cubic bind length to decrement step = 8 * error in subpixels
     // multiply by 8 = error scale factor:
@@ -112,7 +103,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
     // quad break into lines
     // quadratic error in subpixels
     private static final float QUAD_DEC_ERR_SUBPIX
-        = 1f * (NORM_SUBPIXELS / 8f); // 1 subpixel for typical 8x8 subpixels
+        = 1f * (1f / 8f); // 1 pixel for typical 1x1 subpixels
 
     // quadratic bind length to decrement step = 8 * error in subpixels
     public static final float QUAD_DEC_BND
@@ -538,7 +529,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
     // blkFlags ref (clean)
     private final IntArrayCache.Reference blkFlags_ref;
 
-    Renderer(final RendererContext rdrCtx) {
+    RendererNoAA(final RendererContext rdrCtx) {
         this.rdrCtx = rdrCtx;
 
         this.edges = rdrCtx.newOffHeapArray(INITIAL_EDGES_CAPACITY); // 96K
@@ -571,19 +562,19 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
         blkFlags     = blkFlags_ref.initial;
     }
 
-    public Renderer init(final int pix_boundsX, final int pix_boundsY,
+    public RendererNoAA init(final int pix_boundsX, final int pix_boundsY,
                   final int pix_boundsWidth, final int pix_boundsHeight,
                   final int windingRule)
     {
         this.windingRule = windingRule;
 
         // bounds as half-open intervals: minX <= x < maxX and minY <= y < maxY
-        this.boundsMinX =  pix_boundsX << SUBPIXEL_LG_POSITIONS_X;
+        this.boundsMinX =  pix_boundsX;
         this.boundsMaxX =
-            (pix_boundsX + pix_boundsWidth) << SUBPIXEL_LG_POSITIONS_X;
-        this.boundsMinY =  pix_boundsY << SUBPIXEL_LG_POSITIONS_Y;
+            (pix_boundsX + pix_boundsWidth);
+        this.boundsMinY =  pix_boundsY;
         this.boundsMaxY =
-            (pix_boundsY + pix_boundsHeight) << SUBPIXEL_LG_POSITIONS_Y;
+            (pix_boundsY + pix_boundsHeight);
 
         this.fBoundsMinX = boundsMinX - 0.5f;
         this.fBoundsMinY = boundsMinY;
@@ -685,12 +676,12 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
     }
 
     private static float tosubpixx(final float pix_x) {
-        return F_SUBPIXEL_POSITIONS_X * pix_x;
+        return pix_x;
     }
 
     private static float tosubpixy(final float pix_y) {
         // shift y by -0.5 for fast ceil(y - 0.5):
-        return F_SUBPIXEL_POSITIONS_Y * pix_y - 0.5f;
+        return pix_y - 0.5f;
     }
 
     @Override
@@ -930,11 +921,6 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
         final Unsafe _unsafe = OffHeapArray.UNSAFE;
         final long    addr0  = _edges.address;
         long addr;
-        final int _SUBPIXEL_LG_POSITIONS_X = SUBPIXEL_LG_POSITIONS_X;
-        final int _SUBPIXEL_LG_POSITIONS_Y = SUBPIXEL_LG_POSITIONS_Y;
-        final int _SUBPIXEL_MASK_X = SUBPIXEL_MASK_X;
-        final int _SUBPIXEL_MASK_Y = SUBPIXEL_MASK_Y;
-        final int _SUBPIXEL_POSITIONS_X = SUBPIXEL_POSITIONS_X;
 
         final int _MIN_VALUE = Integer.MIN_VALUE;
         final int _MAX_VALUE = Integer.MAX_VALUE;
@@ -1337,39 +1323,20 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
                                 x0 -= bboxx0; // turn x0, x1 from coords to indices
                                 x1 -= bboxx0; // in the alpha array.
 
-                                pix_x      =  x0      >> _SUBPIXEL_LG_POSITIONS_X;
-                                pix_xmaxm1 = (x1 - 1) >> _SUBPIXEL_LG_POSITIONS_X;
+                                pix_x      =  x0;
 
-                                if (pix_x == pix_xmaxm1) {
-                                    // Start and end in same pixel
-                                    tmp = (x1 - x0); // number of subpixels
-                                    _alpha[pix_x    ] += tmp;
-                                    _alpha[pix_x + 1] -= tmp;
+                                _alpha[pix_x    ] += 1; // (1 - 0)
+//                                _alpha[pix_x + 1] += 0;
 
-                                    if (useBlkFlags) {
-                                        // flag used blocks:
-                                        _blkFlags[pix_x >> _BLK_SIZE_LG] = 1;
-                                    }
-                                } else {
-                                    tmp = (x0 & _SUBPIXEL_MASK_X);
-                                    _alpha[pix_x    ]
-                                        += (_SUBPIXEL_POSITIONS_X - tmp);
-                                    _alpha[pix_x + 1]
-                                        += tmp;
+                                pix_xmax = x1;
 
-                                    pix_xmax = x1 >> _SUBPIXEL_LG_POSITIONS_X;
+                                _alpha[pix_xmax    ] -= 1; // (1 - 0)
+//                                    _alpha[pix_xmax + 1] -= 0;
 
-                                    tmp = (x1 & _SUBPIXEL_MASK_X);
-                                    _alpha[pix_xmax    ]
-                                        -= (_SUBPIXEL_POSITIONS_X - tmp);
-                                    _alpha[pix_xmax + 1]
-                                        -= tmp;
-
-                                    if (useBlkFlags) {
-                                        // flag used blocks:
-                                        _blkFlags[pix_x    >> _BLK_SIZE_LG] = 1;
-                                        _blkFlags[pix_xmax >> _BLK_SIZE_LG] = 1;
-                                    }
+                                if (useBlkFlags) {
+                                    // flag used blocks:
+                                    _blkFlags[pix_x    >> _BLK_SIZE_LG] = 1;
+                                    _blkFlags[pix_xmax >> _BLK_SIZE_LG] = 1;
                                 }
                             }
                         }
@@ -1406,39 +1373,20 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
                                 x0 -= bboxx0; // turn x0, x1 from coords to indices
                                 x1 -= bboxx0; // in the alpha array.
 
-                                pix_x      =  x0      >> _SUBPIXEL_LG_POSITIONS_X;
-                                pix_xmaxm1 = (x1 - 1) >> _SUBPIXEL_LG_POSITIONS_X;
+                                pix_x      =  x0;
 
-                                if (pix_x == pix_xmaxm1) {
-                                    // Start and end in same pixel
-                                    tmp = (x1 - x0); // number of subpixels
-                                    _alpha[pix_x    ] += tmp;
-                                    _alpha[pix_x + 1] -= tmp;
+                                _alpha[pix_x    ] += 1; // (1 - 0)
+//                                _alpha[pix_x + 1] += 0;
 
-                                    if (useBlkFlags) {
-                                        // flag used blocks:
-                                        _blkFlags[pix_x >> _BLK_SIZE_LG] = 1;
-                                    }
-                                } else {
-                                    tmp = (x0 & _SUBPIXEL_MASK_X);
-                                    _alpha[pix_x    ]
-                                        += (_SUBPIXEL_POSITIONS_X - tmp);
-                                    _alpha[pix_x + 1]
-                                        += tmp;
+                                pix_xmax = x1;
 
-                                    pix_xmax = x1 >> _SUBPIXEL_LG_POSITIONS_X;
+                                _alpha[pix_xmax    ] -= 1; // (1 - 0)
+//                                    _alpha[pix_xmax + 1] -= 0;
 
-                                    tmp = (x1 & _SUBPIXEL_MASK_X);
-                                    _alpha[pix_xmax    ]
-                                        -= (_SUBPIXEL_POSITIONS_X - tmp);
-                                    _alpha[pix_xmax + 1]
-                                        -= tmp;
-
-                                    if (useBlkFlags) {
-                                        // flag used blocks:
-                                        _blkFlags[pix_x    >> _BLK_SIZE_LG] = 1;
-                                        _blkFlags[pix_xmax >> _BLK_SIZE_LG] = 1;
-                                    }
+                                if (useBlkFlags) {
+                                    // flag used blocks:
+                                    _blkFlags[pix_x    >> _BLK_SIZE_LG] = 1;
+                                    _blkFlags[pix_xmax >> _BLK_SIZE_LG] = 1;
                                 }
                             }
                             prev = _MAX_VALUE;
@@ -1460,12 +1408,12 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
             // even if this last row had no crossings, alpha will be zeroed
             // from the last emitRow call. But this doesn't matter because
             // maxX < minX, so no row will be emitted to the MarlinCache.
-            if ((y & _SUBPIXEL_MASK_Y) == _SUBPIXEL_MASK_Y) {
-                lastY = y >> _SUBPIXEL_LG_POSITIONS_Y;
+            if (true) {
+                lastY = y;
 
                 // convert subpixel to pixel coordinate within boundaries:
-                minX = FloatMath.max(minX, bboxx0) >> _SUBPIXEL_LG_POSITIONS_X;
-                maxX = FloatMath.min(maxX, bboxx1) >> _SUBPIXEL_LG_POSITIONS_X;
+                minX = FloatMath.max(minX, bboxx0);
+                maxX = FloatMath.min(maxX, bboxx1);
 
                 if (maxX >= minX) {
                     // note: alpha array will be zeroed by copyAARow()
@@ -1508,11 +1456,10 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
 
         // Emit final row
         y--;
-        y >>= _SUBPIXEL_LG_POSITIONS_Y;
 
         // convert subpixel to pixel coordinate within boundaries:
-        minX = FloatMath.max(minX, bboxx0) >> _SUBPIXEL_LG_POSITIONS_X;
-        maxX = FloatMath.min(maxX, bboxx1) >> _SUBPIXEL_LG_POSITIONS_X;
+        minX = FloatMath.max(minX, bboxx0);
+        maxX = FloatMath.min(maxX, bboxx1);
 
         if (maxX >= minX) {
             // note: alpha array will be zeroed by copyAARow()
@@ -1579,13 +1526,13 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
 
         // half open intervals
         // inclusive:
-        final int pminX =  spminX                    >> SUBPIXEL_LG_POSITIONS_X;
+        final int pminX =  spminX;
         // exclusive:
-        final int pmaxX = (spmaxX + SUBPIXEL_MASK_X) >> SUBPIXEL_LG_POSITIONS_X;
+        final int pmaxX =  spmaxX + 1;
         // inclusive:
-        final int pminY =  spminY                    >> SUBPIXEL_LG_POSITIONS_Y;
+        final int pminY =  spminY;
         // exclusive:
-        final int pmaxY = (spmaxY + SUBPIXEL_MASK_Y) >> SUBPIXEL_LG_POSITIONS_Y;
+        final int pmaxY =  spmaxY + 1;
 
         // store BBox to answer ptg.getBBox():
 //        this.cache.init(pminX, pminY, pmaxX, pmaxY, edgeSumDeltaY);
@@ -1611,13 +1558,13 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
         /* note: bbox_spminX and bbox_spmaxX must be pixel boundaries
            to have correct coverage computation */
         // inclusive:
-        bbox_spminX = pminX << SUBPIXEL_LG_POSITIONS_X;
+        bbox_spminX = pminX;
         // exclusive:
-        bbox_spmaxX = pmaxX << SUBPIXEL_LG_POSITIONS_X;
+        bbox_spmaxX = pmaxX;
         // inclusive:
         bbox_spminY = spminY;
         // exclusive:
-        bbox_spmaxY = FloatMath.min(spmaxY + 1, pmaxY << SUBPIXEL_LG_POSITIONS_Y);
+        bbox_spmaxY = FloatMath.min(spmaxY + 1, pmaxY);
 
         if (DO_LOG_BOUNDS) {
             MarlinUtils.logInfo("pXY       = [" + pminX + " ... " + pmaxX
@@ -1712,7 +1659,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
     private int bbox_spminX, bbox_spmaxX, bbox_spminY, bbox_spmaxY;
 
     public void produceAlphas(final MarlinAlphaConsumer ac) {
-        ac.setMaxAlpha(MAX_AA_ALPHA);
+        ac.setMaxAlpha(1);
 
         if (false) {
             MarlinUtils.logInfo("produceAlphas: bbox_spXY = [" + bbox_spminX + " ... "

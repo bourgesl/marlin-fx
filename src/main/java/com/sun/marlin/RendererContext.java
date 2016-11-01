@@ -29,7 +29,9 @@ import java.awt.geom.Path2D;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicInteger;
 import com.sun.ReentrantContext;
+import com.sun.javafx.geom.Rectangle;
 import com.sun.marlin.ArrayCacheConst.CacheStats;
+import com.sun.openpisces.AlphaConsumer;
 
 /**
  * This class is a renderer context dedicated to a single thread
@@ -52,9 +54,9 @@ public final class RendererContext extends ReentrantContext implements MarlinCon
     // Smallest object used as Cleaner's parent reference
     private final Object cleanerObj;
     // dirty flag indicating an exception occured during pipeline in pathTo()
-    boolean dirty = false;
+    public boolean dirty = false;
     // shared data
-    final float[] float6 = new float[6];
+    public final float[] float6 = new float[6];
     // shared curve (dirty) (Renderer / Stroker)
     final Curve curve = new Curve();
     // MarlinRenderingEngine.TransformingPathConsumer2D
@@ -62,6 +64,7 @@ public final class RendererContext extends ReentrantContext implements MarlinCon
     // recycled Path2D instance (weak)
     private WeakReference<Path2D.Float> refPath2D = null;
     public final Renderer renderer;
+    private RendererNoAA rendererNoAA = null;
     public final Stroker stroker;
     // Simplifies out collinear lines
     public final CollinearSimplifier simplifier = new CollinearSimplifier();
@@ -70,6 +73,12 @@ public final class RendererContext extends ReentrantContext implements MarlinCon
 //    final MarlinCache cache;
     // flag indicating the shape is stroked (1) or filled (0)
     int stroking = 0;
+
+// MarlinFX specific:
+    // dirty bbox rectangle
+    public final Rectangle clip = new Rectangle();
+    // dirty AlphaConsumer
+    public Object consumer = null;
 
     // Array caches:
     /* clean int[] cache (zero-filled) = 5 refs */
@@ -160,6 +169,13 @@ public final class RendererContext extends ReentrantContext implements MarlinCon
         // reset the path anyway:
         p2d.reset();
         return p2d;
+    }
+
+    public RendererNoAA getRendererNoAA() {
+        if (rendererNoAA == null) {
+            rendererNoAA = new RendererNoAA(this);
+        }
+        return rendererNoAA;
     }
 
     OffHeapArray newOffHeapArray(final long initialSize) {

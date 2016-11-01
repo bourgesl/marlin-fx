@@ -88,7 +88,8 @@
                                 <filter>
                                     <artifact>javafx:jfxrt:jar:local</artifact>
                                     <excludes>
-                                        <exclude>com/sun/prism/impl/shape/OpenPisces*.class</exclude>
+                                        <exclude>com/sun/prism/impl/shape/ShapeUtil*.class</exclude>
+                                        <exclude>com/sun/javafx/geom/Path2D*.class</exclude>
                                     </excludes>
                                 </filter>
                                 <filter>

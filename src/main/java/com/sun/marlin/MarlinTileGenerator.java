@@ -36,7 +36,7 @@ final class MarlinTileGenerator implements AATileGenerator, MarlinConst {
 
     private static final int TH_AA_ALPHA_00 = ((MAX_AA_ALPHA + 1) / 3); // 20%
     private static final int TH_AA_ALPHA_FF = ((MAX_AA_ALPHA + 1) * 2 / 3); // 80%
-    
+
     static {
         if (MAX_TILE_ALPHA_SUM <= 0) {
             throw new IllegalStateException("Invalid MAX_TILE_ALPHA_SUM: " + MAX_TILE_ALPHA_SUM);
@@ -328,11 +328,11 @@ final class MarlinTileGenerator implements AATileGenerator, MarlinConst {
         // avoid too small area: fill is not faster !
         final int clearTile;
         final byte refVal;
-        
+
 //        final boolean clearTile = (cache.alphaSumInTile(x) < MAX_TILE_ALPHA_SUM_TH);
         if (area > 128) { // 64 / 4 ie 16 words min (faster)
             final int alphaSum = cache.alphaSumInTile(x0);
-            
+
             if (alphaSum < area * TH_AA_ALPHA_00) {
                 clearTile = 1;
                 refVal = 0;
@@ -361,13 +361,13 @@ final class MarlinTileGenerator implements AATileGenerator, MarlinConst {
         int packed;
         byte val;
         int idx = offset;
-        
-        
+
+
         switch (clearTile) {
         case 1: // 0x00
             // Clear full tile rows:
             Arrays.fill(tile, offset, offset + (y1 * rowstride), refVal);
-            
+
             for (cy = y0; cy < y1; cy++) {
                 // empty line (default)
                 cx = x0;
@@ -498,7 +498,7 @@ final class MarlinTileGenerator implements AATileGenerator, MarlinConst {
                 idx += skipRowPixels;
             }
         break;
-                
+
         case 0:
         default:
             for (cy = y0; cy < y1; cy++) {
@@ -556,7 +556,7 @@ final class MarlinTileGenerator implements AATileGenerator, MarlinConst {
                         for (end = x0; end < cx; end++) {
                             tile[idx++] = 0;
                         }
-                        
+
                         // get row address:
                         addr_row = addr_rowAA + rowAAChunkIndex[cy];
                         // get row end address:
@@ -627,11 +627,11 @@ final class MarlinTileGenerator implements AATileGenerator, MarlinConst {
 
                 idx += skipRowPixels;
             }
-        break;                
+        break;
         case 2: // 0xFF
             // Clear full tile rows:
             Arrays.fill(tile, offset, offset + (y1 * rowstride), refVal);
-            
+
             for (cy = y0; cy < y1; cy++) {
                 // empty line (default)
                 cx = x0;
