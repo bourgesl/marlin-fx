@@ -38,7 +38,7 @@ public final class MarlinProperties {
     // marlin system properties
 
     public static boolean isMarlinEnabled() {
-        return getBoolean("sun.javafx.marlin", "false");
+        return getBoolean("sun.javafx.marlin", "true");
     }
 
     public static boolean isUseThreadLocal() {

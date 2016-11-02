@@ -946,7 +946,7 @@ public final class RendererNoAA implements MarlinRenderer, MarlinConst {
         int bucketcount, i, j, ecur;
         int cross, lastCross;
         int x0, x1, tmp, sum, prev, curx, curxo, crorientation, err;
-        int pix_x, pix_xmaxm1, pix_xmax;
+        int pix_x, pix_xmax;
 
         int low, high, mid, prevNumCrossings;
         boolean useBinarySearch;
@@ -1528,11 +1528,11 @@ public final class RendererNoAA implements MarlinRenderer, MarlinConst {
         // inclusive:
         final int pminX =  spminX;
         // exclusive:
-        final int pmaxX =  spmaxX + 1;
+        final int pmaxX =  spmaxX;
         // inclusive:
         final int pminY =  spminY;
         // exclusive:
-        final int pmaxY =  spmaxY + 1;
+        final int pmaxY =  spmaxY;
 
         // store BBox to answer ptg.getBBox():
 //        this.cache.init(pminX, pminY, pmaxX, pmaxY, edgeSumDeltaY);

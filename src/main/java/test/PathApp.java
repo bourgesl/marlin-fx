@@ -1,6 +1,5 @@
 package test;
 
-import com.sun.javafx.geom.Path2D;
 import java.util.List;
 import javafx.application.Application;
 import javafx.scene.Parent;
@@ -86,7 +85,15 @@ public class PathApp extends Application {
         pe.add(new LineTo(100, 200));
         pe.add(new ClosePath());
 
-        root.getChildren().addAll(path1, path2, path3, path4);
+// Test basic horizontal line (on pixel centers)
+        final Path path5 = new Path();
+        path5.getElements().addAll(
+                new MoveTo(9.5, 9.5),
+                new HLineTo(100));
+        path5.setStroke(Color.PINK);
+        path5.setStrokeWidth(1.0);
+        
+        root.getChildren().addAll(path1, path2, path3, path4, path5);
         return root;
     }
 
