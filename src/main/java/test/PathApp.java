@@ -92,7 +92,7 @@ public class PathApp extends Application {
                 new HLineTo(100));
         path5.setStroke(Color.PINK);
         path5.setStrokeWidth(1.0);
-        
+
         root.getChildren().addAll(path1, path2, path3, path4, path5);
         return root;
     }

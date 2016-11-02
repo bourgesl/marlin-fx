@@ -31,7 +31,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.sun.ReentrantContext;
 import com.sun.javafx.geom.Rectangle;
 import com.sun.marlin.ArrayCacheConst.CacheStats;
-import com.sun.openpisces.AlphaConsumer;
 
 /**
  * This class is a renderer context dedicated to a single thread
