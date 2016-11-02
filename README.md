@@ -33,10 +33,11 @@ mvn clean install
 The MarlinFX jar is available in the target folder like:
 target/marlinfx-0.7.5-Unsafe.jar
 
+
 Usage
 =====
 
-For testing purposes (only), MarlinFX can be used with any JavaFX application running on Oracle or Open JDK 1.8.
+For testing purposes (only), MarlinFX can be used with any JavaFX application running on Oracle or Open JDK 8 (and derived JVMs).
 
 Just put the marlinfx-x.y.jar file in the bootclasspath to let JavaFX use MarlinFX instead of OpenPisces (java rasterizer) and set the following system properties sun.javafx.marlin=true and prism.nativepisces=false:
 
@@ -46,6 +47,7 @@ For example to launch the JavaFX8 Ensemble demo:
 java -Xbootclasspath/p:/home/bourgesl/libs/marlin/branches/marlin-fx/target/marlinfx-0.7.5-Unsafe.jar -Dsun.javafx.marlin=true  -Dprism.nativepisces=false -jar Ensemble8.jar
 
 You should see MarlinFX in action and the following message will be present in the console:
+
 Marlin-FX[marlinFX-0.7.5-Unsafe-OpenJDK] enabled.
 
 Enjoy and send us your feedback !
