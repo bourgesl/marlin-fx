@@ -1528,11 +1528,11 @@ public final class RendererNoAA implements MarlinRenderer, MarlinConst {
         // inclusive:
         final int pminX =  spminX;
         // exclusive:
-        final int pmaxX =  spmaxX;
+        final int pmaxX =  spmaxX + 1; // +1 to ensure proper upper bound
         // inclusive:
         final int pminY =  spminY;
         // exclusive:
-        final int pmaxY =  spmaxY;
+        final int pmaxY =  spmaxY + 1; // +1 to ensure proper upper bound
 
         // store BBox to answer ptg.getBBox():
 //        this.cache.init(pminX, pminY, pmaxX, pmaxY, edgeSumDeltaY);
@@ -1562,9 +1562,9 @@ public final class RendererNoAA implements MarlinRenderer, MarlinConst {
         // exclusive:
         bbox_spmaxX = pmaxX;
         // inclusive:
-        bbox_spminY = spminY;
+        bbox_spminY = pminY;
         // exclusive:
-        bbox_spmaxY = FloatMath.min(spmaxY + 1, pmaxY);
+        bbox_spmaxY = pmaxY;
 
         if (DO_LOG_BOUNDS) {
             MarlinUtils.logInfo("pXY       = [" + pminX + " ... " + pmaxX
