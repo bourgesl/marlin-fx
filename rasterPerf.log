@@ -1,0 +1,56 @@
+--------------
+Native Pisces:
+--------------
+1228697 10x10 Rectangle native non-AA rasterizations took 5290.89ms, 232228.79326540523 ops/sec
+140716 100x100 Rectangle native non-AA rasterizations took 6448.01ms, 21823.167147693628 ops/sec
+905292 10x10 Ellipse native non-AA rasterizations took 6311.08ms, 143444.8620521369 ops/sec
+118440 100x100 Ellipse native non-AA rasterizations took 6759.62ms, 17521.695006524034 ops/sec
+85947 100x100 Cubics native non-AA rasterizations took 7899.51ms, 10880.041926651147 ops/sec
+148795 100x100 Quads native non-AA rasterizations took 6772.72ms, 21969.75513530753 ops/sec
+
+574770 10x10 Rectangle native AA rasterizations took 2482.51ms, 231527.76826679448 ops/sec
+57579 100x100 Rectangle native AA rasterizations took 2497.39ms, 23055.670119604867 ops/sec
+360825 10x10 Ellipse native AA rasterizations took 2490.84ms, 144860.76986076985 ops/sec
+43729 100x100 Ellipse native AA rasterizations took 2498.89ms, 17499.36972015575 ops/sec
+27364 100x100 Cubics native AA rasterizations took 2497.62ms, 10956.030140693942 ops/sec
+54946 100x100 Quads native AA rasterizations took 2499.65ms, 21981.477406836955 ops/sec
+
+--------------
+Open Pisces:
+--------------
+1714159 10x10 Rectangle Java non-AA rasterizations took 8491.07ms, 201877.8552055277 ops/sec
+111796 100x100 Rectangle Java non-AA rasterizations took 6669.15ms, 16763.155724492626 ops/sec
+1043686 10x10 Ellipse Java non-AA rasterizations took 7728.42ms, 135045.19681901345 ops/sec
+99690 100x100 Ellipse Java non-AA rasterizations took 7174.44ms, 13895.16115543513 ops/sec
+74519 100x100 Cubics Java non-AA rasterizations took 7917.37ms, 9412.090125887764 ops/sec
+128738 100x100 Quads Java non-AA rasterizations took 7561.9ms, 17024.557320250202 ops/sec
+
+494692 10x10 Rectangle Java AA rasterizations took 2474.1ms, 199948.26401519746 ops/sec
+41681 100x100 Rectangle Java AA rasterizations took 2503.33ms, 16650.22190442331 ops/sec
+325037 10x10 Ellipse Java AA rasterizations took 2478.15ms, 131161.14843734237 ops/sec
+34328 100x100 Ellipse Java AA rasterizations took 2501.93ms, 13720.607690862655 ops/sec
+23519 100x100 Cubics Java AA rasterizations took 2499.45ms, 9409.670127428035 ops/sec
+42646 100x100 Quads Java AA rasterizations took 2494.9ms, 17093.270271353562 ops/sec
+
+--------------
+Marlin:
+--------------
+
+2096722 10x10 Rectangle Marlin non-AA rasterizations took 5948.66ms, 352469.63181624096 ops/sec
+146539 100x100 Rectangle Marlin non-AA rasterizations took 4842.45ms, 30261.33465497837 ops/sec
+32921 300x300 Rectangle Marlin non-AA rasterizations took 4427.83ms, 7435.0189596258215 ops/sec
+1324006 10x10 Ellipse Marlin non-AA rasterizations took 5276.7ms, 250915.53433016848 ops/sec
+88526 100x100 Ellipse Marlin non-AA rasterizations took 4015.3ms, 22047.169576370383 ops/sec
+32493 300x300 Ellipse Marlin non-AA rasterizations took 4883.55ms, 6653.561446079184 ops/sec
+84713 100x100 Cubics Marlin non-AA rasterizations took 5090.13ms, 16642.600483681163 ops/sec
+166992 100x100 Quads Marlin non-AA rasterizations took 6500.0ms, 25691.076923076922 ops/sec
+
+770788 10x10 Rectangle Marlin AA rasterizations took 2473.47ms, 311622.13408693054 ops/sec
+72479 100x100 Rectangle Marlin AA rasterizations took 2495.7ms, 29041.551468525868 ops/sec
+20650 300x300 Rectangle Marlin AA rasterizations took 2499.85ms, 8260.495629737785 ops/sec
+636831 10x10 Ellipse Marlin AA rasterizations took 2476.56ms, 257143.37629615274 ops/sec
+57208 100x100 Ellipse Marlin AA rasterizations took 2482.24ms, 23046.9253577414 ops/sec
+16508 300x300 Ellipse Marlin AA rasterizations took 2497.73ms, 6609.201154648421 ops/sec
+44000 100x100 Cubics Marlin AA rasterizations took 2496.32ms, 17625.945391616457 ops/sec
+66399 100x100 Quads Marlin AA rasterizations took 2498.7ms, 26573.418177452277 ops/sec
+
