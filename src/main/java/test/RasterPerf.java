@@ -16,7 +16,7 @@ public class RasterPerf {
     static final int PRIME_CALLS = 5;
     static final long warmupns = 1000l * 1000l * 500l;
     static final long targetns = 1000l * 1000l * 2500l;
-    
+
     static String allresults = "";
     static final Path2D cubics, quads;
     static {
