@@ -26,6 +26,7 @@
 package com.sun.javafx.geom;
 
 import com.sun.javafx.geom.transform.BaseTransform;
+import java.util.Arrays;
 
 /**
  * The {@code Path2D} class provides a simple, yet flexible
@@ -177,10 +178,10 @@ import com.sun.javafx.geom.transform.BaseTransform;
             Path2D p2d = (Path2D) s;
             setWindingRule(p2d.windingRule);
             this.numTypes = p2d.numTypes;
-            this.pointTypes = copyOf(p2d.pointTypes, p2d.numTypes);
+            this.pointTypes = Arrays.copyOf(p2d.pointTypes, numTypes);
             this.numCoords = p2d.numCoords;
             if (tx == null || tx.isIdentity()) {
-                this.floatCoords = copyOf(p2d.floatCoords, numCoords);
+                this.floatCoords = Arrays.copyOf(p2d.floatCoords, numCoords);
                 this.moveX = p2d.moveX;
                 this.moveY = p2d.moveY;
                 this.prevX = p2d.prevX;
@@ -377,8 +378,7 @@ import com.sun.javafx.geom.transform.BaseTransform;
         while (true) {
             try {
                 // try allocating the larger array
-                // return Arrays.copyOf(oldPointTypes, newSize); // jk16 dependency
-                return copyOf(oldPointTypes, newSize);
+                return Arrays.copyOf(oldPointTypes, newSize);
             } catch (OutOfMemoryError oome) {
                 if (newSize == newSizeMin) {
                     throw oome;
@@ -414,8 +414,7 @@ import com.sun.javafx.geom.transform.BaseTransform;
         while (true) {
             try {
                 // try allocating the larger array
-                // return Arrays.copyOf(oldCoords, newSize); // jk16 dependency
-                return copyOf(oldCoords, newSize);
+                return Arrays.copyOf(oldCoords, newSize);
             } catch (OutOfMemoryError oome) {
                 if (newSize == newSizeMin) {
                     throw oome;
@@ -2348,20 +2347,6 @@ import com.sun.javafx.geom.transform.BaseTransform;
             int type = path.pointTypes[typeIdx++];
             pointIdx += curvecoords[type];
         }
-    }
-
-    // jk16 dependency methods
-    static byte[] copyOf(byte[] original, int newLength) {
-        byte[] copy = new byte[newLength];
-        System.arraycopy(original, 0, copy, 0,
-                         Math.min(original.length, newLength));
-        return copy;
-    }
-    static float[] copyOf(float[] original, int newLength) {
-        float[] copy = new float[newLength];
-        System.arraycopy(original, 0, copy, 0,
-                         Math.min(original.length, newLength));
-        return copy;
     }
 
     public void setTo(Path2D otherPath) {

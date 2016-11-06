@@ -20,55 +20,53 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+package test.com.sun.javafx.geom;
 
 import com.sun.javafx.geom.Path2D;
+import org.junit.Test;
 
 /**
  * @test
- * @bug TODO
- * @summary Check the growth algorithm (needRoom) in Path2D implementations
- * @run main Path2DGrow
+ * @bug 8169294
+ * @summary Check the growth algorithm (needRoom) in JavaFX Path2D
  */
-public class Path2DGrow {
+/*
+Before Patch:
+ - Test(Path2D[0]) ---
+testAddMoves[1000000] duration= 16.319813 ms.
+testAddLines[1000000] duration= 1685.904265 ms.
+testAddQuads[1000000] duration= 6435.015055999999 ms.
+testAddCubics[1000000] duration= 14643.259248999999 ms.
+testAddMoveAndCloses[1000000] duration= 2269.6810179999998 ms.
+
+ - Test(Path2D) ---
+testAddMoves[1000000] duration= 4.645376 ms.
+testAddLines[1000000] duration= 1673.896613 ms.
+testAddQuads[1000000] duration= 6448.857066 ms.
+testAddCubics[1000000] duration= 14679.410602999998 ms.
+testAddMoveAndCloses[1000000] duration= 2278.352159 ms.
+
+After patch:
+ - Test(Path2D[0]) ---
+testAddMoves[1000000] duration= 15.889125 ms.
+testAddLines[1000000] duration= 37.788070999999995 ms.
+testAddQuads[1000000] duration= 57.228248 ms.
+testAddCubics[1000000] duration= 62.25714 ms.
+testAddMoveAndCloses[1000000] duration= 41.76611 ms.
+
+ - Test(Path2D) ---
+testAddMoves[1000000] duration= 15.857171999999998 ms.
+testAddLines[1000000] duration= 28.228354999999997 ms.
+testAddQuads[1000000] duration= 38.190948 ms.
+testAddCubics[1000000] duration= 52.453748999999995 ms.
+testAddMoveAndCloses[1000000] duration= 26.837844 ms.
+ */
+public class Path2DGrowTest {
 
     public static final int N = 1000 * 1000;
 
-/*
-Before Patch:
-
- - Test(Path2D.Float[0]) ---
-testAddMoves[1000000] duration= 9.520323 ms.
-testAddLines[1000000] duration= 1360.9874399999999 ms.
-testAddQuads[1000000] duration= 5116.442005 ms.
-testAddCubics[1000000] duration= 11474.929682 ms.
-testAddMoveAndCloses[1000000] duration= 1832.645204 ms.
-
- - Test(Path2D.Float) ---
-testAddMoves[1000000] duration= 3.0425579999999997 ms.
-testAddLines[1000000] duration= 1329.174734 ms.
-testAddQuads[1000000] duration= 5106.395085 ms.
-testAddCubics[1000000] duration= 11663.637824 ms.
-testAddMoveAndCloses[1000000] duration= 1791.3164199999999 ms.
-
-After patch:
-
- - Test(Path2D.Float[0]) ---
-testAddMoves[1000000] duration= 6.104508999999999 ms.
-testAddLines[1000000] duration= 24.262044 ms.
-testAddQuads[1000000] duration= 48.584481 ms.
-testAddCubics[1000000] duration= 67.556625 ms.
-testAddMoveAndCloses[1000000] duration= 27.428037999999997 ms.
-
- - Test(Path2D.Float) ---
-testAddMoves[1000000] duration= 4.898639 ms.
-testAddLines[1000000] duration= 24.943267 ms.
-testAddQuads[1000000] duration= 39.569337 ms.
-testAddCubics[1000000] duration= 56.441154999999995 ms.
-testAddMoveAndCloses[1000000] duration= 23.394513999999997 ms.
-*/
-
-    public static boolean verbose = true;
-    public static boolean force = false;
+    private static boolean verbose = false;
+    private static boolean force = false;
 
     static void echo(String msg) {
         System.out.println(msg);
@@ -80,20 +78,15 @@ testAddMoveAndCloses[1000000] duration= 23.394513999999997 ms.
         }
     }
 
-    public static void main(String argv[]) {
-        verbose = (argv.length != 0);
-
-        testEmptyFloatPaths();
-        testFloatPaths();
-    }
-
-    static void testEmptyFloatPaths() {
-        echo("\n - Test(Path2D.Float[0]) ---");
+    @Test
+    public void testEmptyFloatPaths() {
+        echo("\n - Test: new Path2D(0) ---");
         test(() -> new Path2D(Path2D.WIND_NON_ZERO, 0));
     }
 
-    static void testFloatPaths() {
-        echo("\n - Test(Path2D.Float) ---");
+    @Test
+    public void testFloatPaths() {
+        echo("\n - Test: new Path2D() ---");
         test(() -> new Path2D());
     }
 
