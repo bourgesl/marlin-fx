@@ -25,20 +25,17 @@
 
 package com.sun.marlin;
 
-import java.lang.ref.PhantomReference;
-import java.lang.ref.ReferenceQueue;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import com.sun.marlin.ArrayCacheConst.CacheStats;
 import static com.sun.marlin.MarlinUtils.logInfo;
 import com.sun.marlin.stats.Histogram;
 import com.sun.marlin.stats.Monitor;
 import com.sun.marlin.stats.StatLong;
-//import sun.awt.util.ThreadGroupUtils;
+import sun.awt.util.ThreadGroupUtils;
 
 /**
  * This class gathers global rendering statistics for debugging purposes only
@@ -334,13 +331,10 @@ public final class RendererStats implements MarlinConst {
             = new ConcurrentLinkedQueue<RendererStats>();
 
         private RendererStatsHolder() {
-            AccessController.doPrivileged(new PrivilegedAction<Void>() {
-
-                @Override
-                public Void run() {
+            AccessController.doPrivileged(
+                (PrivilegedAction<Void>) () -> {
                     final Thread hook = new Thread(
-//                        ThreadGroupUtils.getRootThreadGroup(),
-                        MarlinUtils.getRootThreadGroup(),
+                        ThreadGroupUtils.getRootThreadGroup(),
                         new Runnable() {
                             @Override
                             public void run() {
@@ -363,37 +357,14 @@ public final class RendererStats implements MarlinConst {
                     }
                     return null;
                 }
-            });
-
-            // Mimics Java2D Disposer:
-            AccessController.doPrivileged(new PrivilegedAction<Void>() {
-
-                @Override
-                public Void run() {
-                    /*
-                     * The thread must be a member of a thread group
-                     * which will not get GCed before VM exit.
-                     * Make its parent the top-level thread group.
-                     */
-                    final ThreadGroup rootTG
-//                        = ThreadGroupUtils.getRootThreadGroup();
-                        = MarlinUtils.getRootThreadGroup();
-                    final Thread t = new Thread(rootTG, new RendererStatsDisposer(),
-                        "MarlinRenderer Disposer");
-                    t.setContextClassLoader(null);
-                    t.setDaemon(true);
-                    t.setPriority(Thread.MAX_PRIORITY - 2);
-                    t.start();
-                    return null;
-                }
-            });
+            );
         }
 
         void add(final Object parent, final RendererStats stats) {
             allStats.add(stats);
 
-            // Create the phantom reference to ensure removing dead entries:
-            REF_LIST.add(new RendererStatsReference(parent, stats));
+            // Register a cleaning function to ensure removing dead entries:
+            MarlinUtils.getCleaner().register(parent, () -> remove(stats));
         }
 
         void remove(final RendererStats stats) {
@@ -404,53 +375,6 @@ public final class RendererStats implements MarlinConst {
         void dump() {
             for (RendererStats stats : allStats) {
                 stats.dump();
-            }
-        }
-
-
-        // Custom disposer (replaced by jdk9 Cleaner)
-
-        // Parent reference queue
-        private static final ReferenceQueue<Object> REF_QUEUE
-            = new ReferenceQueue<Object>();
-        // reference list
-        private static final Vector<RendererStatsReference> REF_LIST
-            = new Vector<RendererStatsReference>(32);
-
-        static final class RendererStatsReference extends PhantomReference<Object> {
-
-            private final RendererStats stats;
-
-            RendererStatsReference(final Object parent, final RendererStats stats) {
-                super(parent, REF_QUEUE);
-                this.stats = stats;
-            }
-
-            void dispose() {
-                // remove stats from allRdrStats
-                RendererStatsHolder.getInstance().remove(this.stats);
-            }
-        }
-
-        static final class RendererStatsDisposer implements Runnable {
-            @Override
-            public void run() {
-                final Thread currentThread = Thread.currentThread();
-                RendererStatsReference ref;
-
-                // check interrupted:
-                for (; !currentThread.isInterrupted();) {
-                    try {
-                        ref = (RendererStatsReference)REF_QUEUE.remove();
-                        ref.dispose();
-
-                        REF_LIST.remove(ref);
-
-                    } catch (InterruptedException ie) {
-                        MarlinUtils.logException("RendererStatsDisposer interrupted:",
-                                                 ie);
-                    }
-                }
             }
         }
     }

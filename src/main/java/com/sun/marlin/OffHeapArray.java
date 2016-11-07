@@ -25,16 +25,8 @@
 
 package com.sun.marlin;
 
-import java.lang.ref.PhantomReference;
-import java.lang.ref.ReferenceQueue;
-import java.lang.reflect.Field;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.Vector;
 import static com.sun.marlin.MarlinConst.LOG_UNSAFE_MALLOC;
-//import sun.awt.util.ThreadGroupUtils;
-//import jdk.internal.misc.Unsafe;
-import sun.misc.Unsafe;
+import jdk.internal.misc.Unsafe;
 
 /**
  *
@@ -48,38 +40,8 @@ public final class OffHeapArray  {
     static final int SIZE_INT;
 
     static {
-        Unsafe ref = null;
-        try {
-            final Field field = Unsafe.class.getDeclaredField("theUnsafe");
-            field.setAccessible(true);
-            ref = (Unsafe) field.get(null);
-        } catch (Exception e) {
-            MarlinUtils.logInfo("Unable to get sun.misc.Unsafe; exit now.");
-            System.exit(1);
-        }
-        UNSAFE   = ref;
+        UNSAFE   = Unsafe.getUnsafe();
         SIZE_INT = Unsafe.ARRAY_INT_INDEX_SCALE;
-
-        // Mimics Java2D Disposer:
-        AccessController.doPrivileged(
-            (PrivilegedAction<Void>) () -> {
-                /*
-                 * The thread must be a member of a thread group
-                 * which will not get GCed before VM exit.
-                 * Make its parent the top-level thread group.
-                 */
-                final ThreadGroup rootTG
-//                    = ThreadGroupUtils.getRootThreadGroup();
-                    = MarlinUtils.getRootThreadGroup();
-                final Thread t = new Thread(rootTG, new OffHeapDisposer(),
-                    "MarlinRenderer Disposer");
-                t.setContextClassLoader(null);
-                t.setDaemon(true);
-                t.setPriority(Thread.MAX_PRIORITY - 2);
-                t.start();
-                return null;
-            }
-        );
     }
 
     /* members */
@@ -98,8 +60,8 @@ public final class OffHeapArray  {
                                 + len + " to addr = " + this.address);
         }
 
-        // Create the phantom reference to ensure freeing off-heap memory:
-        REF_LIST.add(new OffHeapReference(parent, this));
+        // Register a cleaning function to ensure freeing off-heap memory:
+        MarlinUtils.getCleaner().register(parent, () -> this.free());
     }
 
     /*
@@ -130,51 +92,5 @@ public final class OffHeapArray  {
 
     void fill(final byte val) {
         UNSAFE.setMemory(this.address, this.length, val);
-    }
-
-    // Custom disposer (replaced by jdk9 Cleaner)
-
-    // Parent reference queue
-    private static final ReferenceQueue<Object> REF_QUEUE
-        = new ReferenceQueue<Object>();
-    // reference list
-    private static final Vector<OffHeapReference> REF_LIST
-        = new Vector<OffHeapReference>(32);
-
-    static final class OffHeapReference extends PhantomReference<Object> {
-
-        private final OffHeapArray array;
-
-        OffHeapReference(final Object parent, final OffHeapArray edges) {
-            super(parent, REF_QUEUE);
-            this.array = edges;
-        }
-
-        void dispose() {
-            // free off-heap blocks
-            this.array.free();
-        }
-    }
-
-    static final class OffHeapDisposer implements Runnable {
-        @Override
-        public void run() {
-            final Thread currentThread = Thread.currentThread();
-            OffHeapReference ref;
-
-            // check interrupted:
-            for (; !currentThread.isInterrupted();) {
-                try {
-                    ref = (OffHeapReference)REF_QUEUE.remove();
-                    ref.dispose();
-
-                    REF_LIST.remove(ref);
-
-                } catch (InterruptedException ie) {
-                    MarlinUtils.logException("OffHeapDisposer interrupted:",
-                                             ie);
-                }
-            }
-        }
     }
 }

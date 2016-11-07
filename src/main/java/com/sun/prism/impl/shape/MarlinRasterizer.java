@@ -43,18 +43,11 @@ import com.sun.prism.BasicStroke;
 import com.sun.prism.impl.PrismSettings;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import sun.misc.Unsafe;
+import jdk.internal.misc.Unsafe;
 
-/*
-Thread-safe Marlin rasterizer (TL or CLQ storage)
-
-TODO:
-- check and validate rendering pipeline (transformer delta/invDelta in Marlin vs OpenPisces)
-- fix SWContext.JavaShapeRenderer to use marlin ?
-    final Renderer r = OpenPiscesPrismUtils.setupRenderer(shape, stroke, tr, clip, antialiasedShape);
-    alphaConsumer.initConsumer(r, pr);
-    r.produceAlphas(alphaConsumer);
-*/
+/**
+ * Thread-safe Marlin rasterizer (TL or CLQ storage)
+ */
 public final class MarlinRasterizer implements ShapeRasterizer {
     private static final MaskData EMPTY_MASK = MaskData.create(new byte[1], 0, 0, 1, 1);
 
@@ -141,11 +134,8 @@ public final class MarlinRasterizer implements ShapeRasterizer {
     }
 
     private static final class Consumer implements MarlinAlphaConsumer {
-//        static byte savedAlphaMap[];
         int x, y, width, height;
-        // Try using direct Byte Buffer or unsafe ?
         final byte alphas[];
-//        byte alphaMap[];
         final ByteBuffer alphabuffer;
         final MaskData maskdata = new MaskData();
 
@@ -167,7 +157,6 @@ public final class MarlinRasterizer implements ShapeRasterizer {
             useFastFill = (w >= 32);
             if (useFastFill) {
                 fastFillThreshold = (w >= 128) ? (w >> 1) : (w >> 2);
-//                fastFillThreshold = (w >> 2);
             }
         }
 
@@ -197,7 +186,6 @@ public final class MarlinRasterizer implements ShapeRasterizer {
 
         public int getAlphaLength() {
             return alphas.length;
-//            return alphabuffer.capacity();
         }
 
         public MaskData getMaskData() {
@@ -209,21 +197,6 @@ public final class MarlinRasterizer implements ShapeRasterizer {
         @Override
         public void setMaxAlpha(int maxalpha) {
             ALPHA_MAP_USED = (maxalpha == 1) ? ALPHA_MAP_UNSAFE_NO_AA : ALPHA_MAP_UNSAFE;
-
-            // TODO: handle AA or nonAA
-
-/*
-            byte map[] = savedAlphaMap;
-            if (map == null || map.length != maxalpha+1) {
-                // System.out.println("setMaxAlpha: recompute for maxalpha= "+maxalpha);
-                map = new byte[maxalpha + 1];
-                for (int i = 0; i <= maxalpha; i++) {
-                    map[i] = (byte) ((i*255 + maxalpha/2)/maxalpha);
-                }
-                savedAlphaMap = map;
-            }
-            this.alphaMap = map;
-*/
         }
 
         // The alpha map used by this object (taken out of our map cache) to convert
@@ -262,7 +235,6 @@ public final class MarlinRasterizer implements ShapeRasterizer {
         }
 
         private static byte[] buildAlphaMap(final int maxalpha) {
-            // double size !
             final byte[] alMap = new byte[maxalpha << 1];
             final int halfmaxalpha = maxalpha >> 2;
             for (int i = 0; i <= maxalpha; i++) {
@@ -296,20 +268,16 @@ public final class MarlinRasterizer implements ShapeRasterizer {
             final Unsafe _unsafe = OffHeapArray.UNSAFE;
             final long addr_alpha = ALPHA_MAP_USED.address;
 
-//                final byte map[] = this.alphaMap;
             final int from = pix_from - x;
 
             // skip useless pixels above boundary
             final int to = pix_to - x;
             final int ato = Math.min(to, width);
-//                int to = pix_to - x;
 
             // fast fill ?
             final boolean fast = useFastFill && ((ato - from) < fastFillThreshold);
 
             if (fast) {
-                // System.out.println("dist: "+ (ato - from) + " << " + w);
-
                 // Zero-fill complete row:
                 Arrays.fill(out, off, off + w, (byte) 0);
 
@@ -318,20 +286,14 @@ public final class MarlinRasterizer implements ShapeRasterizer {
 
                 while (i < ato) {
                     curAlpha += alphaDeltas[i];
-//                    alphaDeltas[i] = 0;
 
-//                        if (curAlpha != 0) {
-                        // TODO: use Unsafe like MarlinCache
-                        out[off + i] = _unsafe.getByte(addr_alpha + curAlpha); // [0..255]
-//                            out[off + i] = map[curAlpha];
-//                        }
+                    out[off + i] = _unsafe.getByte(addr_alpha + curAlpha); // [0..255]
                     i++;
                 }
-//                alphaDeltas[i] = 0;
 
             } else {
                 int i = 0;
-// TODO: find the most efficient byte fill:
+
                 while (i < from) {
                     out[off + i] = 0;
                     i++;
@@ -341,16 +303,11 @@ public final class MarlinRasterizer implements ShapeRasterizer {
 
                 while (i < ato) {
                     curAlpha += alphaDeltas[i];
-//                    alphaDeltas[i] = 0;
 
-                    // TODO: use Unsafe like MarlinCache
                     out[off + i] = _unsafe.getByte(addr_alpha + curAlpha); // [0..255]
-//                        out[off + i] = map[curAlpha];
                     i++;
                 }
-//                alphaDeltas[i] = 0;
 
-// TODO: find the most efficient byte fill:
                 while (i < w) {
                     out[off + i] = 0;
                     i++;
@@ -375,15 +332,11 @@ public final class MarlinRasterizer implements ShapeRasterizer {
             final Unsafe _unsafe = OffHeapArray.UNSAFE;
             final long addr_alpha = ALPHA_MAP_USED.address;
 
-//                final byte map[] = this.alphaMap;
             final int from = pix_from - x;
 
             // skip useless pixels above boundary
             final int to = pix_to - x;
             final int ato = Math.min(to, width);
-//                int to = pix_to - x;
-
-//            System.out.println("row = [" + pix_from + " ... " + pix_to + "] [ for y=" + y);
 
             // fast fill ?
             final boolean fast = useFastFill && ((ato - from) < fastFillThreshold);
@@ -395,15 +348,14 @@ public final class MarlinRasterizer implements ShapeRasterizer {
             final int blkE = (ato   >> _BLK_SIZE_LG) + 1;
 
             // Perform run-length encoding and store results in the piscesCache
-            int i, curAlpha = 0;
+            int curAlpha = 0;
 
             final int _MAX_VALUE = Integer.MAX_VALUE;
             int last_t0 = _MAX_VALUE;
             byte val;
 
             if (fast) {
-                // System.out.println("dist: "+ (ato - from) + " << " + w);
-                i = from;
+                int i = from;
 
                 // Zero-fill complete row:
                 Arrays.fill(out, off, off + w, (byte) 0);
@@ -437,7 +389,6 @@ public final class MarlinRasterizer implements ShapeRasterizer {
                                     } else {
                                         val = _unsafe.getByte(addr_alpha + curAlpha);
 
-// TODO: find the most efficient byte fill:
                                         do {
                                             out[off + i] = val;
                                             i++;
@@ -461,8 +412,8 @@ public final class MarlinRasterizer implements ShapeRasterizer {
                 } while (i < ato);
 
             } else {
-                i = 0;
-// TODO: find the most efficient byte fill:
+                int i = 0;
+
                 while (i < from) {
                     out[off + i] = 0;
                     i++;
@@ -493,9 +444,6 @@ public final class MarlinRasterizer implements ShapeRasterizer {
                                 if (cx != i) {
                                     val = _unsafe.getByte(addr_alpha + curAlpha);
 
-//                                    System.out.println("runLen = [" + i + " ... " + cx + "] [ for y=" + pix_y);
-
-// TODO: find the most efficient byte fill:
                                     do {
                                         out[off + i] = val;
                                         i++;
@@ -512,14 +460,11 @@ public final class MarlinRasterizer implements ShapeRasterizer {
                 // Process remaining span:
                 val = _unsafe.getByte(addr_alpha + curAlpha);
 
-//                System.out.println("runLen = [" + i + " ... " + ato + "] [ for y=" + pix_y);
-
                 do {
                     out[off + i] = val;
                     i++;
                 } while (i < ato);
 
-// TODO: find the most efficient byte fill:
                 while (i < w) {
                     out[off + i] = 0;
                     i++;

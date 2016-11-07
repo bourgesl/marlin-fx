@@ -27,7 +27,7 @@ package com.sun.marlin;
 
 import java.security.AccessController;
 import static com.sun.marlin.MarlinUtils.logInfo;
-import sun.security.action.GetPropertyAction;
+import java.security.PrivilegedAction;
 
 public final class MarlinProperties {
 
@@ -142,10 +142,6 @@ public final class MarlinProperties {
         return getBoolean("sun.java2d.renderer.useSimplifier", "false");
     }
 
-    public static boolean isDoClipCurves() {
-        return getBoolean("sun.java2d.renderer.clip.curves", "false");
-    }
-
     // debugging parameters
 
     public static boolean isDoStats() {
@@ -163,7 +159,7 @@ public final class MarlinProperties {
     // logging parameters
 
     public static boolean isLoggingEnabled() {
-        return getBoolean("sun.java2d.renderer.log", "true");
+        return getBoolean("sun.java2d.renderer.log", "false");
     }
 
     public static boolean isUseLogger() {
@@ -181,14 +177,17 @@ public final class MarlinProperties {
     // system property utilities
     static boolean getBoolean(final String key, final String def) {
         return Boolean.valueOf(AccessController.doPrivileged(
-                  new GetPropertyAction(key, def)));
+            (PrivilegedAction<String>) () -> {
+                String value = System.getProperty(key);
+                return (value == null) ? def : value;
+            }));
     }
 
     static int getInteger(final String key, final int def,
                                  final int min, final int max)
     {
         final String property = AccessController.doPrivileged(
-                                    new GetPropertyAction(key));
+                    (PrivilegedAction<String>) () -> System.getProperty(key));
 
         int value = def;
         if (property != null) {

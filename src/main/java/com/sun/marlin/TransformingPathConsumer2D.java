@@ -48,7 +48,7 @@ public final class TransformingPathConsumer2D {
     private final DeltaTransformFilter dt_DeltaTransformFilter = new DeltaTransformFilter();
 
     public PathConsumer2D deltaTransformConsumer(PathConsumer2D out,
-                                          BaseTransform at)
+                                                 BaseTransform at)
     {
         if (at == null) {
             return out;
@@ -74,7 +74,7 @@ public final class TransformingPathConsumer2D {
     private final DeltaTransformFilter iv_DeltaTransformFilter = new DeltaTransformFilter();
 
     public PathConsumer2D inverseDeltaTransformConsumer(PathConsumer2D out,
-                                                 BaseTransform at)
+                                                        BaseTransform at)
     {
         if (at == null) {
             return out;

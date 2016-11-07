@@ -68,8 +68,6 @@ public final class RendererContext extends ReentrantContext implements MarlinCon
     // Simplifies out collinear lines
     public final CollinearSimplifier simplifier = new CollinearSimplifier();
     public final Dasher dasher;
-//    final MarlinTileGenerator ptg;
-//    final MarlinCache cache;
     // flag indicating the shape is stroked (1) or filled (0)
     int stroking = 0;
 
@@ -118,9 +116,7 @@ public final class RendererContext extends ReentrantContext implements MarlinCon
         transformerPC2D = new TransformingPathConsumer2D();
 
         // Renderer:
-//        cache = new MarlinCache(this);
-        renderer = new Renderer(this); // needs MarlinCache from rdrCtx.cache
-//        ptg = new MarlinTileGenerator(renderer);
+        renderer = new Renderer(this);
 
         stroker = new Stroker(this);
         dasher = new Dasher(this);
