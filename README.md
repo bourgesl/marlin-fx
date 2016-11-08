@@ -24,6 +24,8 @@ Needs Maven + Oracle or Open JDK 1.8 (with JavaFX)
 
 The MarlinFX build produces a (big) JavaFX jar file patched with MarlinFX classes (com.sun.marlin + hacked ShapeUtil using the MarlinRasterizer) to be placed in the boot classpath as JavaFX 8 lies in the extension classpath (and can not be patched easily). Of course, such (complete) JavaFX jar depends on your JDK version and your platform (win, mac, linux ...) so the MarlinFX jar can not be distributed (license issue) nor shared across platforms (binary incompatiblity).
 
+Note: it does not modify the SW pipeline which still uses OpenPisces (for compatiblity issue).
+
 First time, import your local jfxrt.jar (from ${java.home}/lib/ext/jfxrt.jar) to your local maven repository or when you get the error 'Could not find artifact javafx:jfxrt:jar:local in central (https://repo.maven.apache.org/maven2)' :
 mvn process-resources
 
@@ -39,18 +41,53 @@ Usage
 
 For testing purposes (only), MarlinFX can be used with any JavaFX application running on Oracle or Open JDK 8 (and derived JVMs).
 
-Just put the marlinfx-x.y.jar file in the bootclasspath to let JavaFX use MarlinFX instead of OpenPisces (java rasterizer) and set the following system properties sun.javafx.marlin=true and prism.nativepisces=false:
+Just put the marlinfx-x.y.jar file in the bootclasspath to let JavaFX use MarlinFX instead of OpenPisces (java rasterizer) and set the following system property prism.marlin=[true|false] (true by default):
 
-java -Xbootclasspath/p:[absolute or relative path]/marlinfx-0.7.5-Unsafe.jar -Dsun.javafx.marlin=true -Dprism.nativepisces=false ...
+java -Xbootclasspath/p:[absolute or relative path]/marlinfx-0.7.5-Unsafe.jar -Dprism.marlin=true ...
 
 For example to launch the JavaFX8 Ensemble demo:
-java -Xbootclasspath/p:/home/bourgesl/libs/marlin/branches/marlin-fx/target/marlinfx-0.7.5-Unsafe.jar -Dsun.javafx.marlin=true  -Dprism.nativepisces=false -jar Ensemble8.jar
+java -Xbootclasspath/p:/home/bourgesl/libs/marlin/branches/marlin-fx/target/marlinfx-0.7.5-Unsafe.jar -Dprism.marlin=true -jar Ensemble8.jar
 
 You should see MarlinFX in action and the following message will be present in the console:
-
+```
 Marlin-FX[marlinFX-0.7.5-Unsafe-OpenJDK] enabled.
+INFO: ===============================================================================
+INFO: Marlin software rasterizer    = ENABLED
+INFO: Version                       = [marlinFX-0.7.5-Unsafe-OpenJDK]
+INFO: prism.marlin                  = com.sun.marlin.Renderer
+INFO: prism.marlin.useThreadLocal   = false
+INFO: prism.marlin.useRef           = hard
+INFO: prism.marlin.edges            = 4096
+INFO: prism.marlin.pixelsize        = 2048
+INFO: prism.marlin.subPixel_log2_X  = 3
+INFO: prism.marlin.subPixel_log2_Y  = 3
+INFO: prism.marlin.blockSize_log2   = 5
+INFO: prism.marlin.forceRLE         = false
+INFO: prism.marlin.forceNoRLE       = false
+INFO: prism.marlin.useTileFlags     = true
+INFO: prism.marlin.useTileFlags.useHeuristics = true
+INFO: prism.marlin.rleMinWidth      = 64
+INFO: prism.marlin.useSimplifier    = false
+INFO: prism.marlin.doStats          = false
+INFO: prism.marlin.doMonitors       = false
+INFO: prism.marlin.doChecks         = false
+INFO: prism.marlin.log              = true
+INFO: prism.marlin.useLogger        = false
+INFO: prism.marlin.logCreateContext = false
+INFO: prism.marlin.logUnsafeMalloc  = false
+INFO: Renderer settings:
+INFO: CUB_COUNT_LG = 2
+INFO: CUB_DEC_BND  = 8.0
+INFO: CUB_INC_BND  = 3.2
+INFO: QUAD_DEC_BND = 8.0
+INFO: INITIAL_EDGES_CAPACITY        = 98304
+INFO: INITIAL_CROSSING_COUNT        = 1024
+INFO: ===============================================================================
+```
 
 Enjoy and send us your feedback !
+
+Note: Marlin system properties have been renamed to use the prefix 'prism.marlin' like prism.marlin.log=true|false.
 
 
 Getting in touch
