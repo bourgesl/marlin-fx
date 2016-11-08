@@ -339,7 +339,6 @@ public final class RendererStats implements MarlinConst {
                 @Override
                 public Void run() {
                     final Thread hook = new Thread(
-//                        ThreadGroupUtils.getRootThreadGroup(),
                         MarlinUtils.getRootThreadGroup(),
                         new Runnable() {
                             @Override
@@ -376,7 +375,6 @@ public final class RendererStats implements MarlinConst {
                      * Make its parent the top-level thread group.
                      */
                     final ThreadGroup rootTG
-//                        = ThreadGroupUtils.getRootThreadGroup();
                         = MarlinUtils.getRootThreadGroup();
                     final Thread t = new Thread(rootTG, new RendererStatsDisposer(),
                         "MarlinRenderer Disposer");

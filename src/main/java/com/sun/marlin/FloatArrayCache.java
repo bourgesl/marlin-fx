@@ -231,8 +231,9 @@ final class FloatArrayCache implements MarlinConst {
 //        if (clean) {
             return new float[length];
 //        }
-       // use JDK9 Unsafe.allocateUninitializedArray(class, length):
-//	    return (float[]) OffHeapArray.UNSAFE.allocateUninitializedArray(float.class, length);
+        // use JDK9 Unsafe.allocateUninitializedArray(class, length):
+// needs jdk9 b112
+//        return (float[]) OffHeapArray.UNSAFE.allocateUninitializedArray(float.class, length);
     }
 
     static void fill(final float[] array, final int fromIndex,

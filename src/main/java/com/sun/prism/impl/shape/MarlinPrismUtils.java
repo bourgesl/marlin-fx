@@ -34,10 +34,8 @@ import com.sun.javafx.geom.Shape;
 import com.sun.javafx.geom.transform.BaseTransform;
 import com.sun.marlin.MarlinConst;
 import com.sun.marlin.MarlinRenderer;
-import com.sun.marlin.Renderer;
 import com.sun.marlin.RendererContext;
 import com.sun.marlin.TransformingPathConsumer2D;
-//import com.sun.openpisces.TransformingPathConsumer2D;
 import com.sun.prism.BasicStroke;
 
 public final class MarlinPrismUtils {
@@ -46,16 +44,6 @@ public final class MarlinPrismUtils {
 
     static final float UPPER_BND = Float.MAX_VALUE / 2.0f;
     static final float LOWER_BND = -UPPER_BND;
-/*
-    private static TransformingPathConsumer2D.FilterSet transformer =
-        new TransformingPathConsumer2D.FilterSet();
-*/
-    // TODO: use ReentrantContextProvider (TL) to ensure thread safety
-//    private static final RendererContext savedRdrCtx = RendererContext.createContext();
-
-    static {
-        com.sun.marlin.MarlinRenderingEngine.logSettings(Renderer.class.getName());
-    }
 
     /**
      * Private constructor to prevent instantiation.
@@ -65,11 +53,11 @@ public final class MarlinPrismUtils {
 
     private static PathConsumer2D initRenderer(
             final RendererContext rdrCtx,
-            BasicStroke stroke,
-            BaseTransform tx,
-            Rectangle clip,
-            int pirule,
-            MarlinRenderer renderer)
+            final BasicStroke stroke,
+            final BaseTransform tx,
+            final Rectangle clip,
+            final int pirule,
+            final MarlinRenderer renderer)
     {
         final int oprule = (stroke == null && pirule == PathIterator.WIND_EVEN_ODD) ?
             MarlinRenderer.WIND_EVEN_ODD : MarlinRenderer.WIND_NON_ZERO;
@@ -185,26 +173,55 @@ public final class MarlinPrismUtils {
          *
          * -> pc2d = Renderer (bounding box)
          */
-/*
-// Try simple transformations like OpenPisces:
-        PathConsumer2D ret = transformer.getConsumer(renderer, tx);
-
-        if (stroke != null) {
-            ret = rdrCtx.stroker.init(ret, stroke.getLineWidth(), stroke.getEndCap(),
-                               stroke.getLineJoin(), stroke.getMiterLimit());
-            float dashes[] = stroke.getDashArray();
-            if (dashes != null) {
-                ret = rdrCtx.dasher.init(ret, dashes, dashes.length, stroke.getDashPhase(), false);
-            }
-        }
-*/
-
-//        System.out.println("initRenderer: " + ret);
         return pc;
     }
 
     private static boolean nearZero(final double num) {
         return Math.abs(num) < 2.0 * Math.ulp(num);
+    }
+
+    public static MarlinRenderer setupRenderer(
+            final RendererContext rdrCtx,
+            final Shape shape,
+            final BasicStroke stroke,
+            final BaseTransform xform,
+            final Rectangle rclip,
+            final boolean antialiasedShape)
+    {
+        // Test if transform is identity:
+        final BaseTransform tf = (xform != null && !xform.isIdentity()) ? xform : null;
+
+        final PathIterator pi = shape.getPathIterator(tf);
+
+        final MarlinRenderer r =  (!FORCE_NO_AA && antialiasedShape) ?
+                rdrCtx.renderer : rdrCtx.getRendererNoAA();
+
+        final PathConsumer2D pc2d = initRenderer(rdrCtx, stroke, tf, rclip, pi.getWindingRule(), r);
+
+        feedConsumer(rdrCtx, pi, pc2d);
+
+        return r;
+    }
+
+    public static MarlinRenderer setupRenderer(
+            final RendererContext rdrCtx,
+            final Path2D p2d,
+            final BasicStroke stroke,
+            final BaseTransform xform,
+            final Rectangle rclip,
+            final boolean antialiasedShape)
+    {
+        // Test if transform is identity:
+        final BaseTransform tf = (xform != null && !xform.isIdentity()) ? xform : null;
+
+        final MarlinRenderer r =  (!FORCE_NO_AA && antialiasedShape) ?
+                rdrCtx.renderer : rdrCtx.getRendererNoAA();
+
+        final PathConsumer2D pc2d = initRenderer(rdrCtx, stroke, tf, rclip, p2d.getWindingRule(), r);
+
+        feedConsumer(rdrCtx, p2d, tf, pc2d);
+
+        return r;
     }
 
     private static void feedConsumer(final RendererContext rdrCtx, final PathIterator pi,
@@ -215,15 +232,6 @@ public final class MarlinPrismUtils {
 
         final float[] coords = rdrCtx.float6;
 
-        pathToLoop(coords, pi, pc2d);
-
-        // mark context as CLEAN:
-        rdrCtx.dirty = false;
-    }
-
-    private static void pathToLoop(final float[] coords, final PathIterator pi,
-                                   final PathConsumer2D pc2d)
-    {
         // ported from DuctusRenderingEngine.feedConsumer() but simplified:
         // - removed skip flag = !subpathStarted
         // - removed pathClosed (ie subpathStarted not set to false)
@@ -330,50 +338,9 @@ public final class MarlinPrismUtils {
             }
         }
         pc2d.pathDone();
-    }
 
-    public static MarlinRenderer setupRenderer(
-            final RendererContext rdrCtx,
-            Shape shape,
-            BasicStroke stroke,
-            BaseTransform xform,
-            Rectangle rclip,
-            boolean antialiasedShape)
-    {
-        // Test if transform is identity:
-        final BaseTransform tf = (xform != null && !xform.isIdentity()) ? xform : null;
-
-        final PathIterator pi = shape.getPathIterator(tf);
-
-        final MarlinRenderer r =  (!FORCE_NO_AA && antialiasedShape) ?
-                rdrCtx.renderer : rdrCtx.getRendererNoAA();
-
-        final PathConsumer2D pc2d = initRenderer(rdrCtx, stroke, tf, rclip, pi.getWindingRule(), r);
-
-        feedConsumer(rdrCtx, pi, pc2d);
-
-        return r;
-    }
-
-    public static MarlinRenderer setupRenderer(
-            final RendererContext rdrCtx,
-            Path2D p2d,
-            BasicStroke stroke,
-            BaseTransform xform,
-            Rectangle rclip,
-            boolean antialiasedShape)
-    {
-        // Test if transform is identity:
-        final BaseTransform tf = (xform != null && !xform.isIdentity()) ? xform : null;
-
-        final MarlinRenderer r =  (!FORCE_NO_AA && antialiasedShape) ?
-                rdrCtx.renderer : rdrCtx.getRendererNoAA();
-
-        final PathConsumer2D pc2d = initRenderer(rdrCtx, stroke, tf, rclip, p2d.getWindingRule(), r);
-
-        feedConsumer(rdrCtx, p2d, tf, pc2d);
-
-        return r;
+        // mark context as CLEAN:
+        rdrCtx.dirty = false;
     }
 
     private static void feedConsumer(final RendererContext rdrCtx,

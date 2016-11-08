@@ -28,13 +28,11 @@ package com.sun.marlin;
 
 public final class MarlinUtils {
     // Marlin logger
-//    private static final sun.util.logging.PlatformLogger LOG;
     private static final java.util.logging.Logger LOG;
 
     static {
         if (MarlinConst.USE_LOGGER) {
-//            log = sun.util.logging.PlatformLogger.getLogger("sun.java2d.marlin");
-            LOG = java.util.logging.Logger.getLogger("sun.java2d.marlin");
+            LOG = java.util.logging.Logger.getLogger("prism.marlin");
         } else {
             LOG = null;
         }
@@ -55,7 +53,6 @@ public final class MarlinUtils {
 
     public static void logException(final String msg, final Throwable th) {
         if (MarlinConst.USE_LOGGER) {
-//            log.warning(msg, th);
             LOG.log(java.util.logging.Level.WARNING, msg, th);
         } else if (MarlinConst.ENABLE_LOGS) {
             System.out.print("WARNING: ");

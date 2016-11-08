@@ -120,12 +120,16 @@ public interface MarlinConst {
     public static final int MAX_AA_ALPHA
         = SUBPIXEL_POSITIONS_X * SUBPIXEL_POSITIONS_Y;
 
-    public static final int TILE_H_LG = MarlinProperties.getTileSize_Log2();
-    public static final int TILE_H = 1 << TILE_H_LG; // 32 by default
-
-    public static final int TILE_W_LG = MarlinProperties.getTileWidth_Log2();
-    public static final int TILE_W = 1 << TILE_W_LG; // 32 by default
-
     public static final int BLOCK_SIZE_LG = MarlinProperties.getBlockSize_Log2();
     public static final int BLOCK_SIZE    = 1 << BLOCK_SIZE_LG;
+
+    static final boolean ENABLE_BLOCK_FLAGS = MarlinProperties.isUseTileFlags();
+    static final boolean ENABLE_BLOCK_FLAGS_HEURISTICS = MarlinProperties.isUseTileFlagsWithHeuristics();
+
+// From MarlinCache:
+    static final boolean FORCE_RLE = MarlinProperties.isForceRLE();
+    static final boolean FORCE_NO_RLE = MarlinProperties.isForceNoRLE();
+    // minimum width to try using RLE encoding:
+    static final int RLE_MIN_WIDTH
+        = Math.max(BLOCK_SIZE, MarlinProperties.getRLEMinWidth());
 }

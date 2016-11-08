@@ -231,8 +231,9 @@ public final class IntArrayCache implements MarlinConst {
 //        if (clean) {
             return new int[length];
 //        }
-       // use JDK9 Unsafe.allocateUninitializedArray(class, length):
-//	    return (int[]) OffHeapArray.UNSAFE.allocateUninitializedArray(int.class, length);
+        // use JDK9 Unsafe.allocateUninitializedArray(class, length):
+// needs jdk9 b112
+//        return (int[]) OffHeapArray.UNSAFE.allocateUninitializedArray(int.class, length);
     }
 
     public static void fill(final int[] array, final int fromIndex,
@@ -246,7 +247,7 @@ public final class IntArrayCache implements MarlinConst {
     }
 
     public static void check(final int[] array, final int fromIndex,
-                      final int toIndex, final int value)
+                             final int toIndex, final int value)
     {
         if (DO_CHECKS) {
             // check zero on full array:

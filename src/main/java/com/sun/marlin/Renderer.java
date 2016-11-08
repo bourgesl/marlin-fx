@@ -26,24 +26,11 @@
 package com.sun.marlin;
 
 import static com.sun.marlin.OffHeapArray.SIZE_INT;
-//import jdk.internal.misc.Unsafe;
 import sun.misc.Unsafe;
 
 public final class Renderer implements MarlinRenderer, MarlinConst {
 
     static final boolean DISABLE_RENDER = false;
-
-    static final boolean CLIP_CURVE = MarlinProperties.isDoClipCurves();
-
-    static final boolean ENABLE_BLOCK_FLAGS = MarlinProperties.isUseTileFlags();
-    static final boolean ENABLE_BLOCK_FLAGS_HEURISTICS = MarlinProperties.isUseTileFlagsWithHeuristics();
-
-// From MarlinCache:
-    static final boolean FORCE_RLE = MarlinProperties.isForceRLE();
-    static final boolean FORCE_NO_RLE = MarlinProperties.isForceNoRLE();
-    // minimum width to try using RLE encoding:
-    static final int RLE_MIN_WIDTH
-        = Math.max(BLOCK_SIZE, MarlinProperties.getRLEMinWidth());
 
     private static final int ALL_BUT_LSB = 0xfffffffe;
     private static final int ERR_STEP_MAX = 0x7fffffff; // = 2^31 - 1
@@ -163,15 +150,11 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
     // used range for edgeBuckets / edgeBucketCounts
     private int buckets_minY;
     private int buckets_maxY;
-    // sum of each edge delta Y (subpixels)
-//    private int edgeSumDeltaY;
 
     // edgeBuckets ref (clean)
     private final IntArrayCache.Reference edgeBuckets_ref;
     // edgeBucketCounts ref (clean)
     private final IntArrayCache.Reference edgeBucketCounts_ref;
-
-    private final float[] MIN_MAX = new float[2];
 
     // From MarlinCache:
     boolean useRLE = false;
@@ -487,9 +470,6 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
         // last bit means edge end
         _edgeBucketCounts[lastCrossing - _boundsMinY] |= 0x1;
 
-        // update sum of delta Y (subpixels):
-//        edgeSumDeltaY += (lastCrossing - firstCrossing);
-
         // update free pointer (ie length in bytes)
         _edges.used += _SIZEOF_EDGE_BYTES;
 
@@ -501,13 +481,8 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
 // END EDGE LIST
 //////////////////////////////////////////////////////////////////////////////
 
-    // Cache to store RLE-encoded coverage mask of the current primitive
-//    final MarlinCache cache;
-
     // Bounds of the drawing region, at subpixel precision.
     private int boundsMinX, boundsMinY, boundsMaxX, boundsMaxY;
-
-    private float fBoundsMinX, fBoundsMinY, fBoundsMaxX, fBoundsMaxY;
 
     // Current winding rule
     private int windingRule;
@@ -555,8 +530,6 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
         alphaLine_ref = rdrCtx.newCleanIntArrayRef(INITIAL_AA_ARRAY); // 8K
         alphaLine     = alphaLine_ref.initial;
 
-//        this.cache = rdrCtx.cache;
-
         crossings_ref     = rdrCtx.newDirtyIntArrayRef(INITIAL_CROSSING_COUNT); // 2K
         aux_crossings_ref = rdrCtx.newDirtyIntArrayRef(INITIAL_CROSSING_COUNT); // 2K
         edgePtrs_ref      = rdrCtx.newDirtyIntArrayRef(INITIAL_CROSSING_COUNT); // 2K
@@ -584,11 +557,6 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
         this.boundsMinY =  pix_boundsY << SUBPIXEL_LG_POSITIONS_Y;
         this.boundsMaxY =
             (pix_boundsY + pix_boundsHeight) << SUBPIXEL_LG_POSITIONS_Y;
-
-        this.fBoundsMinX = boundsMinX - 0.5f;
-        this.fBoundsMinY = boundsMinY;
-        this.fBoundsMaxX = boundsMaxX - 0.5f;
-        this.fBoundsMaxY = boundsMaxY;
 
         if (DO_LOG_BOUNDS) {
             MarlinUtils.logInfo("boundsXY = [" + boundsMinX + " ... "
@@ -620,8 +588,6 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
         edgeCount = 0;
         activeEdgeMaxUsed = 0;
         edges.used = 0;
-
-//        edgeSumDeltaY = 0;
 
         // reset bbox
         bboxX0 = bboxX1 = 0;
@@ -695,10 +661,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
 
     @Override
     public void moveTo(float pix_x0, float pix_y0) {
-        // ignore pure horizontal line:
-//        if (y0 != sy0 /* || x0 != sx0 */) {
-            closePath();
-//        }
+        closePath();
         final float sx = tosubpixx(pix_x0);
         final float sy = tosubpixy(pix_y0);
         this.sx0 = sx;
@@ -717,158 +680,27 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
     }
 
     @Override
-    public void curveTo(float pix_x1, float pix_y1,
-                        float pix_x2, float pix_y2,
-                        float pix_x3, float pix_y3)
+    public void curveTo(float x1, float y1,
+            float x2, float y2,
+            float x3, float y3)
     {
-        final float cx1 = tosubpixx(pix_x1);
-        final float cy1 = tosubpixy(pix_y1);
-
-        final float cx2 = tosubpixx(pix_x2);
-        final float cy2 = tosubpixy(pix_y2);
-
-        final float xe = tosubpixx(pix_x3);
-        final float ye = tosubpixy(pix_y3);
-
-        // check possible artefacts with EvenOdd winding rule:
-        if (CLIP_CURVE && clipCurve(cx1, cy1, cx2, cy2, xe, ye)) {
-            return;
-        }
-
-        curve.set(x0, y0, cx1, cy1, cx2, cy2, xe, ye);
+        final float xe = tosubpixx(x3);
+        final float ye = tosubpixy(y3);
+        curve.set(x0, y0, tosubpixx(x1), tosubpixy(y1),
+                          tosubpixx(x2), tosubpixy(y2), xe, ye);
         curveBreakIntoLinesAndAdd(x0, y0, curve, xe, ye);
         x0 = xe;
         y0 = ye;
     }
 
-    private boolean clipCurve(float cx1, float cy1,
-                              float cx2, float cy2,
-                              float xe, float ye)
-    {
-        // First quick check if the last endpoint is outside bounds:
-        if (ye > fBoundsMaxY || ye < fBoundsMinY
-            || xe > fBoundsMaxX || xe < fBoundsMinX)
-        {
-            // Mimic ShapeSpanIterator.c:
-
-            // check Y coordinates (top or bottom only):
-            min_max4(y0, cy1, cy2, ye, MIN_MAX);
-
-            // clip curve out of y range [boundsMinY; boundsMaxY]
-            if (MIN_MAX[0] > fBoundsMaxY || MIN_MAX[1] < fBoundsMinY) {
-//                System.out.println("curveTo: curve clipped: Y");
-                x0 = xe;
-                y0 = ye;
-                return true;
-            }
-
-            // At least 1 point is within Y bounds:
-            // check X coordinates (left or right only):
-            min_max4(x0, cx1, cx2, xe, MIN_MAX);
-
-            // clip curve out of X range [boundsMinX; boundsMaxX]
-            if (MIN_MAX[0] > fBoundsMaxX || MIN_MAX[1] < fBoundsMinX) {
-//                System.out.println("curveTo: curve clipped: X");
-                // just add a straight line between P0 and P3:
-                addLine(x0, y0, xe, ye);
-                x0 = xe;
-                y0 = ye;
-                return true;
-            }
-        }
-        return false;
-    }
-
     @Override
-    public void quadTo(float pix_x1, float pix_y1,
-                       float pix_x2, float pix_y2)
-    {
-        final float cx1 = tosubpixx(pix_x1);
-        final float cy1 = tosubpixy(pix_y1);
-
-        final float xe = tosubpixx(pix_x2);
-        final float ye = tosubpixy(pix_y2);
-
-        // check possible artefacts with EvenOdd winding rule:
-        if (CLIP_CURVE && clipQuad(cx1, cy1, xe, ye)) {
-            return;
-        }
-
-        curve.set(x0, y0, cx1, cy1, xe, ye);
+    public void quadTo(float x1, float y1, float x2, float y2) {
+        final float xe = tosubpixx(x2);
+        final float ye = tosubpixy(y2);
+        curve.set(x0, y0, tosubpixx(x1), tosubpixy(y1), xe, ye);
         quadBreakIntoLinesAndAdd(x0, y0, curve, xe, ye);
         x0 = xe;
         y0 = ye;
-    }
-
-    private boolean clipQuad(float cx1, float cy1,
-                             float xe, float ye)
-    {
-        // First quick check if the last endpoint is outside bounds:
-        if (ye > fBoundsMaxY || ye < fBoundsMinY
-            || xe > fBoundsMaxX || xe < fBoundsMinX)
-        {
-            // Mimic ShapeSpanIterator.c:
-
-            // check Y coordinates (top or bottom only):
-            min_max3(y0, cy1, ye, MIN_MAX);
-
-            // clip curve out of y range [boundsMinY; boundsMaxY]
-            if (MIN_MAX[0] > fBoundsMaxY || MIN_MAX[1] < fBoundsMinY) {
-//                System.out.println("quadTo: curve clipped: Y");
-                x0 = xe;
-                y0 = ye;
-                return true;
-            }
-
-            // At least 1 point is within Y bounds:
-            // check X coordinates (left or right only):
-            min_max3(x0, cx1, xe, MIN_MAX);
-
-            // clip curve out of X range [boundsMinX; boundsMaxX]
-            if (MIN_MAX[0] > fBoundsMaxX || MIN_MAX[1] < fBoundsMinX) {
-//                System.out.println("quadTo: curve clipped: X");
-                // just add a straight line between P0 and P3:
-                addLine(x0, y0, xe, ye);
-                x0 = xe;
-                y0 = ye;
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private void min_max3(float v1, float v2, float v3,
-                          float[] minmax)
-    {
-        if (v1 < v3) {
-            minmax[0] = (v1 < v2) ? v1 : v2;
-            minmax[1] = (v3 < v2) ? v2 : v3;
-        } else {
-            minmax[0] = (v3 < v2) ? v3 : v2;
-            minmax[1] = (v1 < v2) ? v2 : v1;
-        }
-    }
-
-    private void min_max4(float v1, float v2, float v3, float v4,
-                          float[] minmax)
-    {
-        if (v1 < v4) {
-            if (v2 < v3) {
-                minmax[0] = (v1 < v2) ? v1 : v2;
-                minmax[1] = (v4 < v3) ? v3 : v4;
-            } else {
-                minmax[0] = (v1 < v3) ? v1 : v3;
-                minmax[1] = (v4 < v2) ? v2 : v4;
-            }
-        } else {
-            if (v2 < v3) {
-                minmax[0] = (v4 < v2) ? v4 : v2;
-                minmax[1] = (v1 < v3) ? v3 : v1;
-            } else {
-                minmax[0] = (v4 < v3) ? v4 : v3;
-                minmax[1] = (v1 < v2) ? v2 : v1;
-            }
-        }
     }
 
     @Override
@@ -903,7 +735,6 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
         final int[] _alpha = alphaLine;
 
         // local vars (performance):
-//        final MarlinCache _cache = cache;
         final OffHeapArray _edges = edges;
         final int[] _edgeBuckets = edgeBuckets;
         final int[] _edgeBucketCounts = edgeBucketCounts;
@@ -1331,7 +1162,6 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
                                 // skip right side (fast exit loop):
                                 i = numCrossings;
                             }
-//                            x1 = (curx < bboxx1) ? curx : bboxx1;
 
                             if (x0 < x1) {
                                 x0 -= bboxx0; // turn x0, x1 from coords to indices
@@ -1348,7 +1178,8 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
 
                                     if (useBlkFlags) {
                                         // flag used blocks:
-                                        _blkFlags[pix_x >> _BLK_SIZE_LG] = 1;
+                                        _blkFlags[pix_x       >> _BLK_SIZE_LG] = 1;
+                                        _blkFlags[(pix_x + 1) >> _BLK_SIZE_LG] = 1;
                                     }
                                 } else {
                                     tmp = (x0 & _SUBPIXEL_MASK_X);
@@ -1367,8 +1198,10 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
 
                                     if (useBlkFlags) {
                                         // flag used blocks:
-                                        _blkFlags[pix_x    >> _BLK_SIZE_LG] = 1;
-                                        _blkFlags[pix_xmax >> _BLK_SIZE_LG] = 1;
+                                        _blkFlags[ pix_x         >> _BLK_SIZE_LG] = 1;
+                                        _blkFlags[(pix_x + 1)    >> _BLK_SIZE_LG] = 1;
+                                        _blkFlags[pix_xmax       >> _BLK_SIZE_LG] = 1;
+                                        _blkFlags[(pix_xmax + 1) >> _BLK_SIZE_LG] = 1;
                                     }
                                 }
                             }
@@ -1400,7 +1233,6 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
                                 // skip right side (fast exit loop):
                                 i = numCrossings;
                             }
-//                            x1 = (curx < bboxx1) ? curx : bboxx1;
 
                             if (x0 < x1) {
                                 x0 -= bboxx0; // turn x0, x1 from coords to indices
@@ -1417,7 +1249,8 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
 
                                     if (useBlkFlags) {
                                         // flag used blocks:
-                                        _blkFlags[pix_x >> _BLK_SIZE_LG] = 1;
+                                        _blkFlags[pix_x       >> _BLK_SIZE_LG] = 1;
+                                        _blkFlags[(pix_x + 1) >> _BLK_SIZE_LG] = 1;
                                     }
                                 } else {
                                     tmp = (x0 & _SUBPIXEL_MASK_X);
@@ -1436,8 +1269,10 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
 
                                     if (useBlkFlags) {
                                         // flag used blocks:
-                                        _blkFlags[pix_x    >> _BLK_SIZE_LG] = 1;
-                                        _blkFlags[pix_xmax >> _BLK_SIZE_LG] = 1;
+                                        _blkFlags[ pix_x         >> _BLK_SIZE_LG] = 1;
+                                        _blkFlags[(pix_x + 1)    >> _BLK_SIZE_LG] = 1;
+                                        _blkFlags[pix_xmax       >> _BLK_SIZE_LG] = 1;
+                                        _blkFlags[(pix_xmax + 1) >> _BLK_SIZE_LG] = 1;
                                     }
                                 }
                             }
@@ -1536,12 +1371,12 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
         }
     }
 
-    public boolean endRendering() {
+    public void endRendering() {
         if (DO_MONITORS) {
             rdrCtx.stats.mon_rdr_endRendering.start();
         }
         if (edgeMinY == Integer.MAX_VALUE) {
-            return false; // undefined edges bounds
+            return; // undefined edges bounds
         }
 
         final int _boundsMinY = boundsMinY;
@@ -1574,7 +1409,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
 
         // test clipping for shapes out of bounds
         if ((spminX > spmaxX) || (spminY > spmaxY)) {
-            return false;
+            return;
         }
 
         // half open intervals
@@ -1588,12 +1423,10 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
         final int pmaxY = (spmaxY + SUBPIXEL_MASK_Y) >> SUBPIXEL_LG_POSITIONS_Y;
 
         // store BBox to answer ptg.getBBox():
-//        this.cache.init(pminX, pminY, pmaxX, pmaxY, edgeSumDeltaY);
-        initConsumer(pminX, pminY, pmaxX, pmaxY /*, edgeSumDeltaY */);
+        initConsumer(pminX, pminY, pmaxX, pmaxY);
 
         // Heuristics for using block flags:
         if (ENABLE_BLOCK_FLAGS) {
-//            enableBlkFlags = this.cache.useRLE;
             enableBlkFlags = this.useRLE;
             prevUseBlkFlags = enableBlkFlags && !ENABLE_BLOCK_FLAGS_HEURISTICS;
 
@@ -1638,14 +1471,12 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
             }
             alphaLine = alphaLine_ref.getArray(width);
         }
-
-        return true;
     }
 
 // From MarlinCache.init()
     int bboxX0, bboxY0, bboxX1, bboxY1;
 
-    void initConsumer(int minx, int miny, int maxx, int maxy /*, int edgeSumDeltaY */)
+    void initConsumer(int minx, int miny, int maxx, int maxy)
     {
         // assert maxy >= miny && maxx >= minx;
         bboxX0 = minx;
@@ -1667,44 +1498,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
             if (width <= RLE_MIN_WIDTH) {
                 useRLE = false;
             } else {
-
-                // hack:
-                // quick check:
                 useRLE = true;
-/*
-                // perimeter approach: how fit the total length into given height:
-
-                // if stroking: meanCrossings /= 2 => divide edgeSumDeltaY by 2
-                final int heightSubPixel
-                    = (((maxy - miny) << SUBPIXEL_LG_POSITIONS_Y) << rdrCtx.stroking);
-
-                // check meanDist > block size:
-                // check width / (meanCrossings - 1) >= RLE_THRESHOLD
-
-                // fast case: (meanCrossingPerPixel <= 2) means 1 span only
-                useRLE = (edgeSumDeltaY <= (heightSubPixel << 1))
-                    // note: already checked (meanCrossingPerPixel <= 2)
-                    // rewritten to avoid division:
-                    || (width * heightSubPixel) >
-                            ((edgeSumDeltaY - heightSubPixel) << BLOCK_SIZE_LG);
-
-                if (DO_TRACE && !useRLE) {
-                    final float meanCrossings
-                        = ((float) edgeSumDeltaY) / heightSubPixel;
-                    final float meanDist = width / (meanCrossings - 1);
-
-                    System.out.println("High complexity: "
-                        + " for bbox[width = " + width
-                        + " height = " + (maxy - miny)
-                        + "] edgeSumDeltaY = " + edgeSumDeltaY
-                        + " heightSubPixel = " + heightSubPixel
-                        + " meanCrossings = "+ meanCrossings
-                        + " meanDist = " + meanDist
-                        + " width =  " + (width * heightSubPixel)
-                        + " <= criteria:  " + ((edgeSumDeltaY - heightSubPixel) << BLOCK_SIZE_LG)
-                    );
-                }
-*/
             }
         }
     }
@@ -1713,6 +1507,12 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
 
     public void produceAlphas(final MarlinAlphaConsumer ac) {
         ac.setMaxAlpha(MAX_AA_ALPHA);
+
+        if (enableBlkFlags && !ac.supportBlockFlags()) {
+            // consumer does not support block flag optimization:
+            enableBlkFlags = false;
+            prevUseBlkFlags = false;
+        }
 
         if (false) {
             MarlinUtils.logInfo("produceAlphas: bbox_spXY = [" + bbox_spminX + " ... "
