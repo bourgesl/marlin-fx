@@ -93,7 +93,32 @@ public class PathApp extends Application {
         path5.setStroke(Color.PINK);
         path5.setStrokeWidth(1.0);
 
-        root.getChildren().addAll(path1, path2, path3, path4, path5);
+        // Fill contiguous shapes on NonAA rasterizer:
+        double[] x = new double[] { 33.3333, 100.56677};
+
+        final Path path6 = new Path();
+        path6.getElements().addAll(
+                new MoveTo(9.5, 9.5),
+                new HLineTo(100),
+                new LineTo(x[0], x[1]),
+                new HLineTo(9.5),
+                new ClosePath());
+        path6.setFill(Color.RED);
+        path6.setStroke(null);
+        path6.setSmooth(false);
+
+        final Path path7 = new Path();
+        path7.getElements().addAll(
+                new MoveTo(200, 9.5),
+                new HLineTo(100),
+                new LineTo(x[0], x[1]),
+                new HLineTo(200),
+                new ClosePath());
+        path7.setFill(Color.BLUE);
+        path7.setStroke(null);
+        path7.setSmooth(false);
+
+        root.getChildren().addAll(path6, path7, path1, path2, path3, path4, path5);
         return root;
     }
 

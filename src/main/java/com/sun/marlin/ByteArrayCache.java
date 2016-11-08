@@ -228,13 +228,12 @@ final class ByteArrayCache implements MarlinConst {
     }
 
     static byte[] createArray(final int length, final boolean clean) {
-        if (clean) {
+//        if (clean) {
             return new byte[length];
-        }
+//        }
         // use JDK9 Unsafe.allocateUninitializedArray(class, length):
 // needs jdk9 b112
 //        return (byte[]) OffHeapArray.UNSAFE.allocateUninitializedArray(byte.class, length);
-        return new byte[length];
     }
 
     static void fill(final byte[] array, final int fromIndex,
