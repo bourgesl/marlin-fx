@@ -19,9 +19,6 @@
 
     <properties>
         <maven.build.timestamp.format>yyyy/MM/dd HH:mm:ss</maven.build.timestamp.format>
-        <jfxrt.jar>jfxrt.jar</jfxrt.jar>
-
-        <jfxrt.path>${java.home}/lib/ext/${jfxrt.jar}</jfxrt.path>
     </properties>
 
     <build>
@@ -43,33 +40,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
+                <version>3.6.0</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>9</source>
+                    <target>9</target>
+                    <release>9</release>
                     <debug>true</debug>
                     <encoding>UTF-8</encoding>
                 </configuration>
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-install-plugin</artifactId>
-                <version>2.5.2</version>
-                <executions>
-                    <execution>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>install-file</goal>
-                        </goals>
-                        <configuration>
-                            <groupId>javafx</groupId>
-                            <artifactId>jfxrt</artifactId>
-                            <version>local</version>
-                            <packaging>jar</packaging>
-                            <file>${jfxrt.path}</file>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
 
             <plugin>
@@ -85,13 +63,6 @@
                         <configuration>
                             <minimizeJar>false</minimizeJar>
                             <filters>
-                                <filter>
-                                    <artifact>javafx:jfxrt:jar:local</artifact>
-                                    <excludes>
-                                        <exclude>com/sun/prism/impl/shape/ShapeUtil*.class</exclude>
-                                        <exclude>com/sun/javafx/geom/Path2D*.class</exclude>
-                                    </excludes>
-                                </filter>
                                 <filter>
                                     <artifact>org.marlin:marlinfx</artifact>
                                     <includes>
@@ -109,12 +80,6 @@
         </plugins>
     </build>
     <dependencies>
-        <dependency>
-            <groupId>javafx</groupId>
-            <artifactId>jfxrt</artifactId>
-            <version>local</version>
-        </dependency>
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
