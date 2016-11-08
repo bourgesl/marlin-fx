@@ -99,17 +99,16 @@ public final class MarlinRasterizer implements ShapeRasterizer {
                 renderer = MarlinPrismUtils.setupRenderer(rdrCtx, shape, stroke, xform, rclip,
                         antialiasedShape);
             }
-
-            final int outpix_ymin = renderer.getOutpixMinY();
-            final int outpix_ymax = renderer.getOutpixMaxY();
-            final int h = outpix_ymax - outpix_ymin;
-            if (h <= 0) {
+            if (!renderer.endRendering()) {
                 return EMPTY_MASK;
             }
             final int outpix_xmin = renderer.getOutpixMinX();
+            final int outpix_ymin = renderer.getOutpixMinY();
             final int outpix_xmax = renderer.getOutpixMaxX();
+            final int outpix_ymax = renderer.getOutpixMaxY();
             final int w = outpix_xmax - outpix_xmin;
-            if (w <= 0) {
+            final int h = outpix_ymax - outpix_ymin;
+            if ((h <= 0) || (w <= 0)) {
                 return EMPTY_MASK;
             }
 
@@ -200,8 +199,8 @@ public final class MarlinRasterizer implements ShapeRasterizer {
         }
 
         // The alpha map used by this object (taken out of our map cache) to convert
-        // pixel coverage counts gotten from MarlinCache (which are in the range
-        // [0, maxalpha]) into alpha values, which are in [0,256).
+        // pixel coverage counts (which are in the range [0, maxalpha])
+        // into alpha values, which are in [0,255]).
         static final byte[] ALPHA_MAP;
         static final OffHeapArray ALPHA_MAP_UNSAFE;
 

@@ -156,7 +156,6 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
     // edgeBucketCounts ref (clean)
     private final IntArrayCache.Reference edgeBucketCounts_ref;
 
-    // From MarlinCache:
     boolean useRLE = false;
 
     // Flattens using adaptive forward differencing. This only carries out
@@ -589,9 +588,6 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
         activeEdgeMaxUsed = 0;
         edges.used = 0;
 
-        // reset bbox
-        bboxX0 = bboxX1 = 0;
-
         return this; // fluent API
     }
 
@@ -713,9 +709,6 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
     @Override
     public void pathDone() {
         closePath();
-
-        // make it inlined in Renderer.pathDone() to determine the boundaries only:
-        endRendering();
     }
 
     private void _endRendering(final int ymin, final int ymax,
@@ -1294,7 +1287,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
 
             // even if this last row had no crossings, alpha will be zeroed
             // from the last emitRow call. But this doesn't matter because
-            // maxX < minX, so no row will be emitted to the MarlinCache.
+            // maxX < minX, so no row will be emitted to the AlphaConsumer.
             if ((y & _SUBPIXEL_MASK_Y) == _SUBPIXEL_MASK_Y) {
                 lastY = y >> _SUBPIXEL_LG_POSITIONS_Y;
 
@@ -1371,12 +1364,13 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
         }
     }
 
-    public void endRendering() {
+    @Override
+    public boolean endRendering() {
         if (DO_MONITORS) {
             rdrCtx.stats.mon_rdr_endRendering.start();
         }
         if (edgeMinY == Integer.MAX_VALUE) {
-            return; // undefined edges bounds
+            return false; // undefined edges bounds
         }
 
         final int _boundsMinY = boundsMinY;
@@ -1409,7 +1403,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
 
         // test clipping for shapes out of bounds
         if ((spminX > spmaxX) || (spminY > spmaxY)) {
-            return;
+            return false;
         }
 
         // half open intervals
@@ -1471,9 +1465,9 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
             }
             alphaLine = alphaLine_ref.getArray(width);
         }
+        return true;
     }
 
-// From MarlinCache.init()
     int bboxX0, bboxY0, bboxX1, bboxY1;
 
     void initConsumer(int minx, int miny, int maxx, int maxy)
@@ -1512,12 +1506,6 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
             // consumer does not support block flag optimization:
             enableBlkFlags = false;
             prevUseBlkFlags = false;
-        }
-
-        if (false) {
-            MarlinUtils.logInfo("produceAlphas: bbox_spXY = [" + bbox_spminX + " ... "
-                                + bbox_spmaxX + "[ [" + bbox_spminY + " ... "
-                                + bbox_spmaxY + "[");
         }
 
         if (DO_MONITORS) {
@@ -1561,20 +1549,23 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
     }
 
 // JavaFX specific:
+    @Override
     public int getOutpixMinX() {
         return bboxX0;
     }
 
+    @Override
     public int getOutpixMaxX() {
         return bboxX1;
     }
 
+    @Override
     public int getOutpixMinY() {
         return bboxY0;
     }
 
+    @Override
     public int getOutpixMaxY() {
         return bboxY1;
     }
-
 }

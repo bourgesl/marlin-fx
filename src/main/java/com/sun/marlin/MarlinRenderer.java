@@ -40,6 +40,8 @@ public interface MarlinRenderer extends PathConsumer2D {
      */
     public void dispose();
 
+    public boolean endRendering();
+
     public int getOutpixMinX();
 
     public int getOutpixMaxX();

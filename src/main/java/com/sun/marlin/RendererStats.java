@@ -38,7 +38,6 @@ import static com.sun.marlin.MarlinUtils.logInfo;
 import com.sun.marlin.stats.Histogram;
 import com.sun.marlin.stats.Monitor;
 import com.sun.marlin.stats.StatLong;
-//import sun.awt.util.ThreadGroupUtils;
 
 /**
  * This class gathers global rendering statistics for debugging purposes only
@@ -117,10 +116,6 @@ public final class RendererStats implements MarlinConst {
         = new StatLong("array.stroker.polystack.curves.d_float");
     final StatLong stat_array_stroker_polystack_curveTypes
         = new StatLong("array.stroker.polystack.curveTypes.d_byte");
-    final StatLong stat_array_marlincache_rowAAChunk
-        = new StatLong("array.marlincache.rowAAChunk.resize");
-    final StatLong stat_array_marlincache_touchedTile
-        = new StatLong("array.marlincache.touchedTile.int");
     final StatLong stat_array_renderer_alphaline
         = new StatLong("array.renderer.alphaline.int");
     final StatLong stat_array_renderer_crossings
@@ -150,16 +145,10 @@ public final class RendererStats implements MarlinConst {
         = new Histogram("renderer.crossings.msorts");
     final Histogram hist_rdr_crossings_msorts_adds
         = new Histogram("renderer.crossings.msorts.adds");
-    final Histogram hist_tile_generator_alpha
-        = new Histogram("tile_generator.alpha");
     final Histogram hist_tile_generator_encoding
         = new Histogram("tile_generator.encoding");
     final Histogram hist_tile_generator_encoding_dist
         = new Histogram("tile_generator.encoding.dist");
-    final Histogram hist_tile_generator_encoding_ratio
-        = new Histogram("tile_generator.encoding.ratio");
-    final Histogram hist_tile_generator_encoding_runLen
-        = new Histogram("tile_generator.encoding.runLen");
     // all stats
     final StatLong[] statistics = new StatLong[]{
         stat_cache_rowAA,
@@ -192,17 +181,12 @@ public final class RendererStats implements MarlinConst {
         hist_rdr_crossings_adds,
         hist_rdr_crossings_msorts,
         hist_rdr_crossings_msorts_adds,
-        hist_tile_generator_alpha,
         hist_tile_generator_encoding,
         hist_tile_generator_encoding_dist,
-        hist_tile_generator_encoding_ratio,
-        hist_tile_generator_encoding_runLen,
         stat_array_dasher_dasher,
         stat_array_dasher_firstSegmentsBuffer,
         stat_array_stroker_polystack_curves,
         stat_array_stroker_polystack_curveTypes,
-        stat_array_marlincache_rowAAChunk,
-        stat_array_marlincache_touchedTile,
         stat_array_renderer_alphaline,
         stat_array_renderer_crossings,
         stat_array_renderer_aux_crossings,
