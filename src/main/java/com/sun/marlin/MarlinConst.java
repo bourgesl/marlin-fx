@@ -126,7 +126,6 @@ public interface MarlinConst {
     static final boolean ENABLE_BLOCK_FLAGS = MarlinProperties.isUseTileFlags();
     static final boolean ENABLE_BLOCK_FLAGS_HEURISTICS = MarlinProperties.isUseTileFlagsWithHeuristics();
 
-// From MarlinCache:
     static final boolean FORCE_RLE = MarlinProperties.isForceRLE();
     static final boolean FORCE_NO_RLE = MarlinProperties.isForceNoRLE();
     // minimum width to try using RLE encoding:

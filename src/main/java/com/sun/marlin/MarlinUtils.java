@@ -25,8 +25,6 @@
 
 package com.sun.marlin;
 
-import java.lang.ref.Cleaner;
-
 public final class MarlinUtils {
     // Marlin logger
     private static final sun.util.logging.PlatformLogger LOG;
@@ -62,10 +60,36 @@ public final class MarlinUtils {
         }
     }
 
-    // JavaFX specific Cleaner for Marlin-FX:
-    private final static Cleaner cleaner = Cleaner.create();
+    // From sun.awt.util.ThreadGroupUtils
 
-    static Cleaner getCleaner() {
+    /**
+     * Returns a root thread group.
+     * Should be called with {@link sun.security.util.SecurityConstants#MODIFY_THREADGROUP_PERMISSION}
+     *
+     * @return a root {@code ThreadGroup}
+     */
+    public static ThreadGroup getRootThreadGroup() {
+        ThreadGroup currentTG = Thread.currentThread().getThreadGroup();
+        ThreadGroup parentTG = currentTG.getParent();
+        while (parentTG != null) {
+            currentTG = parentTG;
+            parentTG = currentTG.getParent();
+        }
+        return currentTG;
+    }
+
+    // JavaFX specific Cleaner for Marlin-FX:
+
+    // Module issue with jdk.internal.ref.Cleaner
+    private final static java.lang.ref.Cleaner cleaner
+        = java.lang.ref.Cleaner.create();
+
+    static java.lang.ref.Cleaner getCleaner() {
         return cleaner;
     }
+/*
+    static jdk.internal.ref.Cleaner getCleaner() {
+        return jdk.internal.ref.CleanerFactory.cleaner();
+    }
+*/
 }

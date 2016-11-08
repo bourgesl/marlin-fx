@@ -228,12 +228,11 @@ public final class IntArrayCache implements MarlinConst {
     }
 
     static int[] createArray(final int length, final boolean clean) {
-//        if (clean) {
+        if (clean) {
             return new int[length];
-//        }
+        }
         // use JDK9 Unsafe.allocateUninitializedArray(class, length):
-// needs jdk9 b112
-//        return (int[]) OffHeapArray.UNSAFE.allocateUninitializedArray(int.class, length);
+        return (int[]) OffHeapArray.UNSAFE.allocateUninitializedArray(int.class, length);
     }
 
     public static void fill(final int[] array, final int fromIndex,

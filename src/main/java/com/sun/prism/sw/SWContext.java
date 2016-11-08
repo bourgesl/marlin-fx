@@ -47,7 +47,6 @@ import com.sun.prism.impl.shape.OpenPiscesPrismUtils;
 import com.sun.prism.impl.shape.ShapeUtil;
 
 import java.lang.ref.SoftReference;
-import java.util.Arrays;
 
 final class SWContext {
 
@@ -148,17 +147,16 @@ final class SWContext {
             MarlinRenderer renderer = null;
             try {
                 renderer = MarlinPrismUtils.setupRenderer(rdrCtx, shape, stroke, tr, clip, antialiasedShape);
-
-                final int outpix_ymin = renderer.getOutpixMinY();
-                final int outpix_ymax = renderer.getOutpixMaxY();
-                final int h = outpix_ymax - outpix_ymin;
-                if (h <= 0) {
+                if (!renderer.endRendering()) {
                     return;
                 }
                 final int outpix_xmin = renderer.getOutpixMinX();
+                final int outpix_ymin = renderer.getOutpixMinY();
                 final int outpix_xmax = renderer.getOutpixMaxX();
+                final int outpix_ymax = renderer.getOutpixMaxY();
                 final int w = outpix_xmax - outpix_xmin;
-                if (w <= 0) {
+                final int h = outpix_ymax - outpix_ymin;
+                if ((h <= 0) || (w <= 0)) {
                     return;
                 }
                 alphaConsumer.initConsumer(outpix_xmin, outpix_ymin, w, h, pr);
