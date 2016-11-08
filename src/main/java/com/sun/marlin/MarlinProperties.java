@@ -42,7 +42,7 @@ public final class MarlinProperties {
     }
 
     public static boolean isUseThreadLocal() {
-        return getBoolean("sun.java2d.renderer.useThreadLocal", "true");
+        return getBoolean("prism.marlin.useThreadLocal", "true");
     }
 
     /**
@@ -53,7 +53,7 @@ public final class MarlinProperties {
      */
     public static int getInitialEdges() {
         return align(
-            getInteger("sun.java2d.renderer.edges", 4096, 64, 64 * 1024),
+            getInteger("prism.marlin.edges", 4096, 64, 64 * 1024),
             64);
     }
 
@@ -65,7 +65,7 @@ public final class MarlinProperties {
      */
     public static int getInitialImageSize() {
         return align(
-            getInteger("sun.java2d.renderer.pixelsize", 2048, 64, 32 * 1024),
+            getInteger("prism.marlin.pixelsize", 2048, 64, 32 * 1024),
             64);
     }
 
@@ -76,7 +76,7 @@ public final class MarlinProperties {
      * (3 by default ie 8 subpixels)
      */
     public static int getSubPixel_Log2_X() {
-        return getInteger("sun.java2d.renderer.subPixel_log2_X", 3, 1, 8);
+        return getInteger("prism.marlin.subPixel_log2_X", 3, 1, 8);
     }
 
     /**
@@ -86,7 +86,7 @@ public final class MarlinProperties {
      * (3 by default ie 8 subpixels)
      */
     public static int getSubPixel_Log2_Y() {
-        return getInteger("sun.java2d.renderer.subPixel_log2_Y", 3, 1, 8);
+        return getInteger("prism.marlin.subPixel_log2_Y", 3, 1, 8);
     }
 
     /**
@@ -96,11 +96,11 @@ public final class MarlinProperties {
      * (5 by default ie 32x32 pixels)
      */
     public static int getTileSize_Log2() {
-        return getInteger("sun.java2d.renderer.tileSize_log2", 5, 3, 8);
+        return getInteger("prism.marlin.tileSize_log2", 5, 3, 8);
     }
 
     public static int getTileWidth_Log2() {
-        return getInteger("sun.java2d.renderer.tileWidth_log2", 5, 3, 10);
+        return getInteger("prism.marlin.tileWidth_log2", 5, 3, 10);
     }
 
     /**
@@ -110,68 +110,68 @@ public final class MarlinProperties {
      * (5 by default ie 32 pixels)
      */
     public static int getBlockSize_Log2() {
-        return getInteger("sun.java2d.renderer.blockSize_log2", 5, 3, 8);
+        return getInteger("prism.marlin.blockSize_log2", 5, 3, 8);
     }
 
     // RLE / blockFlags settings
 
     public static boolean isForceRLE() {
-        return getBoolean("sun.java2d.renderer.forceRLE", "false");
+        return getBoolean("prism.marlin.forceRLE", "false");
     }
 
     public static boolean isForceNoRLE() {
-        return getBoolean("sun.java2d.renderer.forceNoRLE", "false");
+        return getBoolean("prism.marlin.forceNoRLE", "false");
     }
 
     public static boolean isUseTileFlags() {
-        return getBoolean("sun.java2d.renderer.useTileFlags", "true");
+        return getBoolean("prism.marlin.useTileFlags", "true");
     }
 
     public static boolean isUseTileFlagsWithHeuristics() {
         return isUseTileFlags()
-        && getBoolean("sun.java2d.renderer.useTileFlags.useHeuristics", "true");
+        && getBoolean("prism.marlin.useTileFlags.useHeuristics", "true");
     }
 
     public static int getRLEMinWidth() {
-        return getInteger("sun.java2d.renderer.rleMinWidth", 64, 0, Integer.MAX_VALUE);
+        return getInteger("prism.marlin.rleMinWidth", 64, 0, Integer.MAX_VALUE);
     }
 
     // optimisation parameters
 
     public static boolean isUseSimplifier() {
-        return getBoolean("sun.java2d.renderer.useSimplifier", "false");
+        return getBoolean("prism.marlin.useSimplifier", "false");
     }
 
     // debugging parameters
 
     public static boolean isDoStats() {
-        return getBoolean("sun.java2d.renderer.doStats", "false");
+        return getBoolean("prism.marlin.doStats", "false");
     }
 
     public static boolean isDoMonitors() {
-        return getBoolean("sun.java2d.renderer.doMonitors", "false");
+        return getBoolean("prism.marlin.doMonitors", "false");
     }
 
     public static boolean isDoChecks() {
-        return getBoolean("sun.java2d.renderer.doChecks", "false");
+        return getBoolean("prism.marlin.doChecks", "false");
     }
 
     // logging parameters
 
     public static boolean isLoggingEnabled() {
-        return getBoolean("sun.java2d.renderer.log", "false");
+        return getBoolean("prism.marlin.log", "false");
     }
 
     public static boolean isUseLogger() {
-        return getBoolean("sun.java2d.renderer.useLogger", "false");
+        return getBoolean("prism.marlin.useLogger", "false");
     }
 
     public static boolean isLogCreateContext() {
-        return getBoolean("sun.java2d.renderer.logCreateContext", "false");
+        return getBoolean("prism.marlin.logCreateContext", "false");
     }
 
     public static boolean isLogUnsafeMalloc() {
-        return getBoolean("sun.java2d.renderer.logUnsafeMalloc", "false");
+        return getBoolean("prism.marlin.logUnsafeMalloc", "false");
     }
 
     // system property utilities

@@ -1432,6 +1432,12 @@ public final class RendererNoAA implements MarlinRenderer, MarlinConst {
     public void produceAlphas(final MarlinAlphaConsumer ac) {
         ac.setMaxAlpha(1);
 
+        if (enableBlkFlags && !ac.supportBlockFlags()) {
+            // consumer does not support block flag optimization:
+            enableBlkFlags = false;
+            prevUseBlkFlags = false;
+        }
+
         if (false) {
             MarlinUtils.logInfo("produceAlphas: bbox_spXY = [" + bbox_spminX + " ... "
                                 + bbox_spmaxX + "[ [" + bbox_spminY + " ... "

@@ -28,8 +28,6 @@ package com.sun.prism.impl.shape;
 import com.sun.javafx.geom.RectBounds;
 import com.sun.javafx.geom.Shape;
 import com.sun.javafx.geom.transform.BaseTransform;
-import com.sun.marlin.MarlinProperties;
-import com.sun.marlin.Version;
 import com.sun.prism.BasicStroke;
 import com.sun.prism.impl.PrismSettings;
 
@@ -37,17 +35,12 @@ public class ShapeUtil {
 
     private static final ShapeRasterizer shapeRasterizer;
     static {
-        if (PrismSettings.doNativePisces) {
+        if (PrismSettings.useMarlinRasterizer) {
+            shapeRasterizer = new MarlinRasterizer();
+        } else if (PrismSettings.doNativePisces) {
             shapeRasterizer = new NativePiscesRasterizer();
         } else {
-            // TODO: move that new setting into PrismSettings:
-            // Enable Marlin-FX by setting -Dsun.javafx.marlin=true
-            if (MarlinProperties.isMarlinEnabled()) {
-                System.out.println("Marlin-FX[" + Version.getVersion() + "] enabled.");
-                shapeRasterizer = new MarlinRasterizer();
-            } else {
-                shapeRasterizer = new OpenPiscesRasterizer();
-            }
+            shapeRasterizer = new OpenPiscesRasterizer();
         }
     }
 

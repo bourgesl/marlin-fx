@@ -33,7 +33,7 @@ public final class MarlinUtils {
 
     static {
         if (MarlinConst.USE_LOGGER) {
-            LOG = sun.util.logging.PlatformLogger.getLogger("sun.java2d.marlin");
+            LOG = sun.util.logging.PlatformLogger.getLogger("prism.marlin");
         } else {
             LOG = null;
         }
@@ -61,10 +61,10 @@ public final class MarlinUtils {
             th.printStackTrace(System.err);
         }
     }
-    
+
     // JavaFX specific Cleaner for Marlin-FX:
     private final static Cleaner cleaner = Cleaner.create();
-    
+
     static Cleaner getCleaner() {
         return cleaner;
     }

@@ -78,7 +78,7 @@ public class MarlinRenderingEngine implements MarlinConst
         // Soft reference by default:
         final String refType = AccessController.doPrivileged(
             (PrivilegedAction<String>) () -> {
-                String value = System.getProperty("sun.java2d.renderer.useRef");
+                String value = System.getProperty("prism.marlin.useRef");
                 return (value == null) ? "soft" : value;
             });
         switch (refType) {
@@ -139,67 +139,62 @@ public class MarlinRenderingEngine implements MarlinConst
         logInfo("=========================================================="
                 + "=====================");
 
-        logInfo("Marlin software rasterizer           = ENABLED");
-        logInfo("Version                              = ["
+        logInfo("Marlin software rasterizer    = ENABLED");
+        logInfo("Version                       = ["
                 + Version.getVersion() + "]");
-        logInfo("sun.java2d.renderer                  = "
+        logInfo("prism.marlin                  = "
                 + reClass);
-        logInfo("sun.java2d.renderer.useThreadLocal   = "
+        logInfo("prism.marlin.useThreadLocal   = "
                 + USE_THREAD_LOCAL);
-        logInfo("sun.java2d.renderer.useRef           = "
+        logInfo("prism.marlin.useRef           = "
                 + refType);
 
-        logInfo("sun.java2d.renderer.edges            = "
+        logInfo("prism.marlin.edges            = "
                 + MarlinConst.INITIAL_EDGES_COUNT);
-        logInfo("sun.java2d.renderer.pixelsize        = "
+        logInfo("prism.marlin.pixelsize        = "
                 + MarlinConst.INITIAL_PIXEL_DIM);
 
-        logInfo("sun.java2d.renderer.subPixel_log2_X  = "
+        logInfo("prism.marlin.subPixel_log2_X  = "
                 + MarlinConst.SUBPIXEL_LG_POSITIONS_X);
-        logInfo("sun.java2d.renderer.subPixel_log2_Y  = "
+        logInfo("prism.marlin.subPixel_log2_Y  = "
                 + MarlinConst.SUBPIXEL_LG_POSITIONS_Y);
 
-        logInfo("sun.java2d.renderer.tileSize_log2    = "
-                + MarlinConst.TILE_H_LG);
-        logInfo("sun.java2d.renderer.tileWidth_log2   = "
-                + MarlinConst.TILE_W_LG);
-
-        logInfo("sun.java2d.renderer.blockSize_log2   = "
+        logInfo("prism.marlin.blockSize_log2   = "
                 + MarlinConst.BLOCK_SIZE_LG);
 
         // RLE / blockFlags settings
 
-        logInfo("sun.java2d.renderer.forceRLE         = "
+        logInfo("prism.marlin.forceRLE         = "
                 + MarlinProperties.isForceRLE());
-        logInfo("sun.java2d.renderer.forceNoRLE       = "
+        logInfo("prism.marlin.forceNoRLE       = "
                 + MarlinProperties.isForceNoRLE());
-        logInfo("sun.java2d.renderer.useTileFlags     = "
+        logInfo("prism.marlin.useTileFlags     = "
                 + MarlinProperties.isUseTileFlags());
-        logInfo("sun.java2d.renderer.useTileFlags.useHeuristics = "
+        logInfo("prism.marlin.useTileFlags.useHeuristics = "
                 + MarlinProperties.isUseTileFlagsWithHeuristics());
-        logInfo("sun.java2d.renderer.rleMinWidth      = "
+        logInfo("prism.marlin.rleMinWidth      = "
                 + MarlinConst.RLE_MIN_WIDTH);
 
         // optimisation parameters
-        logInfo("sun.java2d.renderer.useSimplifier    = "
+        logInfo("prism.marlin.useSimplifier    = "
                 + MarlinConst.USE_SIMPLIFIER);
 
         // debugging parameters
-        logInfo("sun.java2d.renderer.doStats          = "
+        logInfo("prism.marlin.doStats          = "
                 + MarlinConst.DO_STATS);
-        logInfo("sun.java2d.renderer.doMonitors       = "
+        logInfo("prism.marlin.doMonitors       = "
                 + MarlinConst.DO_MONITORS);
-        logInfo("sun.java2d.renderer.doChecks         = "
+        logInfo("prism.marlin.doChecks         = "
                 + MarlinConst.DO_CHECKS);
 
         // logging parameters
-        logInfo("sun.java2d.renderer.log              = "
+        logInfo("prism.marlin.log              = "
                 + MarlinConst.ENABLE_LOGS);
-        logInfo("sun.java2d.renderer.useLogger        = "
+        logInfo("prism.marlin.useLogger        = "
                 + MarlinConst.USE_LOGGER);
-        logInfo("sun.java2d.renderer.logCreateContext = "
+        logInfo("prism.marlin.logCreateContext = "
                 + MarlinConst.LOG_CREATE_CONTEXT);
-        logInfo("sun.java2d.renderer.logUnsafeMalloc  = "
+        logInfo("prism.marlin.logUnsafeMalloc  = "
                 + MarlinConst.LOG_UNSAFE_MALLOC);
 
         // quality settings
@@ -209,9 +204,9 @@ public class MarlinRenderingEngine implements MarlinConst
         logInfo("CUB_INC_BND  = " + Renderer.CUB_INC_BND);
         logInfo("QUAD_DEC_BND = " + Renderer.QUAD_DEC_BND);
 
-        logInfo("INITIAL_EDGES_CAPACITY               = "
+        logInfo("INITIAL_EDGES_CAPACITY        = "
                 + MarlinConst.INITIAL_EDGES_CAPACITY);
-        logInfo("INITIAL_CROSSING_COUNT               = "
+        logInfo("INITIAL_CROSSING_COUNT        = "
                 + Renderer.INITIAL_CROSSING_COUNT);
 
         logInfo("=========================================================="

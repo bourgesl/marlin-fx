@@ -246,6 +246,11 @@ public final class MarlinRasterizer implements ShapeRasterizer {
         }
 
         @Override
+        public boolean supportBlockFlags() {
+            return true;
+        }
+
+        @Override
         public void clearAlphas(final int pix_y) {
             final int w = width;
             final int off = (pix_y - y) * w;
