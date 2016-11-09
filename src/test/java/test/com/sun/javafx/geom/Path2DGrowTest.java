@@ -4,7 +4,9 @@
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.
+ * published by the Free Software Foundation.  Oracle designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Oracle in the LICENSE file that accompanied this code.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -20,6 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package test.com.sun.javafx.geom;
 
 import com.sun.javafx.geom.Path2D;
@@ -78,13 +81,13 @@ public class Path2DGrowTest {
         }
     }
 
-    @Test
+    @Test(timeout=10000)
     public void testEmptyFloatPaths() {
         echo("\n - Test: new Path2D(0) ---");
         test(() -> new Path2D(Path2D.WIND_NON_ZERO, 0));
     }
 
-    @Test
+    @Test(timeout=10000)
     public void testFloatPaths() {
         echo("\n - Test: new Path2D() ---");
         test(() -> new Path2D());
