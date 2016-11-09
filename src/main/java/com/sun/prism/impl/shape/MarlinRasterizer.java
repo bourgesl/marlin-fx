@@ -99,16 +99,13 @@ public final class MarlinRasterizer implements ShapeRasterizer {
                 renderer = MarlinPrismUtils.setupRenderer(rdrCtx, shape, stroke, xform, rclip,
                         antialiasedShape);
             }
-            if (!renderer.endRendering()) {
-                return EMPTY_MASK;
-            }
             final int outpix_xmin = renderer.getOutpixMinX();
-            final int outpix_ymin = renderer.getOutpixMinY();
             final int outpix_xmax = renderer.getOutpixMaxX();
+            final int outpix_ymin = renderer.getOutpixMinY();
             final int outpix_ymax = renderer.getOutpixMaxY();
             final int w = outpix_xmax - outpix_xmin;
             final int h = outpix_ymax - outpix_ymin;
-            if ((h <= 0) || (w <= 0)) {
+            if ((w <= 0) || (h <= 0)) {
                 return EMPTY_MASK;
             }
 
