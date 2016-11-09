@@ -25,7 +25,6 @@
 
 package com.sun.marlin;
 
-
 public final class MarlinUtils {
     // Marlin logger
     private static final java.util.logging.Logger LOG;

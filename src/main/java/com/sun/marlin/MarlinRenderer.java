@@ -22,6 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package com.sun.marlin;
 
 import com.sun.javafx.geom.PathConsumer2D;
