@@ -41,14 +41,9 @@ public interface MarlinRenderer extends PathConsumer2D {
      */
     public void dispose();
 
-    public boolean endRendering();
-
     public int getOutpixMinX();
-
     public int getOutpixMaxX();
-
     public int getOutpixMinY();
-
     public int getOutpixMaxY();
 
     public void produceAlphas(MarlinAlphaConsumer ac);

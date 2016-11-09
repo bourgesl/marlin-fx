@@ -577,6 +577,10 @@ public final class RendererNoAA implements MarlinRenderer, MarlinConst {
         activeEdgeMaxUsed = 0;
         edges.used = 0;
 
+        // reset bbox:
+        bboxX0 = 0;
+        bboxX1 = 0;
+
         return this; // fluent API
     }
 
@@ -698,6 +702,9 @@ public final class RendererNoAA implements MarlinRenderer, MarlinConst {
     @Override
     public void pathDone() {
         closePath();
+
+        // call endRendering() to determine the boundaries:
+        endRendering();
     }
 
     private void _endRendering(final int ymin, final int ymax,
@@ -1288,13 +1295,12 @@ public final class RendererNoAA implements MarlinRenderer, MarlinConst {
         }
     }
 
-    @Override
-    public boolean endRendering() {
+    void endRendering() {
         if (DO_MONITORS) {
             rdrCtx.stats.mon_rdr_endRendering.start();
         }
         if (edgeMinY == Integer.MAX_VALUE) {
-            return false; // undefined edges bounds
+            return; // undefined edges bounds
         }
 
         final int _boundsMinY = boundsMinY;
@@ -1327,7 +1333,7 @@ public final class RendererNoAA implements MarlinRenderer, MarlinConst {
 
         // test clipping for shapes out of bounds
         if ((spminX > spmaxX) || (spminY > spmaxY)) {
-            return false;
+            return;
         }
 
         // half open intervals
@@ -1389,17 +1395,14 @@ public final class RendererNoAA implements MarlinRenderer, MarlinConst {
             }
             alphaLine = alphaLine_ref.getArray(width);
         }
-        return true;
     }
-
-    int bboxX0, bboxY0, bboxX1, bboxY1;
 
     void initConsumer(int minx, int miny, int maxx, int maxy)
     {
         // assert maxy >= miny && maxx >= minx;
         bboxX0 = minx;
-        bboxY0 = miny;
         bboxX1 = maxx;
+        bboxY0 = miny;
         bboxY1 = maxy;
 
         final int width = (maxx - minx);
@@ -1412,7 +1415,7 @@ public final class RendererNoAA implements MarlinRenderer, MarlinConst {
             // heuristics: use both bbox area and complexity
             // ie number of primitives:
 
-            // fast check min and max width:
+            // fast check min width:
             if (width <= RLE_MIN_WIDTH) {
                 useRLE = false;
             } else {
@@ -1472,7 +1475,9 @@ public final class RendererNoAA implements MarlinRenderer, MarlinConst {
         }
     }
 
-// JavaFX specific:
+    // output pixel bounding box:
+    int bboxX0, bboxX1, bboxY0, bboxY1;
+
     @Override
     public int getOutpixMinX() {
         return bboxX0;
