@@ -74,8 +74,8 @@ public final class RendererContext extends ReentrantContext implements MarlinCon
 // MarlinFX specific:
     // dirty bbox rectangle
     public final Rectangle clip = new Rectangle();
-    // dirty AlphaConsumer
-    public Object consumer = null;
+    // dirty MaskMarlinAlphaConsumer
+    public MaskMarlinAlphaConsumer consumer = null;
 
     // Array caches:
     /* clean int[] cache (zero-filled) = 5 refs */
