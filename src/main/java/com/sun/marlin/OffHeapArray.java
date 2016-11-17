@@ -80,7 +80,7 @@ public final class OffHeapArray  {
     }
 
     /* members */
-    public long address;
+    long address;
     long length;
     int  used;
 
@@ -123,10 +123,15 @@ public final class OffHeapArray  {
                                 + this.length
                                 + " at addr = " + this.address);
         }
+        this.address = 0L;
     }
 
     void fill(final byte val) {
         UNSAFE.setMemory(this.address, this.length, val);
+    }
+
+    public long getAddress() {
+        return this.address;
     }
 
     // Custom disposer (replaced by jdk9 Cleaner)

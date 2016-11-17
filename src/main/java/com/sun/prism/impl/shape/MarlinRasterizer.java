@@ -212,7 +212,7 @@ public final class MarlinRasterizer implements ShapeRasterizer {
             ALPHA_MAP = _ALPHA_MAP; // Keep alive the OffHeapArray
             ALPHA_MAP_UNSAFE = new OffHeapArray(ALPHA_MAP, ALPHA_MAP.length); // 1K
 
-            long addr = ALPHA_MAP_UNSAFE.address;
+            long addr = ALPHA_MAP_UNSAFE.getAddress();
 
             for (int i = 0; i < _ALPHA_MAP.length; i++) {
                 _unsafe.putByte(addr + i, _ALPHA_MAP[i]);
@@ -223,7 +223,7 @@ public final class MarlinRasterizer implements ShapeRasterizer {
             ALPHA_MAP_NO_AA = _ALPHA_MAP_NO_AA; // Keep alive the OffHeapArray
             ALPHA_MAP_UNSAFE_NO_AA = new OffHeapArray(ALPHA_MAP_NO_AA, ALPHA_MAP_NO_AA.length);
 
-            addr = ALPHA_MAP_UNSAFE_NO_AA.address;
+            addr = ALPHA_MAP_UNSAFE_NO_AA.getAddress();
 
             for (int i = 0; i < _ALPHA_MAP_NO_AA.length; i++) {
                 _unsafe.putByte(addr + i, _ALPHA_MAP_NO_AA[i]);
@@ -267,7 +267,7 @@ public final class MarlinRasterizer implements ShapeRasterizer {
             final int off = (pix_y - y) * w;
 
             final Unsafe _unsafe = OffHeapArray.UNSAFE;
-            final long addr_alpha = ALPHA_MAP_USED.address;
+            final long addr_alpha = ALPHA_MAP_USED.getAddress();
 
             final int from = pix_from - x;
 
@@ -331,7 +331,7 @@ public final class MarlinRasterizer implements ShapeRasterizer {
             final int off = (pix_y - y) * w;
 
             final Unsafe _unsafe = OffHeapArray.UNSAFE;
-            final long addr_alpha = ALPHA_MAP_USED.address;
+            final long addr_alpha = ALPHA_MAP_USED.getAddress();
 
             final int from = pix_from - x;
 

@@ -23,7 +23,7 @@
  * questions.
  */
 
-package com.sun;
+package com.sun.util.reentrant;
 
 import java.lang.ref.Reference;
 import java.util.concurrent.ConcurrentLinkedQueue;
