@@ -38,10 +38,10 @@ import sun.misc.Unsafe;
  *
  * @author bourgesl
  */
-public final class OffHeapArray  {
+final class OffHeapArray  {
 
     // unsafe reference
-    public static final Unsafe UNSAFE;
+    static final Unsafe UNSAFE;
     // size of int / float
     static final int SIZE_INT;
 
@@ -84,7 +84,7 @@ public final class OffHeapArray  {
     long length;
     int  used;
 
-    public OffHeapArray(final Object parent, final long len) {
+    OffHeapArray(final Object parent, final long len) {
         // note: may throw OOME:
         this.address = UNSAFE.allocateMemory(len);
         this.length  = len;
@@ -128,10 +128,6 @@ public final class OffHeapArray  {
 
     void fill(final byte val) {
         UNSAFE.setMemory(this.address, this.length, val);
-    }
-
-    public long getAddress() {
-        return this.address;
     }
 
     // Custom disposer (replaced by jdk9 Cleaner)
