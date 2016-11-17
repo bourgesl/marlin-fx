@@ -27,9 +27,9 @@ package com.sun.marlin;
 
 import java.security.AccessController;
 import static com.sun.marlin.MarlinUtils.logInfo;
-import com.sun.ReentrantContextProvider;
-import com.sun.ReentrantContextProviderCLQ;
-import com.sun.ReentrantContextProviderTL;
+import com.sun.util.reentrant.ReentrantContextProvider;
+import com.sun.util.reentrant.ReentrantContextProviderCLQ;
+import com.sun.util.reentrant.ReentrantContextProviderTL;
 import com.sun.javafx.geom.PathIterator;
 import com.sun.prism.BasicStroke;
 import java.security.PrivilegedAction;
@@ -57,8 +57,6 @@ public class MarlinRenderingEngine implements MarlinConst
         {
             throw new InternalError("mismatched renderer constants");
         }
-
-        logSettings(Renderer.class.getName());
     }
 
     // --- RendererContext handling ---
@@ -111,6 +109,8 @@ public class MarlinRenderingEngine implements MarlinConst
                     }
                 };
         }
+
+        logSettings(Renderer.class.getName());
     }
 
     private static boolean SETTINGS_LOGGED = !ENABLE_LOGS;

@@ -25,7 +25,6 @@
 
 package com.sun.marlin;
 
-import com.sun.javafx.geom.Rectangle;
 import static com.sun.marlin.OffHeapArray.SIZE_INT;
 import jdk.internal.misc.Unsafe;
 

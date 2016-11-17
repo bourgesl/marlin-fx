@@ -28,7 +28,7 @@ package com.sun.marlin;
 import java.awt.geom.Path2D;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicInteger;
-import com.sun.ReentrantContext;
+import com.sun.util.reentrant.ReentrantContext;
 import com.sun.javafx.geom.Rectangle;
 import com.sun.marlin.ArrayCacheConst.CacheStats;
 

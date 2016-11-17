@@ -86,20 +86,6 @@ public final class MarlinProperties {
     }
 
     /**
-     * Return the log(2) corresponding to the square tile size in pixels
-     *
-     * @return 3 (8x8 pixels) < tile size < 8 (256x256 pixels)
-     * (5 by default ie 32x32 pixels)
-     */
-    public static int getTileSize_Log2() {
-        return getInteger("prism.marlin.tileSize_log2", 5, 3, 8);
-    }
-
-    public static int getTileWidth_Log2() {
-        return getInteger("prism.marlin.tileWidth_log2", 5, 3, 10);
-    }
-
-    /**
      * Return the log(2) corresponding to the block size in pixels
      *
      * @return 3 (8 pixels) < block size < 8 (256 pixels)

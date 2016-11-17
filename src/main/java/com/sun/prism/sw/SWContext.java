@@ -25,6 +25,7 @@
 
 package com.sun.prism.sw;
 
+import com.sun.javafx.geom.Path2D;
 import com.sun.javafx.geom.Rectangle;
 import com.sun.javafx.geom.Shape;
 import com.sun.javafx.geom.transform.BaseTransform;
@@ -129,7 +130,7 @@ final class SWContext {
     }
 
     static final class MarlinShapeRenderer implements ShapeRenderer {
-        private final DirectRTPiscesMarlinAlphaConsumer alphaConsumer = new DirectRTPiscesMarlinAlphaConsumer();
+        private final DirectRTMarlinAlphaConsumer alphaConsumer = new DirectRTMarlinAlphaConsumer();
 
         @Override
         public void renderShape(PiscesRenderer pr, Shape shape, BasicStroke stroke, BaseTransform tr, Rectangle clip, boolean antialiasedShape) {
@@ -146,7 +147,14 @@ final class SWContext {
             final RendererContext rdrCtx = MarlinRenderingEngine.getRendererContext();
             MarlinRenderer renderer = null;
             try {
-                renderer = MarlinPrismUtils.setupRenderer(rdrCtx, shape, stroke, tr, clip, antialiasedShape);
+                if (shape instanceof Path2D) {
+                    renderer = MarlinPrismUtils.setupRenderer(rdrCtx, (Path2D) shape, stroke, tr, clip,
+                            antialiasedShape);
+                }
+                if (renderer == null) {
+                    renderer = MarlinPrismUtils.setupRenderer(rdrCtx, shape, stroke, tr, clip,
+                            antialiasedShape);
+                }
                 final int outpix_xmin = renderer.getOutpixMinX();
                 final int outpix_xmax = renderer.getOutpixMaxX();
                 final int outpix_ymin = renderer.getOutpixMinY();
@@ -170,7 +178,7 @@ final class SWContext {
         @Override
         public void dispose() { }
 
-        private static final class DirectRTPiscesMarlinAlphaConsumer implements MarlinAlphaConsumer {
+        private static final class DirectRTMarlinAlphaConsumer implements MarlinAlphaConsumer {
             private byte alpha_map[];
             private int x;
             private int y;
@@ -242,13 +250,14 @@ final class SWContext {
 
                 // clear properly the end of the alphaDeltas:
                 final int to = pix_to - x;
-                if (w < to) {
-                    alphaDeltas[w] = 0;
+                if (to <= w) {
+                    alphaDeltas[to] = 0;
+                } else {
+                    alphaDeltas[w]  = 0;
                 }
-                alphaDeltas[to] = 0;
 
                 if (MarlinConst.DO_CHECKS) {
-                    IntArrayCache.check(alphaDeltas, pix_from - x, pix_to - x + 1, 0);
+                    IntArrayCache.check(alphaDeltas, pix_from - x, to + 1, 0);
                 }
             }
 
