@@ -53,7 +53,7 @@ public class QPathTest {
 
     static {
         Locale.setDefault(Locale.US);
-        
+
         try {
 
         // initialize j.u.l Looger:
@@ -88,7 +88,7 @@ public class QPathTest {
         System.setProperty("prism.marlin.log", "true");
         System.setProperty("prism.marlin.useLogger", "true");
         System.setProperty("prism.marlin.doChecks", "true");
-        
+
         } catch (Exception e) {
             System.out.println("Exception in static initializer");
             e.printStackTrace();
@@ -102,7 +102,7 @@ public class QPathTest {
     public static class MyApp extends Application {
 
         Stage stage = null;
-        
+
         public MyApp() {
             super();
         }
