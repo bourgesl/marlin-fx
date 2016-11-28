@@ -309,10 +309,10 @@ public final class MaskMarlinAlphaConsumer implements MarlinAlphaConsumer {
             // Process remaining span:
             if (curAlpha != 0) {
                 val = _unsafe.getByte(addr_alpha + curAlpha);
-                do {
+                while (i < ato) {
                     out[off + i] = val;
                     i++;
-                } while (i < ato);
+                }
             }
 
         } else {
@@ -363,10 +363,10 @@ public final class MaskMarlinAlphaConsumer implements MarlinAlphaConsumer {
             // Process remaining span:
             if (curAlpha != 0) {
                 val = _unsafe.getByte(addr_alpha + curAlpha);
-                do {
+                while (i < ato) {
                     out[off + i] = val;
                     i++;
-                } while (i < ato);
+                }
             }
 
             while (i < w) {

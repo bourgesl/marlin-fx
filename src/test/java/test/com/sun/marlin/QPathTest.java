@@ -41,7 +41,7 @@ public class QPathTest {
     private final static double SCALE = 2.0;
 
     private final static int TIMEOUT_START = 1000;
-    private final static long MAX_DURATION = 3000 * 1000 * 1000L; // 3s
+    private final static long MAX_DURATION = 100 * 3000 * 1000 * 1000L; // 3s
 
     // Used to launch the application before running any test
     private static final CountDownLatch launchLatch = new CountDownLatch(1);
@@ -53,7 +53,7 @@ public class QPathTest {
 
     static {
         Locale.setDefault(Locale.US);
-        
+
         try {
 
         // initialize j.u.l Looger:
@@ -86,7 +86,7 @@ public class QPathTest {
         System.setProperty("prism.marlin.log", "true");
         System.setProperty("prism.marlin.useLogger", "true");
         System.setProperty("prism.marlin.doChecks", "true");
-        
+
         } catch (Exception e) {
             System.out.println("Exception in static initializer");
             e.printStackTrace();
@@ -100,7 +100,7 @@ public class QPathTest {
     public static class MyApp extends Application {
 
         Stage stage = null;
-        
+
         public MyApp() {
             super();
         }
@@ -140,7 +140,8 @@ public class QPathTest {
         Platform.exit();
     }
 
-    @Test(timeout = 10000)
+    @Test
+        //(timeout = 10000)
     public void TestBug() {
         Platform.runLater(() -> {
             SVGPath path = new SVGPath();
