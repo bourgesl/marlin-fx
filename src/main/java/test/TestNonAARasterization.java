@@ -8,6 +8,7 @@ import java.awt.geom.PathIterator;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -69,6 +70,13 @@ public class TestNonAARasterization extends Application {
     static final Color IN = Color.YELLOW;
     static final Color OUT = Color.WHITE;
     static final Color GRAY = Color.CYAN;
+
+    static final long SEED = 1666133789L;
+    static final Random RAND;
+
+    static {
+        RAND = new Random(SEED);
+    }
 
     public static class Result {
         final Path2D path2d;
@@ -359,7 +367,7 @@ public class TestNonAARasterization extends Application {
     }
 
     public static double rand(double d) {
-        return Math.random() * d;
+        return RAND.nextDouble() * d;
     }
 
     boolean done;

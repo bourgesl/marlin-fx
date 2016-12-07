@@ -21,9 +21,9 @@ public class ShapePerformanceBug extends Application {
 		double r = 1843200.0;
 		double c = D - r/sqrt2;
 
-		Circle shape = new Circle(c, c, r, Color.GREY);
+		Circle shape = new Circle(c, c, r, Color.BLUE);
 
-		shape.setStroke(Color.BLACK);
+		shape.setStroke(Color.RED);
 		shape.setStrokeWidth(2.0);
 		shape.getStrokeDashArray().addAll(10.0, 5.0);
 

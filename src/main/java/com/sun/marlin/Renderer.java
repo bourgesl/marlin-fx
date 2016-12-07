@@ -32,8 +32,8 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
 
     static final boolean DISABLE_RENDER = false;
 
-    private static final int ALL_BUT_LSB = 0xfffffffe;
-    private static final int ERR_STEP_MAX = 0x7fffffff; // = 2^31 - 1
+    private static final int ALL_BUT_LSB = 0xFFFFFFFe;
+    private static final int ERR_STEP_MAX = 0x7FFFFFFF; // = 2^31 - 1
 
     private static final double POWER_2_TO_32 = 0x1.0p32;
 
@@ -68,16 +68,17 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
     // curve break into lines
     // cubic error in subpixels to decrement step
     private static final float CUB_DEC_ERR_SUBPIX
-        = 1f * (NORM_SUBPIXELS / 8f); // 1 subpixel for typical 8x8 subpixels
+        = 1f * (NORM_SUBPIXELS / 8f); // 1 pixel
     // cubic error in subpixels to increment step
     private static final float CUB_INC_ERR_SUBPIX
-        = 0.4f * (NORM_SUBPIXELS / 8f); // 0.4 subpixel for typical 8x8 subpixels
+        = 0.4f * (NORM_SUBPIXELS / 8f); // 0.4 pixel
 
-    // cubic bind length to decrement step = 8 * error in subpixels
-    // multiply by 8 = error scale factor:
+    // bad paths (59294/100000 == 59,29%, 94335 bad pixels (avg = 1,59), 3966 warnings (avg = 0,07)
+
+    // cubic bind length to decrement step
     public static final float CUB_DEC_BND
         = 8f * CUB_DEC_ERR_SUBPIX;
-    // cubic bind length to increment step = 8 * error in subpixels
+    // cubic bind length to increment step
     public static final float CUB_INC_BND
         = 8f * CUB_INC_ERR_SUBPIX;
 
@@ -99,7 +100,9 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
     // quad break into lines
     // quadratic error in subpixels
     private static final float QUAD_DEC_ERR_SUBPIX
-        = 1f * (NORM_SUBPIXELS / 8f); // 1 subpixel for typical 8x8 subpixels
+        = 0.5f * (NORM_SUBPIXELS / 8f); // 0.5 pixel
+
+    // bad paths (62916/100000 == 62,92%, 103818 bad pixels (avg = 1,65), 6514 warnings (avg = 0,10)
 
     // quadratic bind length to decrement step = 8 * error in subpixels
     public static final float QUAD_DEC_BND
@@ -168,7 +171,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
         int count = 1; // dt = 1 / count
 
         // maximum(ddX|Y) = norm(dbx, dby) * dt^2 (= 1)
-        float maxDD = FloatMath.max(Math.abs(c.dbx), Math.abs(c.dby));
+        float maxDD = Math.abs(c.dbx) + Math.abs(c.dby);
 
         final float _DEC_BND = QUAD_DEC_BND;
 
@@ -247,7 +250,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
 
         while (count > 0) {
             // divide step by half:
-            while (Math.abs(ddx) >= _DEC_BND || Math.abs(ddy) >= _DEC_BND) {
+            while (Math.abs(ddx) + Math.abs(ddy) >= _DEC_BND) {
                 dddx /= 8f;
                 dddy /= 8f;
                 ddx = ddx/4f - dddx;
@@ -267,7 +270,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
 
             // can only do this on even "count" values, because we must divide count by 2
             while (count % 2 == 0
-                   && Math.abs(dx) <= _INC_BND && Math.abs(dy) <= _INC_BND)
+                   && Math.abs(dx) + Math.abs(dy) <= _INC_BND)
             {
                 dx = 2f * dx + ddx;
                 dy = 2f * dy + ddy;
@@ -424,13 +427,13 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
         // long x1_fixed = x1_intercept * 2^32;  (fixed point 32.32 format)
         // curx = next VPC = fixed_floor(x1_fixed - 2^31 + 2^32 - 1)
         //                 = fixed_floor(x1_fixed + 2^31 - 1)
-        //                 = fixed_floor(x1_fixed + 0x7fffffff)
-        // and error       = fixed_fract(x1_fixed + 0x7fffffff)
+        //                 = fixed_floor(x1_fixed + 0x7FFFFFFF)
+        // and error       = fixed_fract(x1_fixed + 0x7FFFFFFF)
         final double x1_intercept = x1d + (firstCrossing - y1d) * slope;
 
         // inlined scalb(x1_intercept, 32):
         final long x1_fixed_biased = ((long) (POWER_2_TO_32 * x1_intercept))
-                                     + 0x7fffffffL;
+                                     + 0x7FFFFFFFL;
         // curx:
         // last bit corresponds to the orientation
         _unsafe.putInt(addr, (((int) (x1_fixed_biased >> 31L)) & ALL_BUT_LSB) | or);
