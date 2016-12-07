@@ -6,8 +6,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Random;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -58,7 +57,7 @@ public class TestNonAARasterization extends Application {
     static final int NUMTESTS = 100000;
     static final int TESTW = 50;
     static final int TESTH = 50;
-    static final int MAG = 15;
+    static final int MAG = 18;
 
     static final int BGPIXEL = 0xffffffff;
     static final int FGPIXEL = 0xff000000;
@@ -69,6 +68,13 @@ public class TestNonAARasterization extends Application {
     static final Color IN = Color.YELLOW;
     static final Color OUT = Color.WHITE;
     static final Color GRAY = Color.CYAN;
+
+    static final long SEED = 1666133789L;
+    static final Random RAND;
+
+    static {
+        RAND = new Random(SEED);
+    }
 
     public static class Result {
         final Path2D path2d;
@@ -89,7 +95,7 @@ public class TestNonAARasterization extends Application {
         }
     }
 
-    List<Result> badpaths = new ArrayList<>();
+    int numBadPaths = 0;
     Result worst;
     int numpathstested;
     long totalerrors;
@@ -112,7 +118,7 @@ public class TestNonAARasterization extends Application {
         resultpath.setSmooth(false);
         resultpath.getTransforms().add(new Scale(MAG, MAG));
         resultpath.setFill(null);
-        resultpath.setStroke(Color.BLACK);
+        resultpath.setStroke(Color.DARKGRAY);
         resultpath.setStrokeWidth(1.0 / MAG);
         root.setCenter(new Group(resultcv, resultpath));
 
@@ -281,7 +287,7 @@ public class TestNonAARasterization extends Application {
     }
 
     public void updateLabel() {
-        int numbadpaths = badpaths.size();
+        int numbadpaths = numBadPaths;
         double percentbadpaths = numbadpaths * 100.0 / numpathstested;
         double avgbadpixels = (totalerrors == 0) ? 0.0 : totalerrors * 1.0 / numbadpaths;
         double avgwarnings = (totalwarnings == 0) ? 0.0 : totalwarnings * 1.0 / numbadpaths;
@@ -342,7 +348,7 @@ public class TestNonAARasterization extends Application {
     }
 
     public void addResult(Result r, int numtested) {
-        badpaths.add(r);
+        numBadPaths++;
         if (r.worseThan(worst)) {
             worst = r;
         }
@@ -359,7 +365,7 @@ public class TestNonAARasterization extends Application {
     }
 
     public static double rand(double d) {
-        return Math.random() * d;
+        return RAND.nextDouble() * d;
     }
 
     boolean done;

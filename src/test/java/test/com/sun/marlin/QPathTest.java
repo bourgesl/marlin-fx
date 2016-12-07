@@ -8,28 +8,29 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-
-import javafx.animation.KeyValue;
 import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Bounds;
-import javafx.stage.Stage;
-import javafx.scene.Scene;
 import javafx.scene.Group;
+import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
+import javafx.stage.Stage;
 import javafx.util.Duration;
+
 import junit.framework.AssertionFailedError;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import static test.util.Util.TIMEOUT;
 
 /**
  * @test
@@ -40,8 +41,7 @@ public class QPathTest {
 
     private final static double SCALE = 2.0;
 
-    private final static int TIMEOUT_START = 1000;
-    private final static long MAX_DURATION = 100 * 3000 * 1000 * 1000L; // 3s
+    private final static long MAX_DURATION = 3000 * 1000 * 1000L; // 3s
 
     // Used to launch the application before running any test
     private static final CountDownLatch launchLatch = new CountDownLatch(1);
@@ -53,8 +53,6 @@ public class QPathTest {
 
     static {
         Locale.setDefault(Locale.US);
-
-        try {
 
         // initialize j.u.l Looger:
         final Logger log = Logger.getLogger("prism.marlin");
@@ -83,14 +81,10 @@ public class QPathTest {
         });
 
         // enable Marlin logging & internal checks:
+        System.setProperty("prism.marlinrasterizer", "true");
         System.setProperty("prism.marlin.log", "true");
         System.setProperty("prism.marlin.useLogger", "true");
         System.setProperty("prism.marlin.doChecks", "true");
-
-        } catch (Exception e) {
-            System.out.println("Exception in static initializer");
-            e.printStackTrace();
-        }
     }
 
     private CountDownLatch latch = new CountDownLatch(1);
@@ -123,7 +117,7 @@ public class QPathTest {
         new Thread(() -> Application.launch(MyApp.class, (String[]) null)).start();
 
         try {
-            if (!launchLatch.await(TIMEOUT_START, TimeUnit.MILLISECONDS)) {
+            if (!launchLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)) {
                 throw new AssertionFailedError("Timeout waiting for Application to launch");
             }
         } catch (InterruptedException ex) {
@@ -140,20 +134,21 @@ public class QPathTest {
         Platform.exit();
     }
 
-    @Test
-        //(timeout = 10000)
+    @Test(timeout = 10000)
     public void TestBug() {
         Platform.runLater(() -> {
             SVGPath path = new SVGPath();
             String svgpath = readPath();
             path.setContent(svgpath);
-            path.setScaleX(SCALE);
-            path.setScaleY(SCALE);
 
-            Scene scene = new Scene(new Group(path), 400 * SCALE, 400 * SCALE, Color.WHITE);
+            Scene scene = new Scene(new Group(path), 400, 400, Color.WHITE);
             myApp.stage.setScene(scene);
             myApp.stage.show();
-
+/*
+            DoubleProperty rscale = new SimpleDoubleProperty(SCALE);
+            myApp.stage.renderScaleXProperty().bind(rscale);
+            myApp.stage.renderScaleYProperty().bind(rscale);
+*/
             double scw = scene.getWidth();
             double sch = scene.getHeight();
             Bounds pathbounds = path.getBoundsInParent();
