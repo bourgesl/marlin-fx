@@ -104,7 +104,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
 
     // bad paths (62916/100000 == 62,92%, 103818 bad pixels (avg = 1,65), 6514 warnings (avg = 0,10)
 
-    // quadratic bind length to decrement step = 8 * error in subpixels
+    // quadratic bind length to decrement step
     public static final float QUAD_DEC_BND
         = 8f * QUAD_DEC_ERR_SUBPIX;
 
@@ -145,7 +145,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
     private float edgeMinX = Float.POSITIVE_INFINITY;
     private float edgeMaxX = Float.NEGATIVE_INFINITY;
 
-    // edges [floats|ints] stored in off-heap memory
+    // edges [ints] stored in off-heap memory
     private final OffHeapArray edges;
 
     private int[] edgeBuckets;
@@ -325,7 +325,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
             x1 = tmp;
         }
 
-        // convert subpixel coordinates (float) into pixel positions (int)
+        // convert subpixel coordinates [float] into pixel positions (int)
 
         // The index of the pixel that holds the next HPC is at ceil(trueY - 0.5)
         // Since y1 and y2 are biased by -0.5 in tosubpixy(), this is simply
@@ -950,8 +950,8 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
                         // get the pointer to the edge
                         ecur = _edgePtrs[i];
 
-                        /* convert subpixel coordinates (float) into pixel
-                            positions (int) for coming scanline */
+                        /* convert subpixel coordinates into pixel
+                            positions for coming scanline */
                         /* note: it is faster to always update edges even
                            if it is removed from AEL for coming or last scanline */
 
@@ -1050,8 +1050,8 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
                         // get the pointer to the edge
                         ecur = _edgePtrs[i];
 
-                        /* convert subpixel coordinates (float) into pixel
-                            positions (int) for coming scanline */
+                        /* convert subpixel coordinates into pixel
+                            positions for coming scanline */
                         /* note: it is faster to always update edges even
                            if it is removed from AEL for coming or last scanline */
 
@@ -1181,7 +1181,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
 
                                     if (useBlkFlags) {
                                         // flag used blocks:
-                                        _blkFlags[pix_x       >> _BLK_SIZE_LG] = 1;
+                                        _blkFlags[ pix_x      >> _BLK_SIZE_LG] = 1;
                                         _blkFlags[(pix_x + 1) >> _BLK_SIZE_LG] = 1;
                                     }
                                 } else {
@@ -1203,7 +1203,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
                                         // flag used blocks:
                                         _blkFlags[ pix_x         >> _BLK_SIZE_LG] = 1;
                                         _blkFlags[(pix_x + 1)    >> _BLK_SIZE_LG] = 1;
-                                        _blkFlags[pix_xmax       >> _BLK_SIZE_LG] = 1;
+                                        _blkFlags[ pix_xmax      >> _BLK_SIZE_LG] = 1;
                                         _blkFlags[(pix_xmax + 1) >> _BLK_SIZE_LG] = 1;
                                     }
                                 }
@@ -1252,7 +1252,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
 
                                     if (useBlkFlags) {
                                         // flag used blocks:
-                                        _blkFlags[pix_x       >> _BLK_SIZE_LG] = 1;
+                                        _blkFlags[ pix_x      >> _BLK_SIZE_LG] = 1;
                                         _blkFlags[(pix_x + 1) >> _BLK_SIZE_LG] = 1;
                                     }
                                 } else {
@@ -1274,7 +1274,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
                                         // flag used blocks:
                                         _blkFlags[ pix_x         >> _BLK_SIZE_LG] = 1;
                                         _blkFlags[(pix_x + 1)    >> _BLK_SIZE_LG] = 1;
-                                        _blkFlags[pix_xmax       >> _BLK_SIZE_LG] = 1;
+                                        _blkFlags[ pix_xmax      >> _BLK_SIZE_LG] = 1;
                                         _blkFlags[(pix_xmax + 1) >> _BLK_SIZE_LG] = 1;
                                     }
                                 }
@@ -1385,33 +1385,33 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
         final int _boundsMinY = boundsMinY;
         final int _boundsMaxY = boundsMaxY;
 
-        // bounds as inclusive intervals
+        // bounds as half-open intervals
         final int spminX = FloatMath.max(FloatMath.ceil_int(edgeMinX - 0.5f), boundsMinX);
-        final int spmaxX = FloatMath.min(FloatMath.ceil_int(edgeMaxX - 0.5f), boundsMaxX - 1);
+        final int spmaxX = FloatMath.min(FloatMath.ceil_int(edgeMaxX - 0.5f), boundsMaxX);
 
         // edge Min/Max Y are already rounded to subpixels within bounds:
         final int spminY = edgeMinY;
         final int spmaxY;
         int maxY = edgeMaxY;
 
-        if (maxY <= _boundsMaxY - 1) {
+        if (maxY <= _boundsMaxY) {
             spmaxY = maxY;
         } else {
-            spmaxY = _boundsMaxY - 1;
-            maxY   = _boundsMaxY;
+            spmaxY = _boundsMaxY;
+            maxY   = _boundsMaxY + 1;
         }
         buckets_minY = spminY - _boundsMinY;
         buckets_maxY = maxY   - _boundsMinY;
 
         if (DO_LOG_BOUNDS) {
             MarlinUtils.logInfo("edgesXY = [" + edgeMinX + " ... " + edgeMaxX
-                                + "][" + edgeMinY + " ... " + edgeMaxY + "]");
+                                + "[ [" + edgeMinY + " ... " + edgeMaxY + "[");
             MarlinUtils.logInfo("spXY    = [" + spminX + " ... " + spmaxX
-                                + "][" + spminY + " ... " + spmaxY + "]");
+                                + "[ [" + spminY + " ... " + spmaxY + "[");
         }
 
         // test clipping for shapes out of bounds
-        if ((spminX > spmaxX) || (spminY > spmaxY)) {
+        if ((spminX >= spmaxX) || (spminY >= spmaxY)) {
             return;
         }
 
@@ -1453,7 +1453,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
         // inclusive:
         bbox_spminY = spminY;
         // exclusive:
-        bbox_spmaxY = FloatMath.min(spmaxY + 1, pmaxY << SUBPIXEL_LG_POSITIONS_Y);
+        bbox_spmaxY = spmaxY;
 
         if (DO_LOG_BOUNDS) {
             MarlinUtils.logInfo("pXY       = [" + pminX + " ... " + pmaxX
