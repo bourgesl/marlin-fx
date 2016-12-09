@@ -32,7 +32,7 @@ public final class DRendererNoAA implements DMarlinRenderer, MarlinConst {
 
     static final boolean DISABLE_RENDER = false;
 
-    private static final int ALL_BUT_LSB = 0xFFFFFFFe;
+    private static final int ALL_BUT_LSB = 0xFFFFFFFE;
     private static final int ERR_STEP_MAX = 0x7FFFFFFF; // = 2^31 - 1
 
     private static final double POWER_2_TO_32 = 0x1.0p32;
@@ -317,7 +317,7 @@ public final class DRendererNoAA implements DMarlinRenderer, MarlinConst {
             x1 = tmp;
         }
 
-        // convert subpixel coordinates [double] into pixel positions (int)
+        // convert subpixel coordinates [double] into pixel positions [int]
 
         // The index of the pixel that holds the next HPC is at ceil(trueY - 0.5)
         // Since y1 and y2 are biased by -0.5 in tosubpixy(), this is simply
@@ -1307,26 +1307,16 @@ public final class DRendererNoAA implements DMarlinRenderer, MarlinConst {
             return; // undefined edges bounds
         }
 
-        final int _boundsMinY = boundsMinY;
-        final int _boundsMaxY = boundsMaxY;
-
         // bounds as half-open intervals
         final int spminX = FloatMath.max(FloatMath.ceil_int(edgeMinX - 0.5D), boundsMinX);
         final int spmaxX = FloatMath.min(FloatMath.ceil_int(edgeMaxX - 0.5D), boundsMaxX);
 
         // edge Min/Max Y are already rounded to subpixels within bounds:
         final int spminY = edgeMinY;
-        final int spmaxY;
-        int maxY = edgeMaxY;
+        final int spmaxY = edgeMaxY;
 
-        if (maxY <= _boundsMaxY) {
-            spmaxY = maxY;
-        } else {
-            spmaxY = _boundsMaxY;
-            maxY   = _boundsMaxY + 1;
-        }
-        buckets_minY = spminY - _boundsMinY;
-        buckets_maxY = maxY   - _boundsMinY;
+        buckets_minY = spminY - boundsMinY;
+        buckets_maxY = spmaxY - boundsMinY;
 
         if (DO_LOG_BOUNDS) {
             MarlinUtils.logInfo("edgesXY = [" + edgeMinX + " ... " + edgeMaxX
