@@ -199,15 +199,15 @@ public class DMarlinRenderingEngine implements MarlinConst
 
         // quality settings
         logInfo("Renderer settings:");
-        logInfo("CUB_COUNT_LG = " + Renderer.CUB_COUNT_LG);
-        logInfo("CUB_DEC_BND  = " + Renderer.CUB_DEC_BND);
-        logInfo("CUB_INC_BND  = " + Renderer.CUB_INC_BND);
-        logInfo("QUAD_DEC_BND = " + Renderer.QUAD_DEC_BND);
+        logInfo("CUB_COUNT_LG = " + DRenderer.CUB_COUNT_LG);
+        logInfo("CUB_DEC_BND  = " + DRenderer.CUB_DEC_BND);
+        logInfo("CUB_INC_BND  = " + DRenderer.CUB_INC_BND);
+        logInfo("QUAD_DEC_BND = " + DRenderer.QUAD_DEC_BND);
 
         logInfo("INITIAL_EDGES_CAPACITY        = "
                 + MarlinConst.INITIAL_EDGES_CAPACITY);
         logInfo("INITIAL_CROSSING_COUNT        = "
-                + Renderer.INITIAL_CROSSING_COUNT);
+                + DRenderer.INITIAL_CROSSING_COUNT);
 
         logInfo("=========================================================="
                 + "=====================");
