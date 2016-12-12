@@ -207,7 +207,7 @@ public class MarlinRenderingEngine implements MarlinConst
         logInfo("INITIAL_EDGES_CAPACITY        = "
                 + MarlinConst.INITIAL_EDGES_CAPACITY);
         logInfo("INITIAL_CROSSING_COUNT        = "
-                + Renderer.INITIAL_CROSSING_COUNT);
+                + MarlinConst.INITIAL_CROSSING_COUNT);
 
         logInfo("=========================================================="
                 + "=====================");

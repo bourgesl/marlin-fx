@@ -2,6 +2,7 @@
 /*.png
 dependency-reduced-pom.xml
 /target/
-/nbactions.xml
-/nb-configuration.xml
+nbactions.xml
+nb-configuration.xml
+nbactions-deployer.xml
 /nbproject/
