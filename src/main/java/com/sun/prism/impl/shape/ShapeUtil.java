@@ -36,13 +36,14 @@ public class ShapeUtil {
     private static final ShapeRasterizer shapeRasterizer;
     static {
         // Enable Marlin-FX by setting -Dprism.marlin=true
-        // or Double-precision Marlin-FX by setting -Dprism.marlin.double=true
-        if (com.sun.marlin.MarlinProperties.isMarlinDPEnabled()) {
-            System.out.println("Marlin-FX[" + com.sun.marlin.Version.getVersion() + "] (double) enabled.");
-            shapeRasterizer = new DMarlinRasterizer();
-        } else if (com.sun.marlin.MarlinProperties.isMarlinEnabled()) {
-            System.out.println("Marlin-FX[" + com.sun.marlin.Version.getVersion() + "] (float)  enabled.");
-            shapeRasterizer = new MarlinRasterizer();
+        if (com.sun.marlin.MarlinProperties.isMarlinEnabled()) {
+            if (com.sun.marlin.MarlinProperties.isDoublePrecisionEnabled()) {
+                System.out.println("Marlin-FX[" + com.sun.marlin.Version.getVersion() + "] (double) enabled.");
+                shapeRasterizer = new DMarlinRasterizer();
+            } else {
+                System.out.println("Marlin-FX[" + com.sun.marlin.Version.getVersion() + "] (float)  enabled.");
+                shapeRasterizer = new MarlinRasterizer();
+            }
         } else if (PrismSettings.doNativePisces) {
             shapeRasterizer = new NativePiscesRasterizer();
         } else {
