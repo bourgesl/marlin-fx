@@ -6,6 +6,7 @@ import com.sun.javafx.geom.RectBounds;
 import com.sun.javafx.geom.RoundRectangle2D;
 import com.sun.javafx.geom.Shape;
 import com.sun.javafx.geom.transform.BaseTransform;
+import com.sun.prism.impl.shape.DMarlinRasterizer;
 import com.sun.prism.impl.shape.MarlinRasterizer;
 import com.sun.prism.impl.shape.NativePiscesRasterizer;
 import com.sun.prism.impl.shape.OpenPiscesRasterizer;
@@ -13,8 +14,8 @@ import com.sun.prism.impl.shape.ShapeRasterizer;
 
 public class RasterPerf {
 
-    static final int PRIME_CALLS = 5;
-    static final long warmupns = 1000l * 1000l * 1000l;
+    static final int PRIME_CALLS = 1000;
+    static final long warmupns = 1000l * 1000l * 500l;
     static final long targetns = 1000l * 1000l * 3000l;
 
     static String allresults = "";
@@ -94,14 +95,19 @@ public class RasterPerf {
 
     public static void bench(ShapeRasterizer sr, String srname) {
         bench(sr, srname + " non-AA", false);
+        allresults += "\n";
         bench(sr, srname + " AA", true);
+        allresults += "\n\n";
     }
 
     public static void main(String argv[]) {
-        bench(new NativePiscesRasterizer(), "native");
-        bench(new OpenPiscesRasterizer(), "Java");
-        bench(new MarlinRasterizer(), "Marlin");
-        System.out.println();
-        System.out.println(allresults);
+        for (int n = 0; n < 2; n++) {
+//            bench(new NativePiscesRasterizer(), "native");
+//            bench(new OpenPiscesRasterizer(), "Java");
+            bench(new MarlinRasterizer(), "MarlinFX");
+            bench(new DMarlinRasterizer(), "DMarlinFX");
+            System.out.println();
+            System.out.println(allresults);
+        }
     }
 }

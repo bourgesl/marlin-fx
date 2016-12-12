@@ -52,7 +52,6 @@ public final class FloatArrayCache implements MarlinConst {
     private final int bucketCapacity;
     private WeakReference<Bucket[]> refBuckets = null;
     final CacheStats stats;
-    int bucketCount = 0;
 
     FloatArrayCache(final boolean clean, final int bucketCapacity) {
         this.clean = clean;
@@ -97,9 +96,6 @@ public final class FloatArrayCache implements MarlinConst {
         private final FloatArrayCache cache;
 
         Reference(final FloatArrayCache cache, final int initialSize) {
-            if (++cache.bucketCount > cache.bucketCapacity) {
-                throw new IllegalStateException("FloatArrayCache capacity is too small");
-            }
             this.cache = cache;
             this.clean = cache.clean;
             this.initial = createArray(initialSize, clean);

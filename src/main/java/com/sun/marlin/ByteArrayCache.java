@@ -52,7 +52,6 @@ public final class ByteArrayCache implements MarlinConst {
     private final int bucketCapacity;
     private WeakReference<Bucket[]> refBuckets = null;
     final CacheStats stats;
-    int bucketCount = 0;
 
     ByteArrayCache(final boolean clean, final int bucketCapacity) {
         this.clean = clean;
@@ -97,9 +96,6 @@ public final class ByteArrayCache implements MarlinConst {
         private final ByteArrayCache cache;
 
         Reference(final ByteArrayCache cache, final int initialSize) {
-            if (++cache.bucketCount > cache.bucketCapacity) {
-                throw new IllegalStateException("ByteArrayCache capacity is too small");
-            }
             this.cache = cache;
             this.clean = cache.clean;
             this.initial = createArray(initialSize, clean);

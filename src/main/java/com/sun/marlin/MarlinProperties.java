@@ -41,6 +41,10 @@ public final class MarlinProperties {
         return getBoolean("prism.marlin", "true");
     }
 
+    public static boolean isMarlinDPEnabled() {
+        return getBoolean("prism.marlin.double", "false");
+    }
+    
     public static boolean isUseThreadLocal() {
         return getBoolean("prism.marlin.useThreadLocal", "true");
     }
