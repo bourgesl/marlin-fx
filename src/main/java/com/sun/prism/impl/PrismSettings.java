@@ -217,7 +217,7 @@ public final class PrismSettings {
         tryOrder = Collections.unmodifiableList(Arrays.asList(tryOrderArr));
 
         useMarlinRasterizer   = getBoolean(systemProperties, "prism.marlinrasterizer", false);
-        useMarlinRasterizerDP = getBoolean(systemProperties, "prism.marlin.double", false);
+        useMarlinRasterizerDP = getBoolean(systemProperties, "prism.marlin.double", true);
         if (useMarlinRasterizer) {
             doNativePisces = false;
         } else {
