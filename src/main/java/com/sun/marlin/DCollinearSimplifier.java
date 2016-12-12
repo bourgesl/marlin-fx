@@ -34,7 +34,7 @@ public final class DCollinearSimplifier implements DPathConsumer2D {
         Empty, PreviousPoint, PreviousLine
     };
     // slope precision threshold
-    static final double EPS = 1e-4D; // aaime proposed 1e-3D
+    static final double EPS = 1e-4d; // aaime proposed 1e-3d
 
     DPathConsumer2D delegate;
     SimplifierState state;
@@ -141,7 +141,7 @@ public final class DCollinearSimplifier implements DPathConsumer2D {
 
     private static double getSlope(double x1, double y1, double x2, double y2) {
         double dy = y2 - y1;
-        if (dy == 0D) {
+        if (dy == 0d) {
             return (x2 > x1) ? Double.POSITIVE_INFINITY
                    : Double.NEGATIVE_INFINITY;
         }

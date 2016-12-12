@@ -68,19 +68,19 @@ public final class DRenderer implements DMarlinRenderer, MarlinConst {
     // curve break into lines
     // cubic error in subpixels to decrement step
     private static final double CUB_DEC_ERR_SUBPIX
-        = 1D * (NORM_SUBPIXELS / 8D); // 1 pixel
+        = 1d * (NORM_SUBPIXELS / 8d); // 1 pixel
     // cubic error in subpixels to increment step
     private static final double CUB_INC_ERR_SUBPIX
-        = 0.4D * (NORM_SUBPIXELS / 8D); // 0.4 pixel
+        = 0.4d * (NORM_SUBPIXELS / 8d); // 0.4 pixel
 
     // bad paths (59294/100000 == 59,29%, 94335 bad pixels (avg = 1,59), 3966 warnings (avg = 0,07)
 
     // cubic bind length to decrement step
     public static final double CUB_DEC_BND
-        = 8D * CUB_DEC_ERR_SUBPIX;
+        = 8d * CUB_DEC_ERR_SUBPIX;
     // cubic bind length to increment step
     public static final double CUB_INC_BND
-        = 8D * CUB_INC_ERR_SUBPIX;
+        = 8d * CUB_INC_ERR_SUBPIX;
 
     // cubic countlg
     public static final int CUB_COUNT_LG = 2;
@@ -91,22 +91,22 @@ public final class DRenderer implements DMarlinRenderer, MarlinConst {
     // cubic count^3 = 8^countlg
     private static final int CUB_COUNT_3 = 1 << (3 * CUB_COUNT_LG);
     // cubic dt = 1 / count
-    private static final double CUB_INV_COUNT = 1D / CUB_COUNT;
+    private static final double CUB_INV_COUNT = 1d / CUB_COUNT;
     // cubic dt^2 = 1 / count^2 = 1 / 4^countlg
-    private static final double CUB_INV_COUNT_2 = 1D / CUB_COUNT_2;
+    private static final double CUB_INV_COUNT_2 = 1d / CUB_COUNT_2;
     // cubic dt^3 = 1 / count^3 = 1 / 8^countlg
-    private static final double CUB_INV_COUNT_3 = 1D / CUB_COUNT_3;
+    private static final double CUB_INV_COUNT_3 = 1d / CUB_COUNT_3;
 
     // quad break into lines
     // quadratic error in subpixels
     private static final double QUAD_DEC_ERR_SUBPIX
-        = 0.5D * (NORM_SUBPIXELS / 8D); // 0.5 pixel
+        = 0.5d * (NORM_SUBPIXELS / 8d); // 0.5 pixel
 
     // bad paths (62916/100000 == 62,92%, 103818 bad pixels (avg = 1,65), 6514 warnings (avg = 0,10)
 
     // quadratic bind length to decrement step
     public static final double QUAD_DEC_BND
-        = 8D * QUAD_DEC_ERR_SUBPIX;
+        = 8d * QUAD_DEC_ERR_SUBPIX;
 
 //////////////////////////////////////////////////////////////////////////////
 //  SCAN LINE
@@ -177,7 +177,7 @@ public final class DRenderer implements DMarlinRenderer, MarlinConst {
 
         while (maxDD >= _DEC_BND) {
             // divide step by half:
-            maxDD /= 4D; // error divided by 2^2 = 4
+            maxDD /= 4d; // error divided by 2^2 = 4
 
             count <<= 1;
             if (DO_STATS) {
@@ -187,7 +187,7 @@ public final class DRenderer implements DMarlinRenderer, MarlinConst {
 
         int nL = 0; // line count
         if (count > 1) {
-            final double icount = 1D / count; // dt
+            final double icount = 1d / count; // dt
             final double icount2 = icount * icount; // dt^2
 
             final double ddx = c.dbx * icount2;
@@ -234,8 +234,8 @@ public final class DRenderer implements DMarlinRenderer, MarlinConst {
         // the dx and dy refer to forward differencing variables, not the last
         // coefficients of the "points" polynomial
         double dddx, dddy, ddx, ddy, dx, dy;
-        dddx = 2D * c.dax * icount3;
-        dddy = 2D * c.day * icount3;
+        dddx = 2d * c.dax * icount3;
+        dddy = 2d * c.day * icount3;
         ddx = dddx + c.dbx * icount2;
         ddy = dddy + c.dby * icount2;
         dx = c.ax * icount3 + c.bx * icount2 + c.cx * icount;
@@ -251,12 +251,12 @@ public final class DRenderer implements DMarlinRenderer, MarlinConst {
         while (count > 0) {
             // divide step by half:
             while (Math.abs(ddx) + Math.abs(ddy) >= _DEC_BND) {
-                dddx /= 8D;
-                dddy /= 8D;
-                ddx = ddx/4D - dddx;
-                ddy = ddy/4D - dddy;
-                dx = (dx - ddx) / 2D;
-                dy = (dy - ddy) / 2D;
+                dddx /= 8d;
+                dddy /= 8d;
+                ddx = ddx/4d - dddx;
+                ddy = ddy/4d - dddy;
+                dx = (dx - ddx) / 2d;
+                dy = (dy - ddy) / 2d;
 
                 count <<= 1;
                 if (DO_STATS) {
@@ -272,12 +272,12 @@ public final class DRenderer implements DMarlinRenderer, MarlinConst {
             while (count % 2 == 0
                    && Math.abs(dx) + Math.abs(dy) <= _INC_BND)
             {
-                dx = 2D * dx + ddx;
-                dy = 2D * dy + ddy;
-                ddx = 4D * (ddx + dddx);
-                ddy = 4D * (ddy + dddy);
-                dddx *= 8D;
-                dddy *= 8D;
+                dx = 2d * dx + ddx;
+                dy = 2d * dy + ddy;
+                ddx = 4d * (ddx + dddx);
+                ddy = 4d * (ddy + dddy);
+                dddx *= 8d;
+                dddy *= 8d;
 
                 count >>= 1;
                 if (DO_STATS) {
@@ -659,7 +659,7 @@ public final class DRenderer implements DMarlinRenderer, MarlinConst {
 
     private static double tosubpixy(final double pix_y) {
         // shift y by -0.5 for fast ceil(y - 0.5):
-        return F_SUBPIXEL_POSITIONS_Y * pix_y - 0.5D;
+        return F_SUBPIXEL_POSITIONS_Y * pix_y - 0.5d;
     }
 
     @Override
@@ -1383,8 +1383,8 @@ public final class DRenderer implements DMarlinRenderer, MarlinConst {
         }
 
         // bounds as half-open intervals
-        final int spminX = FloatMath.max(FloatMath.ceil_int(edgeMinX - 0.5D), boundsMinX);
-        final int spmaxX = FloatMath.min(FloatMath.ceil_int(edgeMaxX - 0.5D), boundsMaxX);
+        final int spminX = FloatMath.max(FloatMath.ceil_int(edgeMinX - 0.5d), boundsMinX);
+        final int spmaxX = FloatMath.min(FloatMath.ceil_int(edgeMaxX - 0.5d), boundsMaxX);
 
         // edge Min/Max Y are already rounded to subpixels within bounds:
         final int spminY = edgeMinY;

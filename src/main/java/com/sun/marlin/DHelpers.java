@@ -52,27 +52,27 @@ final class DHelpers implements MarlinConst {
     {
         int ret = off;
         double t;
-        if (a != 0D) {
+        if (a != 0d) {
             final double dis = b*b - 4*a*c;
-            if (dis > 0D) {
+            if (dis > 0d) {
                 final double sqrtDis = Math.sqrt(dis);
                 // depending on the sign of b we use a slightly different
                 // algorithm than the traditional one to find one of the roots
                 // so we can avoid adding numbers of different signs (which
                 // might result in loss of precision).
-                if (b >= 0D) {
-                    zeroes[ret++] = (2D * c) / (-b - sqrtDis);
-                    zeroes[ret++] = (-b - sqrtDis) / (2D * a);
+                if (b >= 0d) {
+                    zeroes[ret++] = (2d * c) / (-b - sqrtDis);
+                    zeroes[ret++] = (-b - sqrtDis) / (2d * a);
                 } else {
-                    zeroes[ret++] = (-b + sqrtDis) / (2D * a);
-                    zeroes[ret++] = (2D * c) / (-b + sqrtDis);
+                    zeroes[ret++] = (-b + sqrtDis) / (2d * a);
+                    zeroes[ret++] = (2d * c) / (-b + sqrtDis);
                 }
-            } else if (dis == 0D) {
-                t = (-b) / (2D * a);
+            } else if (dis == 0d) {
+                t = (-b) / (2d * a);
                 zeroes[ret++] = t;
             }
         } else {
-            if (b != 0D) {
+            if (b != 0d) {
                 t = (-c) / b;
                 zeroes[ret++] = t;
             }
@@ -85,13 +85,13 @@ final class DHelpers implements MarlinConst {
                               double[] pts, final int off,
                               final double A, final double B)
     {
-        if (d == 0D) {
+        if (d == 0d) {
             int num = quadraticRoots(a, b, c, pts, off);
             return filterOutNotInAB(pts, off, num, A, B) - off;
         }
         // From Graphics Gems:
         // http://tog.acm.org/resources/GraphicsGems/gems/Roots3And4.c
-        // (also from awt.geom.CubicDCurve2D. But here we don't need as
+        // (also from awt.geom.CubicCurve2D. But here we don't need as
         // much accuracy and we don't want to create arrays so we use
         // our own customized version).
 
@@ -136,12 +136,12 @@ final class DHelpers implements MarlinConst {
             num = 1;
 
             if (within(D, 0.0, 1e-8)) {
-                pts[off+1] = -(pts[off] / 2D);
+                pts[off+1] = -(pts[off] / 2d);
                 num = 2;
             }
         }
 
-        final double sub = (1D/3D) * a;
+        final double sub = (1d/3d) * a;
 
         for (int i = 0; i < num; ++i) {
             pts[ off+i ] -= sub;
@@ -178,7 +178,7 @@ final class DHelpers implements MarlinConst {
 
     static double polyLineLength(double[] poly, final int off, final int nCoords) {
         assert nCoords % 2 == 0 && poly.length >= off + nCoords : "";
-        double acc = 0;
+        double acc = 0d;
         for (int i = off + 2; i < off + nCoords; i += 2) {
             acc += linelen(poly[i], poly[i+1], poly[i-2], poly[i-1]);
         }
@@ -218,8 +218,8 @@ final class DHelpers implements MarlinConst {
     }
 
     // Most of these are copied from classes in java.awt.geom because we need
-    // double versions of these functions, and Line2D, CubicDCurve2D,
-    // QuadDCurve2D don't provide them.
+    // double versions of these functions, and Line2D, CubicCurve2D,
+    // QuadCurve2D don't provide them.
     /**
      * Subdivides the cubic curve specified by the coordinates
      * stored in the <code>src</code> array at indices <code>srcoff</code>
@@ -268,18 +268,18 @@ final class DHelpers implements MarlinConst {
             right[rightoff + 6] = x2;
             right[rightoff + 7] = y2;
         }
-        x1 = (x1 + ctrlx1) / 2D;
-        y1 = (y1 + ctrly1) / 2D;
-        x2 = (x2 + ctrlx2) / 2D;
-        y2 = (y2 + ctrly2) / 2D;
-        double centerx = (ctrlx1 + ctrlx2) / 2D;
-        double centery = (ctrly1 + ctrly2) / 2D;
-        ctrlx1 = (x1 + centerx) / 2D;
-        ctrly1 = (y1 + centery) / 2D;
-        ctrlx2 = (x2 + centerx) / 2D;
-        ctrly2 = (y2 + centery) / 2D;
-        centerx = (ctrlx1 + ctrlx2) / 2D;
-        centery = (ctrly1 + ctrly2) / 2D;
+        x1 = (x1 + ctrlx1) / 2d;
+        y1 = (y1 + ctrly1) / 2d;
+        x2 = (x2 + ctrlx2) / 2d;
+        y2 = (y2 + ctrly2) / 2d;
+        double centerx = (ctrlx1 + ctrlx2) / 2d;
+        double centery = (ctrly1 + ctrly2) / 2d;
+        ctrlx1 = (x1 + centerx) / 2d;
+        ctrly1 = (y1 + centery) / 2d;
+        ctrlx2 = (x2 + centerx) / 2d;
+        ctrly2 = (y2 + centery) / 2d;
+        centerx = (ctrlx1 + ctrlx2) / 2d;
+        centery = (ctrly1 + ctrly2) / 2d;
         if (left != null) {
             left[leftoff + 2] = x1;
             left[leftoff + 3] = y1;
@@ -367,12 +367,12 @@ final class DHelpers implements MarlinConst {
             right[rightoff + 4] = x2;
             right[rightoff + 5] = y2;
         }
-        x1 = (x1 + ctrlx) / 2D;
-        y1 = (y1 + ctrly) / 2D;
-        x2 = (x2 + ctrlx) / 2D;
-        y2 = (y2 + ctrly) / 2D;
-        ctrlx = (x1 + x2) / 2D;
-        ctrly = (y1 + y2) / 2D;
+        x1 = (x1 + ctrlx) / 2d;
+        y1 = (y1 + ctrly) / 2d;
+        x2 = (x2 + ctrlx) / 2d;
+        y2 = (y2 + ctrly) / 2d;
+        ctrlx = (x1 + x2) / 2d;
+        ctrly = (y1 + y2) / 2d;
         if (left != null) {
             left[leftoff + 2] = x1;
             left[leftoff + 3] = y1;
