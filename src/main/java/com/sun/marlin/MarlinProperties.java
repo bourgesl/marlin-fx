@@ -149,7 +149,7 @@ public final class MarlinProperties {
     // logging parameters
 
     public static boolean isLoggingEnabled() {
-        return getBoolean("prism.marlin.log", "false");
+        return getBoolean("prism.marlin.log", "true");
     }
 
     public static boolean isUseLogger() {
