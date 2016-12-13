@@ -352,10 +352,7 @@ public final class DRenderer implements DMarlinRenderer, MarlinConst {
             edgeMaxY = lastCrossing;
         }
 
-        // Use double-precision for improved accuracy:
-        final double x1d   = x1;
-        final double y1d   = y1;
-        final double slope = (x1d - x2) / (y1d - y2);
+        final double slope = (x1 - x2) / (y1 - y2);
 
         if (slope >= 0.0) { // <==> x1 < x2
             if (x1 < edgeMinX) {
@@ -422,7 +419,7 @@ public final class DRenderer implements DMarlinRenderer, MarlinConst {
         //                 = fixed_floor(x1_fixed + 2^31 - 1)
         //                 = fixed_floor(x1_fixed + 0x7FFFFFFF)
         // and error       = fixed_fract(x1_fixed + 0x7FFFFFFF)
-        final double x1_intercept = x1d + (firstCrossing - y1d) * slope;
+        final double x1_intercept = x1 + (firstCrossing - y1) * slope;
 
         // inlined scalb(x1_intercept, 32):
         final long x1_fixed_biased = ((long) (POWER_2_TO_32 * x1_intercept))
