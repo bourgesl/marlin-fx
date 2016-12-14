@@ -37,11 +37,6 @@ final class DHelpers implements MarlinConst {
         throw new Error("This is a non instantiable class");
     }
 
-    static boolean withinUNUSED(final double x, final double y, final double err) {
-        final double d = y - x;
-        return (d <= err && d >= -err);
-    }
-
     static boolean within(final double x, final double y, final double err) {
         final double d = y - x;
         return (d <= err && d >= -err);

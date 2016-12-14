@@ -444,7 +444,7 @@ public final class DDasher implements DPathConsumer2D, MarlinConst {
 
         // the lengths of the lines of the control polygon. Only its first
         // curveType/2 - 1 elements are valid. This is an optimization. See
-        // next for more detail.
+        // next() for more detail.
         private final double[] curLeafCtrlPolyLengths = new double[3];
 
         LengthIterator() {
