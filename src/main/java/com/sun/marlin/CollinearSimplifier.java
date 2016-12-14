@@ -141,7 +141,7 @@ public final class CollinearSimplifier implements PathConsumer2D {
 
     private static float getSlope(float x1, float y1, float x2, float y2) {
         float dy = y2 - y1;
-        if (dy == 0f) {
+        if (dy == 0.0f) {
             return (x2 > x1) ? Float.POSITIVE_INFINITY
                    : Float.NEGATIVE_INFINITY;
         }

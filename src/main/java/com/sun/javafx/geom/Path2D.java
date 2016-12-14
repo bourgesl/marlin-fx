@@ -345,7 +345,6 @@ import java.util.Arrays;
         } else if (numTypes >= size) {
             pointTypes = expandPointTypes(pointTypes, 1);
         }
-        size = floatCoords.length;
         if (numCoords > (floatCoords.length - newCoords)) {
             floatCoords = expandCoords(floatCoords, newCoords);
         }

@@ -160,7 +160,7 @@ public final class DoubleArrayCache implements MarlinConst {
             if (array.length <= MAX_ARRAY_SIZE) {
                 if ((clean || DO_CLEAN_DIRTY) && (toIndex != 0)) {
                     // clean-up array of dirty part[fromIndex; toIndex[
-                    fill(array, fromIndex, toIndex, (double) 0);
+                    fill(array, fromIndex, toIndex, 0.0d);
                 }
                 // ensure to never store initial arrays in cache:
                 if (array != initial) {
