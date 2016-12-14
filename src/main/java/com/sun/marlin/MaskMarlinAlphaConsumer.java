@@ -77,10 +77,6 @@ public final class MaskMarlinAlphaConsumer implements MarlinAlphaConsumer {
         return height;
     }
 
-    public byte[] getAlphasNoClone() {
-        return alphas;
-    }
-
     public int getAlphaLength() {
         return alphas.length;
     }

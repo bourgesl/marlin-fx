@@ -80,7 +80,7 @@ public final class MarlinPrismUtils {
         int dashLen = -1;
         boolean recycleDashes = false;
 
-        float width = 0f, dashphase = 0f;
+        float width = 0.0f, dashphase = 0.0f;
         float[] dashes = null;
 
         if (stroke != null) {
@@ -177,7 +177,7 @@ public final class MarlinPrismUtils {
     }
 
     private static boolean nearZero(final double num) {
-        return Math.abs(num) < 2.0 * Math.ulp(num);
+        return Math.abs(num) < 2.0d * Math.ulp(num);
     }
 
     public static MarlinRenderer setupRenderer(

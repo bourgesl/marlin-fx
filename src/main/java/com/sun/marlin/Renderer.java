@@ -38,10 +38,8 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
     private static final double POWER_2_TO_32 = 0x1.0p32;
 
     // use float to make tosubpix methods faster (no int to float conversion)
-    static final float F_SUBPIXEL_POSITIONS_X
-        = (float) SUBPIXEL_POSITIONS_X;
-    static final float F_SUBPIXEL_POSITIONS_Y
-        = (float) SUBPIXEL_POSITIONS_Y;
+    static final float SUBPIXEL_SCALE_X = (float) SUBPIXEL_POSITIONS_X;
+    static final float SUBPIXEL_SCALE_Y = (float) SUBPIXEL_POSITIONS_Y;
     static final int SUBPIXEL_MASK_X = SUBPIXEL_POSITIONS_X - 1;
     static final int SUBPIXEL_MASK_Y = SUBPIXEL_POSITIONS_Y - 1;
 
@@ -68,19 +66,19 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
     // curve break into lines
     // cubic error in subpixels to decrement step
     private static final float CUB_DEC_ERR_SUBPIX
-        = 1f * (NORM_SUBPIXELS / 8f); // 1 pixel
+        = 1.0f * (NORM_SUBPIXELS / 8.0f); // 1 pixel
     // cubic error in subpixels to increment step
     private static final float CUB_INC_ERR_SUBPIX
-        = 0.4f * (NORM_SUBPIXELS / 8f); // 0.4 pixel
+        = 0.4f * (NORM_SUBPIXELS / 8.0f); // 0.4 pixel
 
     // bad paths (59294/100000 == 59,29%, 94335 bad pixels (avg = 1,59), 3966 warnings (avg = 0,07)
 
     // cubic bind length to decrement step
     public static final float CUB_DEC_BND
-        = 8f * CUB_DEC_ERR_SUBPIX;
+        = 8.0f * CUB_DEC_ERR_SUBPIX;
     // cubic bind length to increment step
     public static final float CUB_INC_BND
-        = 8f * CUB_INC_ERR_SUBPIX;
+        = 8.0f * CUB_INC_ERR_SUBPIX;
 
     // cubic countlg
     public static final int CUB_COUNT_LG = 2;
@@ -91,22 +89,22 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
     // cubic count^3 = 8^countlg
     private static final int CUB_COUNT_3 = 1 << (3 * CUB_COUNT_LG);
     // cubic dt = 1 / count
-    private static final float CUB_INV_COUNT = 1f / CUB_COUNT;
+    private static final float CUB_INV_COUNT = 1.0f / CUB_COUNT;
     // cubic dt^2 = 1 / count^2 = 1 / 4^countlg
-    private static final float CUB_INV_COUNT_2 = 1f / CUB_COUNT_2;
+    private static final float CUB_INV_COUNT_2 = 1.0f / CUB_COUNT_2;
     // cubic dt^3 = 1 / count^3 = 1 / 8^countlg
-    private static final float CUB_INV_COUNT_3 = 1f / CUB_COUNT_3;
+    private static final float CUB_INV_COUNT_3 = 1.0f / CUB_COUNT_3;
 
     // quad break into lines
     // quadratic error in subpixels
     private static final float QUAD_DEC_ERR_SUBPIX
-        = 0.5f * (NORM_SUBPIXELS / 8f); // 0.5 pixel
+        = 0.5f * (NORM_SUBPIXELS / 8.0f); // 0.5 pixel
 
     // bad paths (62916/100000 == 62,92%, 103818 bad pixels (avg = 1,65), 6514 warnings (avg = 0,10)
 
     // quadratic bind length to decrement step
     public static final float QUAD_DEC_BND
-        = 8f * QUAD_DEC_ERR_SUBPIX;
+        = 8.0f * QUAD_DEC_ERR_SUBPIX;
 
 //////////////////////////////////////////////////////////////////////////////
 //  SCAN LINE
@@ -177,7 +175,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
 
         while (maxDD >= _DEC_BND) {
             // divide step by half:
-            maxDD /= 4f; // error divided by 2^2 = 4
+            maxDD /= 4.0f; // error divided by 2^2 = 4
 
             count <<= 1;
             if (DO_STATS) {
@@ -187,7 +185,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
 
         int nL = 0; // line count
         if (count > 1) {
-            final float icount = 1f / count; // dt
+            final float icount = 1.0f / count; // dt
             final float icount2 = icount * icount; // dt^2
 
             final float ddx = c.dbx * icount2;
@@ -234,8 +232,8 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
         // the dx and dy refer to forward differencing variables, not the last
         // coefficients of the "points" polynomial
         float dddx, dddy, ddx, ddy, dx, dy;
-        dddx = 2f * c.dax * icount3;
-        dddy = 2f * c.day * icount3;
+        dddx = 2.0f * c.dax * icount3;
+        dddy = 2.0f * c.day * icount3;
         ddx = dddx + c.dbx * icount2;
         ddy = dddy + c.dby * icount2;
         dx = c.ax * icount3 + c.bx * icount2 + c.cx * icount;
@@ -251,12 +249,12 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
         while (count > 0) {
             // divide step by half:
             while (Math.abs(ddx) + Math.abs(ddy) >= _DEC_BND) {
-                dddx /= 8f;
-                dddy /= 8f;
-                ddx = ddx/4f - dddx;
-                ddy = ddy/4f - dddy;
-                dx = (dx - ddx) / 2f;
-                dy = (dy - ddy) / 2f;
+                dddx /= 8.0f;
+                dddy /= 8.0f;
+                ddx = ddx / 4.0f - dddx;
+                ddy = ddy / 4.0f - dddy;
+                dx = (dx - ddx) / 2.0f;
+                dy = (dy - ddy) / 2.0f;
 
                 count <<= 1;
                 if (DO_STATS) {
@@ -265,19 +263,16 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
             }
 
             // double step:
-            // TODO: why use first derivative dX|Y instead of second ddX|Y ?
-            // both scale changes should use speed or acceleration to have the same metric.
-
             // can only do this on even "count" values, because we must divide count by 2
             while (count % 2 == 0
                    && Math.abs(dx) + Math.abs(dy) <= _INC_BND)
             {
-                dx = 2f * dx + ddx;
-                dy = 2f * dy + ddy;
-                ddx = 4f * (ddx + dddx);
-                ddy = 4f * (ddy + dddy);
-                dddx *= 8f;
-                dddy *= 8f;
+                dx = 2.0f * dx + ddx;
+                dy = 2.0f * dy + ddy;
+                ddx = 4.0f * (ddx + dddx);
+                ddy = 4.0f * (ddy + dddy);
+                dddx *= 8.0f;
+                dddy *= 8.0f;
 
                 count >>= 1;
                 if (DO_STATS) {
@@ -364,7 +359,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
         final double y1d   = y1;
         final double slope = (x1d - x2) / (y1d - y2);
 
-        if (slope >= 0.0) { // <==> x1 < x2
+        if (slope >= 0.0d) { // <==> x1 < x2
             if (x1 < edgeMinX) {
                 edgeMinX = x1;
             }
@@ -654,12 +649,12 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
     }
 
     private static float tosubpixx(final float pix_x) {
-        return F_SUBPIXEL_POSITIONS_X * pix_x;
+        return SUBPIXEL_SCALE_X * pix_x;
     }
 
     private static float tosubpixy(final float pix_y) {
         // shift y by -0.5 for fast ceil(y - 0.5):
-        return F_SUBPIXEL_POSITIONS_Y * pix_y - 0.5f;
+        return SUBPIXEL_SCALE_Y * pix_y - 0.5f;
     }
 
     @Override

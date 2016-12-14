@@ -44,13 +44,13 @@ public final class DTransformingPathConsumer2D {
         if (at == null) {
             return out;
         }
-        double mxx =  at.getMxx();
-        double mxy =  at.getMxy();
-        double myx =  at.getMyx();
-        double myy =  at.getMyy();
+        double mxx = at.getMxx();
+        double mxy = at.getMxy();
+        double myx = at.getMyx();
+        double myy = at.getMyy();
 
-        if (mxy == 0d && myx == 0d) {
-            if (mxx == 1d && myy == 1d) {
+        if (mxy == 0.0d && myx == 0.0d) {
+            if (mxx == 1.0d && myy == 1.0d) {
                 return out;
             } else {
                 return dt_DeltaScaleFilter.init(out, mxx, myy);
@@ -70,13 +70,13 @@ public final class DTransformingPathConsumer2D {
         if (at == null) {
             return out;
         }
-        double mxx =  at.getMxx();
-        double mxy =  at.getMxy();
-        double myx =  at.getMyx();
-        double myy =  at.getMyy();
+        double mxx = at.getMxx();
+        double mxy = at.getMxy();
+        double myx = at.getMyx();
+        double myy = at.getMyy();
 
-        if (mxy == 0d && myx == 0d) {
-            if (mxx == 1d && myy == 1d) {
+        if (mxy == 0.0d && myx == 0.0d) {
+            if (mxx == 1.0d && myy == 1.0d) {
                 return out;
             } else {
                 return iv_DeltaScaleFilter.init(out, 1.0d/mxx, 1.0d/myy);

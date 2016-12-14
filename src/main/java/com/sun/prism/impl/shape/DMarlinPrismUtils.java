@@ -80,7 +80,7 @@ public final class DMarlinPrismUtils {
         int dashLen = -1;
         boolean recycleDashes = false;
 
-        double width = 0f, dashphase = 0f;
+        double width = 0.0f, dashphase = 0.0f;
         double[] dashesD = null;
 
         if (stroke != null) {
@@ -178,7 +178,7 @@ public final class DMarlinPrismUtils {
     }
 
     private static boolean nearZero(final double num) {
-        return Math.abs(num) < 2.0 * Math.ulp(num);
+        return Math.abs(num) < 2.0d * Math.ulp(num);
     }
 
     public static DMarlinRenderer setupRenderer(

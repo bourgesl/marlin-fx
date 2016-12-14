@@ -49,8 +49,8 @@ public final class TransformingPathConsumer2D {
         float myx = (float) at.getMyx();
         float myy = (float) at.getMyy();
 
-        if (mxy == 0f && myx == 0f) {
-            if (mxx == 1f && myy == 1f) {
+        if (mxy == 0.0f && myx == 0.0f) {
+            if (mxx == 1.0f && myy == 1.0f) {
                 return out;
             } else {
                 return dt_DeltaScaleFilter.init(out, mxx, myy);
@@ -75,8 +75,8 @@ public final class TransformingPathConsumer2D {
         float myx = (float) at.getMyx();
         float myy = (float) at.getMyy();
 
-        if (mxy == 0f && myx == 0f) {
-            if (mxx == 1f && myy == 1f) {
+        if (mxy == 0.0f && myx == 0.0f) {
+            if (mxx == 1.0f && myy == 1.0f) {
                 return out;
             } else {
                 return iv_DeltaScaleFilter.init(out, 1.0f/mxx, 1.0f/myy);

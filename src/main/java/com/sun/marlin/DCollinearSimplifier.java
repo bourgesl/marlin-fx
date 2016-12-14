@@ -141,7 +141,7 @@ public final class DCollinearSimplifier implements DPathConsumer2D {
 
     private static double getSlope(double x1, double y1, double x2, double y2) {
         double dy = y2 - y1;
-        if (dy == 0d) {
+        if (dy == 0.0d) {
             return (x2 > x1) ? Double.POSITIVE_INFINITY
                    : Double.NEGATIVE_INFINITY;
         }
