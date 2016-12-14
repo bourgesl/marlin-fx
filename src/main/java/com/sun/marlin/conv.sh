@@ -1,4 +1,5 @@
 FILES="CollinearSimplifier Curve Renderer RendererNoAA Stroker TransformingPathConsumer2D"
+# MarlinRenderingEngine
 for f in $FILES
 do
   echo "Processing $f"
