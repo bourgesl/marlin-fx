@@ -1164,8 +1164,8 @@ public final class DRenderer implements DMarlinRenderer, MarlinConst {
 
                                     if (useBlkFlags) {
                                         // flag used blocks:
-                                        _blkFlags[ pix_x      >> _BLK_SIZE_LG] = 1;
-                                        _blkFlags[(pix_x + 1) >> _BLK_SIZE_LG] = 1;
+                                        // note: block processing handles extra pixel:
+                                        _blkFlags[pix_x    >> _BLK_SIZE_LG] = 1;
                                     }
                                 } else {
                                     tmp = (x0 & _SUBPIXEL_MASK_X);
@@ -1184,10 +1184,9 @@ public final class DRenderer implements DMarlinRenderer, MarlinConst {
 
                                     if (useBlkFlags) {
                                         // flag used blocks:
-                                        _blkFlags[ pix_x         >> _BLK_SIZE_LG] = 1;
-                                        _blkFlags[(pix_x + 1)    >> _BLK_SIZE_LG] = 1;
-                                        _blkFlags[ pix_xmax      >> _BLK_SIZE_LG] = 1;
-                                        _blkFlags[(pix_xmax + 1) >> _BLK_SIZE_LG] = 1;
+                                        // note: block processing handles extra pixel:
+                                        _blkFlags[pix_x    >> _BLK_SIZE_LG] = 1;
+                                        _blkFlags[pix_xmax >> _BLK_SIZE_LG] = 1;
                                     }
                                 }
                             }
@@ -1235,8 +1234,8 @@ public final class DRenderer implements DMarlinRenderer, MarlinConst {
 
                                     if (useBlkFlags) {
                                         // flag used blocks:
-                                        _blkFlags[ pix_x      >> _BLK_SIZE_LG] = 1;
-                                        _blkFlags[(pix_x + 1) >> _BLK_SIZE_LG] = 1;
+                                        // note: block processing handles extra pixel:
+                                        _blkFlags[pix_x    >> _BLK_SIZE_LG] = 1;
                                     }
                                 } else {
                                     tmp = (x0 & _SUBPIXEL_MASK_X);
@@ -1255,10 +1254,9 @@ public final class DRenderer implements DMarlinRenderer, MarlinConst {
 
                                     if (useBlkFlags) {
                                         // flag used blocks:
-                                        _blkFlags[ pix_x         >> _BLK_SIZE_LG] = 1;
-                                        _blkFlags[(pix_x + 1)    >> _BLK_SIZE_LG] = 1;
-                                        _blkFlags[ pix_xmax      >> _BLK_SIZE_LG] = 1;
-                                        _blkFlags[(pix_xmax + 1) >> _BLK_SIZE_LG] = 1;
+                                        // note: block processing handles extra pixel:
+                                        _blkFlags[pix_x    >> _BLK_SIZE_LG] = 1;
+                                        _blkFlags[pix_xmax >> _BLK_SIZE_LG] = 1;
                                     }
                                 }
                             }
