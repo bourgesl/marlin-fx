@@ -1,7 +1,7 @@
 MarlinFX renderer
 =================
 
-MarlinFX is the JavaFX port of the Marlin renderer (scanline rasterizer only) aimed to be faster than Open/Native Pisces (most effective with very complex paths or complex scenes).
+MarlinFX is the JavaFX port of the [Marlin-renderer](https://github.com/bourgesl/marlin-renderer) (scanline rasterizer only) aimed to be faster than Open/Native Pisces.
 
 License
 =======
@@ -48,7 +48,7 @@ Usage
 
 For testing purposes (only), MarlinFX can be used with any JavaFX application running on Oracle or Open JDK 8 (and derived JVMs).
 
-Just put the marlinfx-x.y.jar file in the bootclasspath to let JavaFX use MarlinFX instead of OpenPisces (java rasterizer) and set the following system property prism.marlin=[true|false] (true by default):
+Just put the marlinfx-x.y.jar file in the bootclasspath to let JavaFX use MarlinFX instead of OpenPisces (java rasterizer) and set the following system property prism.marlin=true/false (true by default):
 
 ``java -Xbootclasspath/p:[absolute or relative path]/marlinfx-0.7.5-Unsafe.jar -Dprism.marlin=true ...``
 
@@ -92,12 +92,12 @@ INFO: INITIAL_EDGES_CAPACITY        = 98304
 INFO: INITIAL_CROSSING_COUNT        = 1024
 INFO: ===============================================================================
 ```
-Two pipelines are available based on Double (default) and Float numerical values. To select the MarlinFX pipeline, use the system property prism.marlin.double=[true|false] (true means Double, false means Float) and is indicated in the standard output.
+Two pipelines are available based on Double (default) and Float numerical values. To select the MarlinFX pipeline, use the system property prism.marlin.double=true/false (true means Double, false means Float) and is indicated in the standard output.
 
 
 Enjoy and send us your feedback !
 
-Note: Marlin system properties have been renamed to use the prefix 'prism.marlin' like prism.marlin.log=[true|false] (true by default).
+Note: Marlin system properties have been renamed to use the prefix 'prism.marlin' like prism.marlin.log=true/false (true by default).
 
 
 Getting in touch
