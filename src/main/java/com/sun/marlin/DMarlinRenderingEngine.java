@@ -37,7 +37,7 @@ import java.security.PrivilegedAction;
 /**
  * Marlin RendererEngine implementation (derived from Pisces)
  */
-public class DMarlinRenderingEngine implements MarlinConst
+public final class DMarlinRenderingEngine implements MarlinConst
 {
     /**
      * Private constructor to prevent instantiation.
