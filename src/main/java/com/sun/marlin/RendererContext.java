@@ -78,8 +78,8 @@ public final class RendererContext extends ReentrantContext implements MarlinCon
     // Array caches:
     /* clean int[] cache (zero-filled) = 4 refs */
     private final IntArrayCache cleanIntCache = new IntArrayCache(true, 4);
-    /* dirty int[] cache = 4 refs */
-    private final IntArrayCache dirtyIntCache = new IntArrayCache(false, 4);
+    /* dirty int[] cache = 5 refs */
+    private final IntArrayCache dirtyIntCache = new IntArrayCache(false, 5);
     /* dirty float[] cache = 3 refs */
     private final FloatArrayCache dirtyFloatCache = new FloatArrayCache(false, 3);
     /* dirty byte[] cache = 1 ref */
