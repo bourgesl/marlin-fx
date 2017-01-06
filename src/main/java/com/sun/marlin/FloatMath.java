@@ -38,6 +38,7 @@ public final class FloatMath implements MarlinConst {
         // utility class
     }
 
+    // faster inlined min/max functions in the branch prediction is high
     public static int max(final int a, final int b) {
         return (a >= b) ? a : b;
     }
