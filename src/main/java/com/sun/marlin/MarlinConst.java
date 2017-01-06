@@ -92,8 +92,8 @@ public interface MarlinConst {
 
     // initial edges = edges count (4096)
     // 6 ints per edges = 24 bytes
-    // edges capacity = initial edges = edges count (4096) = 96K
-    static final int INITIAL_EDGES_CAPACITY = INITIAL_EDGES_COUNT;
+    // edges capacity = 6 x initial edges = 6 * edges count (4096) = 96K
+    static final int INITIAL_EDGES_CAPACITY = INITIAL_EDGES_COUNT * 6;
 
     // crossing capacity = edges count / 4 ~ 1024
     static final int INITIAL_CROSSING_COUNT = INITIAL_EDGES_COUNT >> 2;
