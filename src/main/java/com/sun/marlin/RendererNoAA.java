@@ -337,7 +337,7 @@ public final class RendererNoAA implements MarlinRenderer, MarlinConst {
             return;
         }
 
-        // edge min/max X/Y are in subpixel space (inclusive) within bounds:
+        // edge min/max X/Y are in subpixel space (half-open interval):
         // note: Use integer crossings to ensure consistent range within
         // edgeBuckets / edgeBucketCounts arrays in case of NaN values (int = 0)
         if (firstCrossing < edgeMinY) {
@@ -450,7 +450,7 @@ public final class RendererNoAA implements MarlinRenderer, MarlinConst {
         // pointer from bucket
         _unsafe.putInt(addr, _edgeBuckets[bucketIdx]);
         addr += SIZE_INT;
-        // y max (inclusive)
+        // y max (exclusive)
         _unsafe.putInt(addr,  lastCrossing);
 
         // Update buckets:
