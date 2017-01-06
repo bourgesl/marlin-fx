@@ -37,7 +37,7 @@ import java.security.PrivilegedAction;
 /**
  * Marlin RendererEngine implementation (derived from Pisces)
  */
-public class DMarlinRenderingEngine implements MarlinConst
+public final class DMarlinRenderingEngine implements MarlinConst
 {
     /**
      * Private constructor to prevent instantiation.
@@ -194,8 +194,6 @@ public class DMarlinRenderingEngine implements MarlinConst
                 + MarlinConst.USE_LOGGER);
         logInfo("prism.marlin.logCreateContext = "
                 + MarlinConst.LOG_CREATE_CONTEXT);
-        logInfo("prism.marlin.logUnsafeMalloc  = "
-                + MarlinConst.LOG_UNSAFE_MALLOC);
 
         // quality settings
         logInfo("Renderer settings:");

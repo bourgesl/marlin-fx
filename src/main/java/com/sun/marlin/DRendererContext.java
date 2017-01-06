@@ -128,12 +128,6 @@ public final class DRendererContext extends ReentrantContext implements MarlinCo
      * clean up before reusing this context
      */
     public void dispose() {
-        if (DO_STATS) {
-            if (stats.totalOffHeap > stats.totalOffHeapMax) {
-                stats.totalOffHeapMax = stats.totalOffHeap;
-            }
-            stats.totalOffHeap = 0L;
-        }
         stroking = 0;
         // if context is maked as DIRTY:
         if (dirty) {
@@ -157,13 +151,6 @@ public final class DRendererContext extends ReentrantContext implements MarlinCo
         return rendererNoAA;
     }
 
-    OffHeapArray newOffHeapArray(final long initialSize) {
-        if (DO_STATS) {
-            stats.totalOffHeapInitial += initialSize;
-        }
-        return new OffHeapArray(cleanerObj, initialSize);
-    }
-
     IntArrayCache.Reference newCleanIntArrayRef(final int initialSize) {
         return cleanIntCache.createRef(initialSize);
     }
@@ -182,8 +169,8 @@ public final class DRendererContext extends ReentrantContext implements MarlinCo
 
     static final class DRendererSharedMemory {
 
-        // edges [ints] stored in off-heap memory
-        final OffHeapArray edges;
+        // edges [ints] (dirty)
+        final IntArrayCache.Reference edges_ref;
 
         // edgeBuckets ref (clean)
         final IntArrayCache.Reference edgeBuckets_ref;
@@ -207,7 +194,7 @@ public final class DRendererContext extends ReentrantContext implements MarlinCo
         final IntArrayCache.Reference blkFlags_ref;
 
         DRendererSharedMemory(final DRendererContext rdrCtx) {
-            edges = rdrCtx.newOffHeapArray(INITIAL_EDGES_CAPACITY); // 96K
+            edges_ref = rdrCtx.newDirtyIntArrayRef(INITIAL_EDGES_CAPACITY); // 96K
 
             edgeBuckets_ref      = rdrCtx.newCleanIntArrayRef(INITIAL_BUCKET_ARRAY); // 64K
             edgeBucketCounts_ref = rdrCtx.newCleanIntArrayRef(INITIAL_BUCKET_ARRAY); // 64K

@@ -37,11 +37,6 @@ public interface MarlinConst {
     // log new RendererContext
     static final boolean LOG_CREATE_CONTEXT = ENABLE_LOGS
         && MarlinProperties.isLogCreateContext();
-    // log misc.Unsafe alloc/realloc/free
-    static final boolean LOG_UNSAFE_MALLOC = ENABLE_LOGS
-        && MarlinProperties.isLogUnsafeMalloc();
-    // do check unsafe alignment:
-    static final boolean DO_CHECK_UNSAFE = false;
 
     // do statistics
     static final boolean DO_STATS = ENABLE_LOGS && MarlinProperties.isDoStats();
@@ -97,8 +92,8 @@ public interface MarlinConst {
 
     // initial edges = edges count (4096)
     // 6 ints per edges = 24 bytes
-    // edges capacity = 24 x initial edges = 24 * edges count (4096) = 96K
-    static final int INITIAL_EDGES_CAPACITY = INITIAL_EDGES_COUNT * 24;
+    // edges capacity = initial edges = edges count (4096) = 96K
+    static final int INITIAL_EDGES_CAPACITY = INITIAL_EDGES_COUNT;
 
     // crossing capacity = edges count / 4 ~ 1024
     static final int INITIAL_CROSSING_COUNT = INITIAL_EDGES_COUNT >> 2;

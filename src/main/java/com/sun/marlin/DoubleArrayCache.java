@@ -229,11 +229,7 @@ public final class DoubleArrayCache implements MarlinConst {
     }
 
     static double[] createArray(final int length, final boolean clean) {
-//        if (clean) {
-            return new double[length];
-//        }
-        // use JDK9 Unsafe.allocateUninitializedArray(class, length):
-//        return (double[]) OffHeapArray.UNSAFE.allocateUninitializedArray(double.class, length);
+        return new double[length];
     }
 
     static void fill(final double[] array, final int fromIndex,

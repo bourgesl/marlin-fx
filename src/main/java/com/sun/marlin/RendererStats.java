@@ -223,11 +223,6 @@ public final class RendererStats implements MarlinConst {
         mon_ptg_getAlpha,
         mon_debug
     };
-    // offheap stats
-    long totalOffHeapInitial = 0L;
-     // live accumulator
-    long totalOffHeap = 0L;
-    long totalOffHeapMax = 0L;
     // cache stats
     CacheStats[] cacheStats = null;
 
@@ -269,15 +264,9 @@ public final class RendererStats implements MarlinConst {
                 }
             }
 
-            logInfo("OffHeap footprint: initial: " + totalOffHeapInitial
-                + " bytes - max: " + totalOffHeapMax + " bytes");
-            if (DO_FLUSH_STATS) {
-                totalOffHeapMax = 0L;
-            }
-
             logInfo("Array caches for RendererContext: " + name);
 
-            long totalInitialBytes = totalOffHeapInitial;
+            long totalInitialBytes = 0L;
             long totalCacheBytes   = 0L;
 
             if (cacheStats != null) {

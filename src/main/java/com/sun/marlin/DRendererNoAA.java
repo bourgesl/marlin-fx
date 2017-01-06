@@ -25,9 +25,6 @@
 
 package com.sun.marlin;
 
-import static com.sun.marlin.OffHeapArray.SIZE_INT;
-import sun.misc.Unsafe;
-
 public final class DRendererNoAA implements DMarlinRenderer, MarlinConst {
 
     static final boolean DISABLE_RENDER = false;
@@ -38,17 +35,16 @@ public final class DRendererNoAA implements DMarlinRenderer, MarlinConst {
     private static final double POWER_2_TO_32 = 0x1.0p32;
 
     // common to all types of input path segments.
-    // OFFSET as bytes
     // only integer values:
-    public static final long OFF_CURX_OR  = 0;
-    public static final long OFF_ERROR    = OFF_CURX_OR  + SIZE_INT;
-    public static final long OFF_BUMP_X   = OFF_ERROR    + SIZE_INT;
-    public static final long OFF_BUMP_ERR = OFF_BUMP_X   + SIZE_INT;
-    public static final long OFF_NEXT     = OFF_BUMP_ERR + SIZE_INT;
-    public static final long OFF_YMAX     = OFF_NEXT     + SIZE_INT;
+    public static final int OFF_CURX_OR  = 0;
+    public static final int OFF_ERROR    = 1;
+    public static final int OFF_BUMP_X   = 2;
+    public static final int OFF_BUMP_ERR = 3;
+    public static final int OFF_NEXT     = 4;
+    public static final int OFF_YMAX     = 5;
 
-    // size of one edge in bytes
-    public static final int SIZEOF_EDGE_BYTES = (int)(OFF_YMAX + SIZE_INT);
+    // size of one edge
+    public static final int SIZEOF_EDGE  = OFF_YMAX + 1;
 
     // curve break into lines
     // cubic error in subpixels to decrement step
@@ -130,8 +126,14 @@ public final class DRendererNoAA implements DMarlinRenderer, MarlinConst {
     private double edgeMinX = Double.POSITIVE_INFINITY;
     private double edgeMaxX = Double.NEGATIVE_INFINITY;
 
-    // edges [ints] stored in off-heap memory
-    private final OffHeapArray edges;
+    // current position in edge arrays (last used mark)
+    private int edgesPos;
+
+    // edges [ints] (dirty)
+    private int[] edges;
+
+    // edges ref (dirty)
+    private final IntArrayCache.Reference edges_ref;
 
     private int[] edgeBuckets;
     private int[] edgeBucketCounts; // 2*newedges + (1 if pruning needed)
@@ -331,7 +333,7 @@ public final class DRendererNoAA implements DMarlinRenderer, MarlinConst {
             return;
         }
 
-        // edge min/max X/Y are in subpixel space (inclusive) within bounds:
+        // edge min/max X/Y are in subpixel space (half-open interval):
         // note: Use integer crossings to ensure consistent range within
         // edgeBuckets / edgeBucketCounts arrays in case of NaN values (int = 0)
         if (firstCrossing < edgeMinY) {
@@ -360,32 +362,23 @@ public final class DRendererNoAA implements DMarlinRenderer, MarlinConst {
         }
 
         // local variables for performance:
-        final int _SIZEOF_EDGE_BYTES = SIZEOF_EDGE_BYTES;
+        final int _SIZEOF_EDGE = SIZEOF_EDGE;
 
-        final OffHeapArray _edges = edges;
+        int[] _edges = edges;
 
-        // get free pointer (ie length in bytes)
-        final int edgePtr = _edges.used;
+        // get free pointer (ie array index)
+        final int edgePtr = edgesPos;
 
         // use substraction to avoid integer overflow:
-        if (_edges.length - edgePtr < _SIZEOF_EDGE_BYTES) {
-            // suppose _edges.length > _SIZEOF_EDGE_BYTES
-            // so doubling size is enough to add needed bytes
-            // note: throw IOOB if neededSize > 2Gb:
-            final long edgeNewSize = ArrayCacheConst.getNewLargeSize(
-                                        _edges.length,
-                                        edgePtr + _SIZEOF_EDGE_BYTES);
-
+        if (_edges.length - edgePtr < _SIZEOF_EDGE) {
+            final int edgeNewSize = edgePtr + _SIZEOF_EDGE;
             if (DO_STATS) {
                 rdrCtx.stats.stat_rdr_edges_resizes.add(edgeNewSize);
             }
-            _edges.resize(edgeNewSize);
+            // note: throw IOOB if neededSize > 2Gb:
+            edges = _edges = edges_ref.widenArray(_edges, edgePtr, edgeNewSize);
         }
 
-
-        final Unsafe _unsafe = OffHeapArray.UNSAFE;
-        final long SIZE_INT = 4L;
-        long addr   = _edges.address + edgePtr;
 
         // The x value must be bumped up to its position at the next HPC we will evaluate.
         // "firstcrossing" is the (sub)pixel number where the next crossing occurs
@@ -415,19 +408,15 @@ public final class DRendererNoAA implements DMarlinRenderer, MarlinConst {
                                      + 0x7FFFFFFFL;
         // curx:
         // last bit corresponds to the orientation
-        _unsafe.putInt(addr, (((int) (x1_fixed_biased >> 31L)) & ALL_BUT_LSB) | or);
-        addr += SIZE_INT;
-        _unsafe.putInt(addr,  ((int)  x1_fixed_biased) >>> 1);
-        addr += SIZE_INT;
+        _edges[edgePtr /*+OFF_CURX_OR*/]  = (((int) (x1_fixed_biased >> 31L)) & ALL_BUT_LSB) | or;
+        _edges[edgePtr + OFF_ERROR]       =  ((int)  x1_fixed_biased) >>> 1;
 
         // inlined scalb(slope, 32):
         final long slope_fixed = (long) (POWER_2_TO_32 * slope);
 
         // last bit set to 0 to keep orientation:
-        _unsafe.putInt(addr, (((int) (slope_fixed >> 31L)) & ALL_BUT_LSB));
-        addr += SIZE_INT;
-        _unsafe.putInt(addr,  ((int)  slope_fixed) >>> 1);
-        addr += SIZE_INT;
+        _edges[edgePtr + OFF_BUMP_X]      = (((int) (slope_fixed >> 31L)) & ALL_BUT_LSB);
+        _edges[edgePtr + OFF_BUMP_ERR]    =  ((int)  slope_fixed) >>> 1;
 
         final int[] _edgeBuckets      = edgeBuckets;
         final int[] _edgeBucketCounts = edgeBucketCounts;
@@ -439,10 +428,9 @@ public final class DRendererNoAA implements DMarlinRenderer, MarlinConst {
         final int bucketIdx = firstCrossing - _boundsMinY;
 
         // pointer from bucket
-        _unsafe.putInt(addr, _edgeBuckets[bucketIdx]);
-        addr += SIZE_INT;
-        // y max (inclusive)
-        _unsafe.putInt(addr,  lastCrossing);
+        _edges[edgePtr + OFF_NEXT]        = _edgeBuckets[bucketIdx];
+        // y max (exclusive)
+        _edges[edgePtr + OFF_YMAX]        = lastCrossing;
 
         // Update buckets:
         // directly the edge struct "pointer"
@@ -451,8 +439,8 @@ public final class DRendererNoAA implements DMarlinRenderer, MarlinConst {
         // last bit means edge end
         _edgeBucketCounts[lastCrossing - _boundsMinY] |= 0x1;
 
-        // update free pointer (ie length in bytes)
-        _edges.used += _SIZEOF_EDGE_BYTES;
+        // update free pointer (ie length in integers)
+        edgesPos += _SIZEOF_EDGE;
 
         if (DO_MONITORS) {
             rdrCtx.stats.mon_rdr_addLine.stop();
@@ -496,9 +484,10 @@ public final class DRendererNoAA implements DMarlinRenderer, MarlinConst {
 
     DRendererNoAA(final DRendererContext rdrCtx) {
         this.rdrCtx = rdrCtx;
-        this.curve = rdrCtx.curve;
+        curve = rdrCtx.curve;
 
-        this.edges = rdrCtx.rdrMem.edges;
+        edges_ref  = rdrCtx.rdrMem.edges_ref;
+        edges = edges_ref.initial;
 
         edgeBuckets_ref      = rdrCtx.rdrMem.edgeBuckets_ref;
         edgeBucketCounts_ref = rdrCtx.rdrMem.edgeBucketCounts_ref;
@@ -564,7 +553,7 @@ public final class DRendererNoAA implements DMarlinRenderer, MarlinConst {
         // reset used mark:
         edgeCount = 0;
         activeEdgeMaxUsed = 0;
-        edges.used = 0;
+        edgesPos = 0;
 
         // reset bbox:
         bboxX0 = 0;
@@ -579,10 +568,9 @@ public final class DRendererNoAA implements DMarlinRenderer, MarlinConst {
     public void dispose() {
         if (DO_STATS) {
             rdrCtx.stats.stat_rdr_activeEdges.add(activeEdgeMaxUsed);
-            rdrCtx.stats.stat_rdr_edges.add(edges.used);
-            rdrCtx.stats.stat_rdr_edges_count.add(edges.used / SIZEOF_EDGE_BYTES);
-            rdrCtx.stats.hist_rdr_edges_count.add(edges.used / SIZEOF_EDGE_BYTES);
-            rdrCtx.stats.totalOffHeap += edges.length;
+            rdrCtx.stats.stat_rdr_edges.add(edgesPos);
+            rdrCtx.stats.stat_rdr_edges_count.add(edgesPos / SIZEOF_EDGE);
+            rdrCtx.stats.hist_rdr_edges_count.add(edgesPos / SIZEOF_EDGE);
         }
         // Return arrays:
         crossings = crossings_ref.putArray(crossings);
@@ -614,15 +602,9 @@ public final class DRendererNoAA implements DMarlinRenderer, MarlinConst {
             edgeBucketCounts = edgeBucketCounts_ref.putArray(edgeBucketCounts, 0, 0);
         }
 
-        // At last: resize back off-heap edges to initial size
-        if (edges.length != INITIAL_EDGES_CAPACITY) {
-            // note: may throw OOME:
-            edges.resize(INITIAL_EDGES_CAPACITY);
-        }
-        if (DO_CLEAN_DIRTY) {
-            // Force zero-fill dirty arrays:
-            edges.fill(BYTE_0);
-        }
+        // At last: resize back edges to initial size
+        edges = edges_ref.putArray(edges);
+
         if (DO_MONITORS) {
             rdrCtx.stats.mon_rdr_endRendering.stop();
         }
@@ -713,7 +695,7 @@ public final class DRendererNoAA implements DMarlinRenderer, MarlinConst {
         final int[] _alpha = alphaLine;
 
         // local vars (performance):
-        final OffHeapArray _edges = edges;
+        final int[] _edges       = edges;
         final int[] _edgeBuckets = edgeBuckets;
         final int[] _edgeBucketCounts = edgeBucketCounts;
 
@@ -725,20 +707,15 @@ public final class DRendererNoAA implements DMarlinRenderer, MarlinConst {
         int[] _aux_edgePtrs  = this.aux_edgePtrs;
 
         // copy constants:
-        final long _OFF_ERROR    = OFF_ERROR;
-        final long _OFF_BUMP_X   = OFF_BUMP_X;
-        final long _OFF_BUMP_ERR = OFF_BUMP_ERR;
+        final int _OFF_ERROR    = OFF_ERROR;
+        final int _OFF_BUMP_X   = OFF_BUMP_X;
+        final int _OFF_BUMP_ERR = OFF_BUMP_ERR;
 
-        final long _OFF_NEXT     = OFF_NEXT;
-        final long _OFF_YMAX     = OFF_YMAX;
+        final int _OFF_NEXT     = OFF_NEXT;
+        final int _OFF_YMAX     = OFF_YMAX;
 
         final int _ALL_BUT_LSB   = ALL_BUT_LSB;
         final int _ERR_STEP_MAX  = ERR_STEP_MAX;
-
-        // unsafe I/O:
-        final Unsafe _unsafe = OffHeapArray.UNSAFE;
-        final long    addr0  = _edges.address;
-        long addr;
 
         final int _MIN_VALUE = Integer.MIN_VALUE;
         final int _MAX_VALUE = Integer.MAX_VALUE;
@@ -800,14 +777,13 @@ public final class DRendererNoAA implements DMarlinRenderer, MarlinConst {
                 // last bit set to 1 means that edges ends
                 if ((bucketcount & 0x1) != 0) {
                     // eviction in active edge list
-                    // cache edges[] address + offset
-                    addr = addr0 + _OFF_YMAX;
 
                     for (i = 0, newCount = 0; i < numCrossings; i++) {
                         // get the pointer to the edge
                         ecur = _edgePtrs[i];
-                        // random access so use unsafe:
-                        if (_unsafe.getInt(addr + ecur) > y) {
+                        assert (ecur + _OFF_YMAX) < _edges.length;
+
+                        if (_edges[ecur + _OFF_YMAX] > y) {
                             _edgePtrs[newCount++] = ecur;
                         }
                     }
@@ -849,17 +825,16 @@ public final class DRendererNoAA implements DMarlinRenderer, MarlinConst {
                             );
                     }
 
-                    // cache edges[] address + offset
-                    addr = addr0 + _OFF_NEXT;
-
                     // add new edges to active edge list:
                     for (ecur = _edgeBuckets[bucket];
                          numCrossings < ptrEnd; numCrossings++)
                     {
+                        assert (ecur + _OFF_NEXT) < _edges.length;
+
                         // store the pointer to the edge
                         _edgePtrs[numCrossings] = ecur;
-                        // random access so use unsafe:
-                        ecur = _unsafe.getInt(addr + ecur);
+
+                        ecur = _edges[ecur + _OFF_NEXT];
                     }
 
                     if (crossingsLen < numCrossings) {
@@ -918,32 +893,30 @@ public final class DRendererNoAA implements DMarlinRenderer, MarlinConst {
                     for (i = 0; i < numCrossings; i++) {
                         // get the pointer to the edge
                         ecur = _edgePtrs[i];
+                        assert (ecur + _OFF_YMAX) < _edges.length;
 
                         /* convert subpixel coordinates into pixel
                             positions for coming scanline */
                         /* note: it is faster to always update edges even
                            if it is removed from AEL for coming or last scanline */
 
-                        // random access so use unsafe:
-                        addr = addr0 + ecur; // ecur + OFF_F_CURX
-
                         // get current crossing:
-                        curx = _unsafe.getInt(addr);
+                        curx = _edges[ecur /* + OFF_CURX_OR */];
 
                         // update crossing with orientation at last bit:
                         cross = curx;
 
                         // Increment x using DDA (fixed point):
-                        curx += _unsafe.getInt(addr + _OFF_BUMP_X);
+                        curx += _edges[ecur + _OFF_BUMP_X];
 
                         // Increment error:
-                        err  =  _unsafe.getInt(addr + _OFF_ERROR)
-                              + _unsafe.getInt(addr + _OFF_BUMP_ERR);
+                        err  =  _edges[ecur + _OFF_ERROR]
+                              + _edges[ecur + _OFF_BUMP_ERR];
 
                         // Manual carry handling:
                         // keep sign and carry bit only and ignore last bit (preserve orientation):
-                        _unsafe.putInt(addr,               curx - ((err >> 30) & _ALL_BUT_LSB));
-                        _unsafe.putInt(addr + _OFF_ERROR, (err & _ERR_STEP_MAX));
+                        _edges[ecur /* + OFF_CURX */] =  curx - ((err >> 30) & _ALL_BUT_LSB);
+                        _edges[ecur + _OFF_ERROR]     = (err & _ERR_STEP_MAX);
 
                         if (DO_STATS) {
                             rdrCtx.stats.stat_rdr_crossings_updates.add(numCrossings);
@@ -1018,32 +991,30 @@ public final class DRendererNoAA implements DMarlinRenderer, MarlinConst {
                     for (i = 0; i < numCrossings; i++) {
                         // get the pointer to the edge
                         ecur = _edgePtrs[i];
+                        assert (ecur + _OFF_YMAX) < _edges.length;
 
                         /* convert subpixel coordinates into pixel
                             positions for coming scanline */
                         /* note: it is faster to always update edges even
                            if it is removed from AEL for coming or last scanline */
 
-                        // random access so use unsafe:
-                        addr = addr0 + ecur; // ecur + OFF_F_CURX
-
                         // get current crossing:
-                        curx = _unsafe.getInt(addr);
+                        curx = _edges[ecur /* + OFF_CURX_OR */];
 
                         // update crossing with orientation at last bit:
                         cross = curx;
 
                         // Increment x using DDA (fixed point):
-                        curx += _unsafe.getInt(addr + _OFF_BUMP_X);
+                        curx += _edges[ecur + _OFF_BUMP_X];
 
                         // Increment error:
-                        err  =  _unsafe.getInt(addr + _OFF_ERROR)
-                              + _unsafe.getInt(addr + _OFF_BUMP_ERR);
+                        err  =  _edges[ecur + _OFF_ERROR]
+                              + _edges[ecur + _OFF_BUMP_ERR];
 
                         // Manual carry handling:
                         // keep sign and carry bit only and ignore last bit (preserve orientation):
-                        _unsafe.putInt(addr,               curx - ((err >> 30) & _ALL_BUT_LSB));
-                        _unsafe.putInt(addr + _OFF_ERROR, (err & _ERR_STEP_MAX));
+                        _edges[ecur /* + OFF_CURX */] =  curx - ((err >> 30) & _ALL_BUT_LSB);
+                        _edges[ecur + _OFF_ERROR]     = (err & _ERR_STEP_MAX);
 
                         if (DO_STATS) {
                             rdrCtx.stats.stat_rdr_crossings_updates.add(numCrossings);

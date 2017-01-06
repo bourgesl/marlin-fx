@@ -160,10 +160,6 @@ public final class MarlinProperties {
         return getBoolean("prism.marlin.logCreateContext", "false");
     }
 
-    public static boolean isLogUnsafeMalloc() {
-        return getBoolean("prism.marlin.logUnsafeMalloc", "false");
-    }
-
     // system property utilities
     static boolean getBoolean(final String key, final String def) {
         return Boolean.valueOf(AccessController.doPrivileged(
