@@ -46,7 +46,6 @@ import com.sun.prism.ResourceFactory;
 import com.sun.prism.Texture;
 import com.sun.prism.impl.PrismSettings;
 import com.sun.prism.impl.shape.DMarlinPrismUtils;
-import com.sun.prism.impl.shape.DMarlinRasterizer;
 import com.sun.prism.impl.shape.MarlinPrismUtils;
 import com.sun.prism.impl.shape.MaskData;
 import com.sun.prism.impl.shape.OpenPiscesPrismUtils;
@@ -112,7 +111,7 @@ final class SWContext {
         }
     }
 
-    class JavaShapeRenderer implements ShapeRenderer {
+    static final class JavaShapeRenderer implements ShapeRenderer {
         private final DirectRTPiscesAlphaConsumer alphaConsumer = new DirectRTPiscesAlphaConsumer();
 
         public void renderShape(PiscesRenderer pr, Shape shape, BasicStroke stroke, BaseTransform tr, Rectangle clip, boolean antialiasedShape) {
@@ -247,10 +246,8 @@ final class SWContext {
         public void setAndClearRelativeAlphas(final int[] alphaDeltas, final int pix_y,
                                               final int pix_from, final int pix_to)
         {
-            // use x instead of pix_from as it cause artefacts:
-            // note: it would be more efficient to skip all those empty pixels [x to pix_from[
-            // but the native implementation must be fixed too.
-//                pr.emitAndClearAlphaRow(alpha_map, alphaDeltas, pix_y, pix_from, pix_to, rowNum);
+            // pix_from indicates the first alpha coverage != 0 within [x; pix_to[
+//            pr.emitAndClearAlphaRow(alpha_map, alphaDeltas, pix_y, pix_from, pix_to, (pix_from - x), rowNum);
             pr.emitAndClearAlphaRow(alpha_map, alphaDeltas, pix_y, x, pix_to, rowNum);
             rowNum++;
 
