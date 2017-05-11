@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -199,7 +199,6 @@ public final class DMarlinRenderingEngine implements MarlinConst
 
         // quality settings
         logInfo("Renderer settings:");
-        logInfo("CUB_COUNT_LG = " + DRenderer.CUB_COUNT_LG);
         logInfo("CUB_DEC_BND  = " + DRenderer.CUB_DEC_BND);
         logInfo("CUB_INC_BND  = " + DRenderer.CUB_INC_BND);
         logInfo("QUAD_DEC_BND = " + DRenderer.QUAD_DEC_BND);

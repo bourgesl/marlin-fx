@@ -199,7 +199,6 @@ public final class MarlinRenderingEngine implements MarlinConst
 
         // quality settings
         logInfo("Renderer settings:");
-        logInfo("CUB_COUNT_LG = " + Renderer.CUB_COUNT_LG);
         logInfo("CUB_DEC_BND  = " + Renderer.CUB_DEC_BND);
         logInfo("CUB_INC_BND  = " + Renderer.CUB_INC_BND);
         logInfo("QUAD_DEC_BND = " + Renderer.QUAD_DEC_BND);
