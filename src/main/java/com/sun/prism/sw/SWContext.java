@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2017, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -247,8 +247,7 @@ final class SWContext {
                                               final int pix_from, final int pix_to)
         {
             // pix_from indicates the first alpha coverage != 0 within [x; pix_to[
-//            pr.emitAndClearAlphaRow(alpha_map, alphaDeltas, pix_y, pix_from, pix_to, (pix_from - x), rowNum);
-            pr.emitAndClearAlphaRow(alpha_map, alphaDeltas, pix_y, x, pix_to, rowNum);
+            pr.emitAndClearAlphaRow(alpha_map, alphaDeltas, pix_y, pix_from, pix_to, (pix_from - x), rowNum);
             rowNum++;
 
             // clear properly the end of the alphaDeltas:
