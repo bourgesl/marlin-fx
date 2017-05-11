@@ -43,13 +43,6 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
     static final int SUBPIXEL_MASK_X = SUBPIXEL_POSITIONS_X - 1;
     static final int SUBPIXEL_MASK_Y = SUBPIXEL_POSITIONS_Y - 1;
 
-    // 2048 (pixelSize) pixels (height) x 8 subpixels = 64K
-    static final int INITIAL_BUCKET_ARRAY
-        = INITIAL_PIXEL_DIM * SUBPIXEL_POSITIONS_Y;
-
-    // crossing capacity = edges count / 4 ~ 1024
-    static final int INITIAL_CROSSING_COUNT = INITIAL_EDGES_COUNT >> 2;
-
     // common to all types of input path segments.
     // OFFSET as bytes
     // only integer values:
@@ -514,32 +507,30 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
 
     Renderer(final RendererContext rdrCtx) {
         this.rdrCtx = rdrCtx;
-
-        this.edges = rdrCtx.newOffHeapArray(INITIAL_EDGES_CAPACITY); // 96K
-
         this.curve = rdrCtx.curve;
 
-        edgeBuckets_ref      = rdrCtx.newCleanIntArrayRef(INITIAL_BUCKET_ARRAY); // 64K
-        edgeBucketCounts_ref = rdrCtx.newCleanIntArrayRef(INITIAL_BUCKET_ARRAY); // 64K
+        this.edges = rdrCtx.rdrMem.edges;
+
+        edgeBuckets_ref      = rdrCtx.rdrMem.edgeBuckets_ref;
+        edgeBucketCounts_ref = rdrCtx.rdrMem.edgeBucketCounts_ref;
 
         edgeBuckets      = edgeBuckets_ref.initial;
         edgeBucketCounts = edgeBucketCounts_ref.initial;
 
-        // 2048 (pixelsize) pixel large
-        alphaLine_ref = rdrCtx.newCleanIntArrayRef(INITIAL_AA_ARRAY); // 8K
+        alphaLine_ref = rdrCtx.rdrMem.alphaLine_ref;
         alphaLine     = alphaLine_ref.initial;
 
-        crossings_ref     = rdrCtx.newDirtyIntArrayRef(INITIAL_CROSSING_COUNT); // 2K
-        aux_crossings_ref = rdrCtx.newDirtyIntArrayRef(INITIAL_CROSSING_COUNT); // 2K
-        edgePtrs_ref      = rdrCtx.newDirtyIntArrayRef(INITIAL_CROSSING_COUNT); // 2K
-        aux_edgePtrs_ref  = rdrCtx.newDirtyIntArrayRef(INITIAL_CROSSING_COUNT); // 2K
+        crossings_ref     = rdrCtx.rdrMem.crossings_ref;
+        aux_crossings_ref = rdrCtx.rdrMem.aux_crossings_ref;
+        edgePtrs_ref      = rdrCtx.rdrMem.edgePtrs_ref;
+        aux_edgePtrs_ref  = rdrCtx.rdrMem.aux_edgePtrs_ref;
 
         crossings     = crossings_ref.initial;
         aux_crossings = aux_crossings_ref.initial;
         edgePtrs      = edgePtrs_ref.initial;
         aux_edgePtrs  = aux_edgePtrs_ref.initial;
 
-        blkFlags_ref = rdrCtx.newCleanIntArrayRef(INITIAL_ARRAY); // 1K = 1 tile line
+        blkFlags_ref = rdrCtx.rdrMem.blkFlags_ref;
         blkFlags     = blkFlags_ref.initial;
     }
 

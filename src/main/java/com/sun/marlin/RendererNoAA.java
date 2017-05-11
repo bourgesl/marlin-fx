@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2017, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -36,12 +36,6 @@ public final class RendererNoAA implements MarlinRenderer, MarlinConst {
     private static final int ERR_STEP_MAX = 0x7FFFFFFF; // = 2^31 - 1
 
     private static final double POWER_2_TO_32 = 0x1.0p32;
-
-    // 2048 (pixelSize) pixels (height) x 8 subpixels = 64K
-    static final int INITIAL_BUCKET_ARRAY = INITIAL_PIXEL_DIM;
-
-    // crossing capacity = edges count / 4 ~ 1024
-    static final int INITIAL_CROSSING_COUNT = INITIAL_EDGES_COUNT >> 2;
 
     // common to all types of input path segments.
     // OFFSET as bytes
@@ -505,32 +499,30 @@ public final class RendererNoAA implements MarlinRenderer, MarlinConst {
 
     RendererNoAA(final RendererContext rdrCtx) {
         this.rdrCtx = rdrCtx;
-
-        this.edges = rdrCtx.newOffHeapArray(INITIAL_EDGES_CAPACITY); // 96K
-
         this.curve = rdrCtx.curve;
 
-        edgeBuckets_ref      = rdrCtx.newCleanIntArrayRef(INITIAL_BUCKET_ARRAY); // 64K
-        edgeBucketCounts_ref = rdrCtx.newCleanIntArrayRef(INITIAL_BUCKET_ARRAY); // 64K
+        this.edges = rdrCtx.rdrMem.edges;
+
+        edgeBuckets_ref      = rdrCtx.rdrMem.edgeBuckets_ref;
+        edgeBucketCounts_ref = rdrCtx.rdrMem.edgeBucketCounts_ref;
 
         edgeBuckets      = edgeBuckets_ref.initial;
         edgeBucketCounts = edgeBucketCounts_ref.initial;
 
-        // 2048 (pixelsize) pixel large
-        alphaLine_ref = rdrCtx.newCleanIntArrayRef(INITIAL_AA_ARRAY); // 8K
+        alphaLine_ref = rdrCtx.rdrMem.alphaLine_ref;
         alphaLine     = alphaLine_ref.initial;
 
-        crossings_ref     = rdrCtx.newDirtyIntArrayRef(INITIAL_CROSSING_COUNT); // 2K
-        aux_crossings_ref = rdrCtx.newDirtyIntArrayRef(INITIAL_CROSSING_COUNT); // 2K
-        edgePtrs_ref      = rdrCtx.newDirtyIntArrayRef(INITIAL_CROSSING_COUNT); // 2K
-        aux_edgePtrs_ref  = rdrCtx.newDirtyIntArrayRef(INITIAL_CROSSING_COUNT); // 2K
+        crossings_ref     = rdrCtx.rdrMem.crossings_ref;
+        aux_crossings_ref = rdrCtx.rdrMem.aux_crossings_ref;
+        edgePtrs_ref      = rdrCtx.rdrMem.edgePtrs_ref;
+        aux_edgePtrs_ref  = rdrCtx.rdrMem.aux_edgePtrs_ref;
 
         crossings     = crossings_ref.initial;
         aux_crossings = aux_crossings_ref.initial;
         edgePtrs      = edgePtrs_ref.initial;
         aux_edgePtrs  = aux_edgePtrs_ref.initial;
 
-        blkFlags_ref = rdrCtx.newCleanIntArrayRef(INITIAL_ARRAY); // 1K = 1 tile line
+        blkFlags_ref = rdrCtx.rdrMem.blkFlags_ref;
         blkFlags     = blkFlags_ref.initial;
     }
 
