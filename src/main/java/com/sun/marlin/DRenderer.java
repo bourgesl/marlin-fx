@@ -59,10 +59,10 @@ public final class DRenderer implements DMarlinRenderer, MarlinConst {
     // curve break into lines
     // cubic error in subpixels to decrement step
     private static final double CUB_DEC_ERR_SUBPIX
-        = 1.0d * (NORM_SUBPIXELS / 8.0d); // 1 pixel
+        = MarlinProperties.getCubicDecD2() * (NORM_SUBPIXELS / 8.0d); // 1 pixel
     // cubic error in subpixels to increment step
     private static final double CUB_INC_ERR_SUBPIX
-        = 0.4d * (NORM_SUBPIXELS / 8.0d); // 0.4 pixel
+        = MarlinProperties.getCubicIncD1() * (NORM_SUBPIXELS / 8.0d); // 0.4 pixel
 
     // TestNonAARasterization (JDK-8170879): cubics
     // bad paths (59294/100000 == 59,29%, 94335 bad pixels (avg = 1,59), 3966 warnings (avg = 0,07)
@@ -92,7 +92,7 @@ public final class DRenderer implements DMarlinRenderer, MarlinConst {
     // quad break into lines
     // quadratic error in subpixels
     private static final double QUAD_DEC_ERR_SUBPIX
-        = 0.5d * (NORM_SUBPIXELS / 8.0d); // 0.5 pixel
+        = MarlinProperties.getQuadDecD2() * (NORM_SUBPIXELS / 8.0d); // 0.5 pixel
 
     // TestNonAARasterization (JDK-8170879): quads
     // bad paths (62916/100000 == 62,92%, 103818 bad pixels (avg = 1,65), 6514 warnings (avg = 0,10)
