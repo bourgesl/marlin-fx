@@ -198,6 +198,13 @@ public final class MarlinRenderingEngine implements MarlinConst
                 + MarlinConst.LOG_UNSAFE_MALLOC);
 
         // quality settings
+        logInfo("prism.marlin.cubic_dec_d2     = "
+                + MarlinProperties.getCubicDecD2());
+        logInfo("prism.marlin.cubic_inc_d1     = "
+                + MarlinProperties.getCubicIncD1());
+        logInfo("prism.marlin.quad_dec_d2      = "
+                + MarlinProperties.getQuadDecD2());
+
         logInfo("Renderer settings:");
         logInfo("CUB_DEC_BND  = " + Renderer.CUB_DEC_BND);
         logInfo("CUB_INC_BND  = " + Renderer.CUB_INC_BND);

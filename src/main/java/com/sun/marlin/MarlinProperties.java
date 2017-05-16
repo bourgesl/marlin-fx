@@ -68,7 +68,7 @@ public final class MarlinProperties {
     /**
      * Return the log(2) corresponding to subpixel on x-axis (
      *
-     * @return 0 (1 subpixels) < initial pixel size < 4 (256 subpixels)
+     * @return 0 (1 subpixels) < initial pixel size < 8 (256 subpixels)
      * (3 by default ie 8 subpixels)
      */
     public static int getSubPixel_Log2_X() {
@@ -156,6 +156,20 @@ public final class MarlinProperties {
         return getBoolean("prism.marlin.logUnsafeMalloc", "false");
     }
 
+    // quality settings
+
+    public static float getCubicDecD2() {
+        return getFloat("prism.marlin.cubic_dec_d2", 1.0f, 0.01f, 4.0f);
+    }
+
+    public static float getCubicIncD1() {
+        return getFloat("prism.marlin.cubic_inc_d1", 0.4f, 0.01f, 2.0f);
+    }
+
+    public static float getQuadDecD2() {
+        return getFloat("prism.marlin.quad_dec_d2", 0.5f, 0.01f, 4.0f);
+    }
+
     // system property utilities
     static boolean getBoolean(final String key, final String def) {
         return Boolean.valueOf(AccessController.doPrivileged(
@@ -192,5 +206,34 @@ public final class MarlinProperties {
     static int align(final int val, final int norm) {
         final int ceil = FloatMath.ceil_int( ((float) val) / norm);
         return ceil * norm;
+    }
+
+    public static double getDouble(final String key, final double def,
+                                   final double min, final double max)
+    {
+        double value = def;
+        final String property = AccessController.doPrivileged(
+                    (PrivilegedAction<String>) () -> System.getProperty(key));
+
+        if (property != null) {
+            try {
+                value = Double.parseDouble(property);
+            } catch (NumberFormatException nfe) {
+                logInfo("Invalid value for " + key + " = " + property + " !");
+            }
+        }
+        // check for invalid values
+        if (value < min || value > max) {
+            logInfo("Invalid value for " + key + " = " + value
+                    + "; expect value in range[" + min + ", " + max + "] !");
+            value = def;
+        }
+        return value;
+    }
+
+    public static float getFloat(final String key, final float def,
+                                 final float min, final float max)
+    {
+        return (float)getDouble(key, def, min, max);
     }
 }

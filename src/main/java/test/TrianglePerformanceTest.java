@@ -215,7 +215,7 @@ public class TrianglePerformanceTest extends Application {
         drawingPane.widthProperty().addListener((v,o,n) -> resetConfig());
         drawingPane.heightProperty().addListener((v,o,n) -> resetConfig());
 
-        resetConfig(); 
+        resetConfig();
     }
 
     private void setTranslation(double x, double y) {
@@ -306,11 +306,11 @@ public class TrianglePerformanceTest extends Application {
                 p.getElements().add(new LineTo(px1, py1));
                 p.getElements().add(new LineTo(px2, py2));
             }
-        } else {       
+        } else {
             double boundsX = Math.min(Math.min(px0, px1), px2);
             double boundsY = Math.min(Math.min(py0, py1), py2);
             double boundsWidth = Math.max(Math.max(px0, px1), px2) - boundsX;
-            double boundsHeight = Math.max(Math.max(py0, py1), py2) - boundsY;     
+            double boundsHeight = Math.max(Math.max(py0, py1), py2) - boundsY;
             if (p == null) {
                 shape = new Rectangle(boundsX, boundsY, boundsWidth, boundsHeight);
             } else {
