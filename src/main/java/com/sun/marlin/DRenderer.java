@@ -43,6 +43,9 @@ public final class DRenderer implements DMarlinRenderer, MarlinConst {
     static final int SUBPIXEL_MASK_X = SUBPIXEL_POSITIONS_X - 1;
     static final int SUBPIXEL_MASK_Y = SUBPIXEL_POSITIONS_Y - 1;
 
+    private static final double RDR_OFFSET_X = 0.501d / SUBPIXEL_SCALE_X;
+    private static final double RDR_OFFSET_Y = 0.501d / SUBPIXEL_SCALE_Y;
+
     // common to all types of input path segments.
     // OFFSET as bytes
     // only integer values:
@@ -668,24 +671,26 @@ public final class DRenderer implements DMarlinRenderer, MarlinConst {
     }
 
     @Override
-    public void curveTo(double x1, double y1,
-            double x2, double y2,
-            double x3, double y3)
+    public void curveTo(double pix_x1, double pix_y1,
+                        double pix_x2, double pix_y2,
+                        double pix_x3, double pix_y3)
     {
-        final double xe = tosubpixx(x3);
-        final double ye = tosubpixy(y3);
-        curve.set(x0, y0, tosubpixx(x1), tosubpixy(y1),
-                          tosubpixx(x2), tosubpixy(y2), xe, ye);
+        final double xe = tosubpixx(pix_x3);
+        final double ye = tosubpixy(pix_y3);
+        curve.set(x0, y0, tosubpixx(pix_x1), tosubpixy(pix_y1),
+                  tosubpixx(pix_x2), tosubpixy(pix_y2), xe, ye);
         curveBreakIntoLinesAndAdd(x0, y0, curve, xe, ye);
         x0 = xe;
         y0 = ye;
     }
 
     @Override
-    public void quadTo(double x1, double y1, double x2, double y2) {
-        final double xe = tosubpixx(x2);
-        final double ye = tosubpixy(y2);
-        curve.set(x0, y0, tosubpixx(x1), tosubpixy(y1), xe, ye);
+    public void quadTo(double pix_x1, double pix_y1,
+                       double pix_x2, double pix_y2)
+    {
+        final double xe = tosubpixx(pix_x2);
+        final double ye = tosubpixy(pix_y2);
+        curve.set(x0, y0, tosubpixx(pix_x1), tosubpixy(pix_y1), xe, ye);
         quadBreakIntoLinesAndAdd(x0, y0, curve, xe, ye);
         x0 = xe;
         y0 = ye;
@@ -693,9 +698,11 @@ public final class DRenderer implements DMarlinRenderer, MarlinConst {
 
     @Override
     public void closePath() {
-        addLine(x0, y0, sx0, sy0);
-        x0 = sx0;
-        y0 = sy0;
+        if (x0 != sx0 || y0 != sy0) {
+            addLine(x0, y0, sx0, sy0);
+            x0 = sx0;
+            y0 = sy0;
+        }
     }
 
     @Override
@@ -1548,5 +1555,15 @@ public final class DRenderer implements DMarlinRenderer, MarlinConst {
     @Override
     public int getOutpixMaxY() {
         return bboxY1;
+    }
+    
+    @Override
+    public double getOffsetX() {
+        return RDR_OFFSET_X;
+    }
+
+    @Override
+    public double getOffsetY() {
+        return RDR_OFFSET_Y;
     }
 }

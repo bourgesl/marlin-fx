@@ -178,6 +178,8 @@ public final class DMarlinRenderingEngine implements MarlinConst
         // optimisation parameters
         logInfo("prism.marlin.useSimplifier    = "
                 + MarlinConst.USE_SIMPLIFIER);
+        logInfo("prism.marlin.clip             = "
+                + MarlinProperties.isDoClip());
 
         // debugging parameters
         logInfo("prism.marlin.doStats          = "

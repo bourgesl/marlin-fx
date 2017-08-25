@@ -68,6 +68,12 @@ public final class RendererContext extends ReentrantContext implements MarlinCon
     public final Dasher dasher;
     // flag indicating the shape is stroked (1) or filled (0)
     int stroking = 0;
+    // flag indicating to clip the shape
+    public boolean doClip = false;
+    // flag indicating if the path is closed or not (in advance) to handle properly caps
+    boolean closedPath = false;
+    // clip rectangle (ymin, ymax, xmin, xmax):
+    public final float[] clipRect = new float[4];
 
 // MarlinFX specific:
     // dirty bbox rectangle
@@ -111,7 +117,7 @@ public final class RendererContext extends ReentrantContext implements MarlinCon
         }
 
         // MarlinRenderingEngine.TransformingPathConsumer2D
-        transformerPC2D = new TransformingPathConsumer2D();
+        transformerPC2D = new TransformingPathConsumer2D(this);
 
         // Renderer shared memory:
         rdrMem = new RendererSharedMemory(this);
@@ -134,7 +140,10 @@ public final class RendererContext extends ReentrantContext implements MarlinCon
             }
             stats.totalOffHeap = 0L;
         }
-        stroking = 0;
+        stroking   = 0;
+        doClip     = false;
+        closedPath = false;
+
         // if context is maked as DIRTY:
         if (dirty) {
             // may happen if an exception if thrown in the pipeline processing:

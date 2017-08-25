@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2017, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -30,6 +30,7 @@ import com.sun.javafx.geom.RectBounds;
 import com.sun.javafx.geom.Rectangle;
 import com.sun.javafx.geom.Shape;
 import com.sun.javafx.geom.transform.BaseTransform;
+import com.sun.javafx.sg.prism.NGCanvasPath;
 import com.sun.marlin.DMarlinRenderer;
 import com.sun.marlin.DMarlinRenderingEngine;
 import com.sun.marlin.MaskMarlinAlphaConsumer;
@@ -83,6 +84,15 @@ public final class DMarlinRasterizer implements ShapeRasterizer {
             final Rectangle rclip = rdrCtx.clip;
             rclip.setBounds(xformBounds);
 
+//            System.out.println("shape: "+shape.getClass());
+            
+            // Try using Path2D directly ?
+            if (shape instanceof NGCanvasPath) {
+                final NGCanvasPath path = (NGCanvasPath)shape;
+                shape = path.getGeometry(); // use internal Path2D
+                // adjust xform:
+                xform = path.getCombinedTransform(xform);
+            }
             if (shape instanceof Path2D) {
                 renderer = DMarlinPrismUtils.setupRenderer(rdrCtx, (Path2D) shape, stroke, xform, rclip,
                         antialiasedShape);

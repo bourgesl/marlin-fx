@@ -157,12 +157,12 @@ public class TestNonAARasterization extends Application {
     }
 
     static final String svgcommand = "MLQCZ";
-    static final int coordcount[] = { 2, 2, 4, 6, 0 };
+    static final int[] coordcount = { 2, 2, 4, 6, 0 };
     public void dumpTest() {
         if (worst != null) {
             Path2D p2d = worst.path2d;
             PathIterator pi = p2d.getPathIterator(null);
-            double coords[] = new double[6];
+            double[] coords = new double[6];
             System.out.println("test case with "+
                                worst.numerrors+" errors and "+
                                worst.numwarnings+" warnings:");
@@ -309,7 +309,7 @@ public class TestNonAARasterization extends Application {
     public static void setPath(Path p, Path2D p2d) {
         p.getElements().clear();
         PathIterator pi = p2d.getPathIterator(null);
-        double coords[] = new double[6];
+        double[] coords = new double[6];
         while (!pi.isDone()) {
             switch (pi.currentSegment(coords)) {
                 case PathIterator.SEG_MOVETO:

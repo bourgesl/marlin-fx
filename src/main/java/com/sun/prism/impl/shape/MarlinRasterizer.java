@@ -30,6 +30,7 @@ import com.sun.javafx.geom.RectBounds;
 import com.sun.javafx.geom.Rectangle;
 import com.sun.javafx.geom.Shape;
 import com.sun.javafx.geom.transform.BaseTransform;
+import com.sun.javafx.sg.prism.NGCanvasPath;
 import com.sun.marlin.MarlinRenderer;
 import com.sun.marlin.MarlinRenderingEngine;
 import com.sun.marlin.MaskMarlinAlphaConsumer;
@@ -83,6 +84,15 @@ public final class MarlinRasterizer implements ShapeRasterizer {
             final Rectangle rclip = rdrCtx.clip;
             rclip.setBounds(xformBounds);
 
+//            System.out.println("shape: "+shape.getClass());
+            
+            // Try using Path2D directly ?
+            if (shape instanceof NGCanvasPath) {
+                final NGCanvasPath path = (NGCanvasPath)shape;
+                shape = path.getGeometry(); // use internal Path2D
+                // adjust xform:
+                xform = path.getCombinedTransform(xform);
+            }
             if (shape instanceof Path2D) {
                 renderer = MarlinPrismUtils.setupRenderer(rdrCtx, (Path2D) shape, stroke, xform, rclip,
                         antialiasedShape);
