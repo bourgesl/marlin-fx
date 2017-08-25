@@ -45,4 +45,8 @@ public interface DMarlinRenderer extends DPathConsumer2D {
     public int getOutpixMaxY();
 
     public void produceAlphas(MarlinAlphaConsumer ac);
+
+    public double getOffsetX();
+    public double getOffsetY();
+
 }

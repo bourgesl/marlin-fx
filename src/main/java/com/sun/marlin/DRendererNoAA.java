@@ -37,6 +37,9 @@ public final class DRendererNoAA implements DMarlinRenderer, MarlinConst {
 
     private static final double POWER_2_TO_32 = 0x1.0p32d;
 
+    private static final double RDR_OFFSET_X = 0.501d;
+    private static final double RDR_OFFSET_Y = 0.501d;
+
     // common to all types of input path segments.
     // OFFSET as bytes
     // only integer values:
@@ -1479,5 +1482,15 @@ public final class DRendererNoAA implements DMarlinRenderer, MarlinConst {
     @Override
     public int getOutpixMaxY() {
         return bboxY1;
+    }
+
+    @Override
+    public double getOffsetX() {
+        return RDR_OFFSET_X;
+    }
+
+    @Override
+    public double getOffsetY() {
+        return RDR_OFFSET_Y;
     }
 }

@@ -32,9 +32,11 @@ import com.sun.javafx.geom.Rectangle;
 import com.sun.javafx.geom.Shape;
 import com.sun.javafx.geom.transform.BaseTransform;
 import com.sun.marlin.MarlinConst;
+import com.sun.marlin.MarlinProperties;
 import com.sun.marlin.DMarlinRenderer;
 import com.sun.marlin.DPathConsumer2D;
 import com.sun.marlin.DRendererContext;
+import com.sun.marlin.DStroker;
 import com.sun.marlin.DTransformingPathConsumer2D;
 import com.sun.prism.BasicStroke;
 
@@ -42,8 +44,11 @@ public final class DMarlinPrismUtils {
 
     private static final boolean FORCE_NO_AA = false;
 
-    static final float UPPER_BND = Float.MAX_VALUE / 2.0f;
-    static final float LOWER_BND = -UPPER_BND;
+    static final double UPPER_BND = Float.MAX_VALUE / 2.0d;
+    static final double LOWER_BND = -UPPER_BND;
+
+    static final boolean DO_CLIP = MarlinProperties.isDoClip();
+    static final boolean DO_TRACE = false;
 
     /**
      * Private constructor to prevent instantiation.
@@ -79,7 +84,7 @@ public final class DMarlinPrismUtils {
 
         int dashLen = -1;
         boolean recycleDashes = false;
-
+        double scale = 1.0d;
         double width = 0.0f, dashphase = 0.0f;
         double[] dashesD = null;
 
@@ -108,7 +113,7 @@ public final class DMarlinPrismUtils {
                 // a*b == -c*d && a*a+c*c == b*b+d*d. In the actual check below, we
                 // leave a bit of room for error.
                 if (nearZero(a*b + c*d) && nearZero(a*a + c*c - (b*b + d*d))) {
-                    final double scale = Math.sqrt(a*a + c*c);
+                    scale = Math.sqrt(a*a + c*c);
 
                     if (dashesD != null) {
                         for (int i = 0; i < dashLen; i++) {
@@ -140,7 +145,33 @@ public final class DMarlinPrismUtils {
             }
         }
 
-        DPathConsumer2D pc = renderer.init(clip.x, clip.y, clip.width, clip.height, oprule);
+        final DMarlinRenderer rdr = renderer.init(clip.x, clip.y, clip.width, clip.height, oprule);
+        DPathConsumer2D pc = rdr;
+
+        double rdrOffX = 0.0d, rdrOffY = 0.0d;
+
+        if (DO_CLIP && stroke != null) {
+            // Define the initial clip bounds:
+            final double[] clipRect = rdrCtx.clipRect;
+            clipRect[0] = clip.y;
+            clipRect[1] = clip.y + clip.height;
+            clipRect[2] = clip.x;
+            clipRect[3] = clip.x + clip.width;
+
+            // Get offsets:
+            rdrOffX = rdr.getOffsetX();
+            rdrOffY = rdr.getOffsetY();
+
+            // Enable clipping:
+            rdrCtx.doClip = true;
+        }
+
+        final DTransformingPathConsumer2D transformerPC2D = rdrCtx.transformerPC2D;
+
+        if (DO_TRACE) {
+            // trace Stroker:
+            pc = transformerPC2D.traceStroker(pc);
+        }
 
         if (MarlinConst.USE_SIMPLIFIER) {
             // Use simplifier after stroker before Renderer
@@ -148,20 +179,33 @@ public final class DMarlinPrismUtils {
             pc = rdrCtx.simplifier.init(pc);
         }
 
-        final DTransformingPathConsumer2D transformerPC2D = rdrCtx.transformerPC2D;
-        pc = transformerPC2D.deltaTransformConsumer(pc, strokerTx);
+        // deltaTransformConsumer may adjust the clip rectangle:
+        pc = transformerPC2D.deltaTransformConsumer(pc, strokerTx, rdrOffX, rdrOffY);
 
         if (stroke != null) {
+            // stroker will adjust the clip rectangle (width / miter limit):
             pc = rdrCtx.stroker.init(pc, width, stroke.getEndCap(),
-                    stroke.getLineJoin(), stroke.getMiterLimit());
+                    stroke.getLineJoin(), stroke.getMiterLimit(),
+                    scale, rdrOffX, rdrOffY);
 
             if (dashesD != null) {
                 pc = rdrCtx.dasher.init(pc, dashesD, dashLen, dashphase, recycleDashes);
+            } else if (rdrCtx.doClip && (stroke.getEndCap() != DStroker.CAP_BUTT)) {
+                if (DO_TRACE) {
+                    pc = transformerPC2D.traceClosedPathDetector(pc);
+                }
+
+                // If no dash and clip is enabled:
+                // detect closedPaths (polygons) for caps
+                pc = transformerPC2D.detectClosedPath(pc);
             }
         }
-
         pc = transformerPC2D.inverseDeltaTransformConsumer(pc, strokerTx);
 
+        if (DO_TRACE) {
+            // trace Input:
+            pc = transformerPC2D.traceInput(pc);
+        }
         /*
          * Pipeline seems to be:
          * shape.getPathIterator(tx)
@@ -359,8 +403,8 @@ public final class DMarlinPrismUtils {
         // - removed pathClosed (ie subpathStarted not set to false)
         boolean subpathStarted = false;
 
-        final float pCoords[] = p2d.getFloatCoordsNoClone();
-        final byte pTypes[] = p2d.getCommandsNoClone();
+        final float[] pCoords = p2d.getFloatCoordsNoClone();
+        final byte[] pTypes = p2d.getCommandsNoClone();
         final int nsegs = p2d.getNumCommands();
 
         for (int i = 0, coff = 0; i < nsegs; i++) {

@@ -16,7 +16,7 @@ public class BigLeftSide extends Application {
     public static final int PATH_BORDER = 20;
     public static final int PATH_SIZE = 400;
     public static final int SHIFT_SIZE = 20;
-    public static final long FRAME_TIMES[] = new long[60];
+    public static final long[] FRAME_TIMES = new long[60];
     public static final double NANO_SCALE = 1000.0 * 1000.0 * 1000.0;
     public static final double FRAME_AVG_SCALE = FRAME_TIMES.length * NANO_SCALE;
 

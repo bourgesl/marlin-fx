@@ -124,6 +124,10 @@ public final class MarlinProperties {
         return getBoolean("prism.marlin.useSimplifier", "false");
     }
 
+    public static boolean isDoClip() {
+        return getBoolean("prism.marlin.clip", "true");
+    }
+
     // debugging parameters
 
     public static boolean isDoStats() {
