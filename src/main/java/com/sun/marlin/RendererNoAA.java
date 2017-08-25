@@ -1486,7 +1486,7 @@ public final class RendererNoAA implements MarlinRenderer, MarlinConst {
     public int getOutpixMaxY() {
         return bboxY1;
     }
-    
+
     @Override
     public float getOffsetX() {
         return RDR_OFFSET_X;

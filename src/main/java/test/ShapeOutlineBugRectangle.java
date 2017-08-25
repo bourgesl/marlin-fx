@@ -19,11 +19,11 @@ public class ShapeOutlineBugRectangle extends Application {
 
 	@Override
 	public void start(Stage stage) throws Exception {
-		Path shape = new Path(new MoveTo(450, 450), 
-                new LineTo(-SIZE, -SIZE), 
-                new LineTo(0, -2 * SIZE), 
-                new LineTo(SIZE, -SIZE), 
-                new LineTo(450, 450), 
+		Path shape = new Path(new MoveTo(450, 450),
+                new LineTo(-SIZE, -SIZE),
+                new LineTo(0, -2 * SIZE),
+                new LineTo(SIZE, -SIZE),
+                new LineTo(450, 450),
                 new ClosePath());
 
 		shape.setFill(Color.BLUE);

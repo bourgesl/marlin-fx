@@ -40,7 +40,7 @@ or
 
 The MarlinFX jar is available in the target folder like:
 
-``target/marlinfx-0.7.5-Unsafe.jar``
+``target/marlinfx-0.x.y-Unsafe.jar``
 
 
 Usage

@@ -153,7 +153,7 @@ public final class MarlinPrismUtils {
             clipRect[1] = clip.y + clip.height;
             clipRect[2] = clip.x;
             clipRect[3] = clip.x + clip.width;
-            
+
             // Get offsets:
             rdrOffX = rdr.getOffsetX();
             rdrOffY = rdr.getOffsetY();

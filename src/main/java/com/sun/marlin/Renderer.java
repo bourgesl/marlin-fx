@@ -1559,7 +1559,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
     public int getOutpixMaxY() {
         return bboxY1;
     }
-    
+
     @Override
     public float getOffsetX() {
         return RDR_OFFSET_X;

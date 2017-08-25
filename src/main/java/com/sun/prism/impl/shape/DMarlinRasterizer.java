@@ -85,7 +85,7 @@ public final class DMarlinRasterizer implements ShapeRasterizer {
             rclip.setBounds(xformBounds);
 
 //            System.out.println("shape: "+shape.getClass());
-            
+
             // Try using Path2D directly ?
             if (shape instanceof NGCanvasPath) {
                 final NGCanvasPath path = (NGCanvasPath)shape;

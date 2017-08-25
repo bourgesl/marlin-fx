@@ -49,7 +49,7 @@ final class OffHeapArray  {
         Unsafe ref = null;
         try {
             final Field field = Unsafe.class.getDeclaredField("theUnsafe");
-// TODO: Méthode invoquée alors qu'elle ne devrait l'être qu'à partir d'un block doPrivileged            
+// TODO: Méthode invoquée alors qu'elle ne devrait l'être qu'à partir d'un block doPrivileged
             field.setAccessible(true);
             ref = (Unsafe) field.get(null);
         } catch (Exception e) {

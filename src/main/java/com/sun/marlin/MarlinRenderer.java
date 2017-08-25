@@ -47,7 +47,7 @@ public interface MarlinRenderer extends PathConsumer2D {
     public int getOutpixMaxY();
 
     public void produceAlphas(MarlinAlphaConsumer ac);
-    
+
     public float getOffsetX();
     public float getOffsetY();
 }

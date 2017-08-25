@@ -74,7 +74,7 @@ public final class DTransformingPathConsumer2D {
 
     public DPathConsumer2D deltaTransformConsumer(DPathConsumer2D out,
                                                   BaseTransform at,
-                                                  final double rdrOffX, 
+                                                  final double rdrOffX,
                                                   final double rdrOffY)
     {
         if (at == null) {
@@ -108,7 +108,7 @@ public final class DTransformingPathConsumer2D {
     }
 
     private static void adjustClipOffset(final double[] clipRect,
-                                         final double rdrOffX, 
+                                         final double rdrOffX,
                                          final double rdrOffY)
     {
         clipRect[0] += rdrOffY;

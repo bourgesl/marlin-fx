@@ -175,7 +175,7 @@ public final class DStroker implements DPathConsumer2D, MarlinConst {
                          int joinStyle,
                          double miterLimit,
                          final double scale,
-                         double rdrOffX, 
+                         double rdrOffX,
                          double rdrOffY)
     {
         this.out = pc2d;

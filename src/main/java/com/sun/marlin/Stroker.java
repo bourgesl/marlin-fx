@@ -177,7 +177,7 @@ public final class Stroker implements PathConsumer2D, MarlinConst {
                         final int joinStyle,
                         final float miterLimit,
                         final float scale,
-                        double rdrOffX, 
+                        double rdrOffX,
                         double rdrOffY)
     {
         this.out = pc2d;
