@@ -651,7 +651,7 @@ public final class DRenderer implements DMarlinRenderer, MarlinConst {
     }
 
     @Override
-    public void moveTo(double pix_x0, double pix_y0) {
+    public void moveTo(final double pix_x0, final double pix_y0) {
         closePath();
         final double sx = tosubpixx(pix_x0);
         final double sy = tosubpixy(pix_y0);
@@ -662,7 +662,7 @@ public final class DRenderer implements DMarlinRenderer, MarlinConst {
     }
 
     @Override
-    public void lineTo(double pix_x1, double pix_y1) {
+    public void lineTo(final double pix_x1, final double pix_y1) {
         final double x1 = tosubpixx(pix_x1);
         final double y1 = tosubpixy(pix_y1);
         addLine(x0, y0, x1, y1);
@@ -671,9 +671,9 @@ public final class DRenderer implements DMarlinRenderer, MarlinConst {
     }
 
     @Override
-    public void curveTo(double pix_x1, double pix_y1,
-                        double pix_x2, double pix_y2,
-                        double pix_x3, double pix_y3)
+    public void curveTo(final double pix_x1, final double pix_y1,
+                        final double pix_x2, final double pix_y2,
+                        final double pix_x3, final double pix_y3)
     {
         final double xe = tosubpixx(pix_x3);
         final double ye = tosubpixy(pix_y3);
@@ -685,8 +685,8 @@ public final class DRenderer implements DMarlinRenderer, MarlinConst {
     }
 
     @Override
-    public void quadTo(double pix_x1, double pix_y1,
-                       double pix_x2, double pix_y2)
+    public void quadTo(final double pix_x1, final double pix_y1,
+                       final double pix_x2, final double pix_y2)
     {
         final double xe = tosubpixx(pix_x2);
         final double ye = tosubpixy(pix_y2);
