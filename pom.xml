@@ -88,8 +88,11 @@
                                 <filter>
                                     <artifact>javafx:jfxrt:jar:local</artifact>
                                     <excludes>
-                                        <exclude>com/sun/prism/impl/shape/ShapeUtil*.class</exclude>
                                         <exclude>com/sun/javafx/geom/Path2D*.class</exclude>
+                                        <exclude>com/sun/javafx/sg/prism/NGCanvas*.class</exclude>
+                                        <exclude>com/sun/prism/impl/BasicStroke*.class</exclude>
+                                        <exclude>com/sun/prism/impl/ps/CachingShapeRep*.class</exclude>
+                                        <exclude>com/sun/prism/impl/shape/ShapeUtil*.class</exclude>
                                     </excludes>
                                 </filter>
                                 <filter>

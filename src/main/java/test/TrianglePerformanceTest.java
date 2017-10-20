@@ -1,5 +1,6 @@
 package test;
 
+import java.util.Random;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -22,7 +23,9 @@ import javafx.scene.shape.Path;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.HLineTo;
+import javafx.scene.shape.StrokeType;
 import javafx.scene.shape.VLineTo;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 public class TrianglePerformanceTest extends Application {
@@ -34,8 +37,9 @@ public class TrianglePerformanceTest extends Application {
     private final static double NOMINAL_SCALE = 0.5;
     private final static boolean CONTINUOUS_ROTATION = true;
     private final static boolean CONTINUOUS_SCALING = true;
-    private final static boolean AVERAGE_FRAME_RATE = true;
-    private final static Color STROKE_COLOR = null;
+    private final static boolean AVERAGE_FRAME_RATE = false;
+    // null to disable stroke (inner)
+    private final static Color STROKE_COLOR = Color.BLACK;
 
     private final StackPane graphicsPane = new StackPane();
     private final Pane drawingPane = new Pane();
@@ -56,11 +60,24 @@ public class TrianglePerformanceTest extends Application {
     private static boolean oneShape = false;
     private static boolean doSpin = true;
 
+    // Fixed seed to avoid any difference between runs:
+    private final Random random = new Random(13L);
+    private final Random random2 = new Random(131L);
+
     private class MyAnimationTimer extends AnimationTimer {
-        private final static long SECONDS_TO_NANOS = 1_000_000_000;
-        private long previousTimeNanos = 0;
+        private final static double SECONDS_TO_NANOS = 1e9;
+        private final static long INSTANT_TO_NANOS = 500_000_000L;
+
         private boolean active = false;
+/*
+        private long previousTimeNanos = 0;
         private long averageDeltaNanos = 0;
+*/
+        private int nbFrames = 0;
+
+        private long lastInstant = System.nanoTime();
+        private long nextInstant = lastInstant + INSTANT_TO_NANOS;
+
 
         @Override
         public void start() {
@@ -76,6 +93,7 @@ public class TrianglePerformanceTest extends Application {
 
         @Override
         public void handle(long nowNanos) {
+/*
             if (previousTimeNanos > 0) {
                 long deltaNanos = nowNanos - previousTimeNanos;
                 if (deltaNanos > 0) {
@@ -84,12 +102,26 @@ public class TrianglePerformanceTest extends Application {
                     } else {
                         averageDeltaNanos = deltaNanos;
                     }
-                    frameRate.setText(String.format("%d", SECONDS_TO_NANOS/averageDeltaNanos));
+                    frameRate.setText(String.format("%.2f", SECONDS_TO_NANOS / averageDeltaNanos));
                 }
             }
             previousTimeNanos = nowNanos;
+*/
+            nbFrames++;
 
-            double seconds = (double)nowNanos / SECONDS_TO_NANOS;
+            if (nowNanos > nextInstant) {
+                final String fps = String.format("%.2f", ((double)(INSTANT_TO_NANOS * nbFrames)) / (nowNanos - lastInstant));
+                frameRate.setText(fps);
+
+                System.out.println(fps);
+
+                // reset
+                nbFrames = 0;
+                lastInstant = nowNanos;
+                nextInstant = nowNanos + INSTANT_TO_NANOS;
+            }
+
+            double seconds = nowNanos / SECONDS_TO_NANOS;
             if (doSpin) {
                 double angle = 10 * seconds;
                 double scale = NOMINAL_SCALE + 0.1*Math.sin(seconds);
@@ -141,6 +173,8 @@ public class TrianglePerformanceTest extends Application {
 
         graphicsPane.getChildren().add(drawingPane);
 
+        final Font font = new Font(20);
+
         toolBar = new ToolBar();
         root.setTop(toolBar);
         root.setCenter(graphicsPane);
@@ -148,7 +182,9 @@ public class TrianglePerformanceTest extends Application {
         {
             // Number of elements:
             Label label = new Label("Num. Elem.:");
+            label.setFont(font);
             numElemSelection = new TextField();
+            numElemSelection.setFont(font);
             numElemSelection.setAlignment(Pos.BASELINE_RIGHT);
             numElemSelection.setPrefColumnCount(4);
             numElemSelection.setText(String.valueOf(numElements));
@@ -159,7 +195,9 @@ public class TrianglePerformanceTest extends Application {
         {
             // Frame rate:
             Label label = new Label("Frame rate:");
+            label.setFont(font);
             frameRate = new TextField();
+            frameRate.setFont(font);
             frameRate.setAlignment(Pos.BASELINE_RIGHT);
             frameRate.setPrefColumnCount(3);
             frameRate.setEditable(false);
@@ -171,6 +209,7 @@ public class TrianglePerformanceTest extends Application {
         {
             // Triangles/Rectangles toggle button:
             triRectButton = new ToggleButton("Triangles/Rectangles");
+            triRectButton.setFont(font);
             triRectButton.setSelected(showRectangles);
             triRectButton.setOnAction(resetConfigActionHandler);
             toolBar.getItems().add(triRectButton);
@@ -179,6 +218,7 @@ public class TrianglePerformanceTest extends Application {
         {
             // Random color button
             colorButton = new ToggleButton("Random Color");
+            colorButton.setFont(font);
             colorButton.setSelected(randomColors);
             colorButton.setOnAction(resetConfigActionHandler);
             toolBar.getItems().add(colorButton);
@@ -187,6 +227,7 @@ public class TrianglePerformanceTest extends Application {
         {
             // Spin vs translate button
             spinButton = new ToggleButton("Spin");
+            spinButton.setFont(font);
             spinButton.setSelected(doSpin);
             spinButton.setOnAction(animationActionHandler);
             toolBar.getItems().add(spinButton);
@@ -195,6 +236,7 @@ public class TrianglePerformanceTest extends Application {
         {
             // Single shape button
             oneShapeButton = new ToggleButton("One Shape");
+            oneShapeButton.setFont(font);
             oneShapeButton.setSelected(oneShape);
             oneShapeButton.setOnAction(resetConfigActionHandler);
             toolBar.getItems().add(oneShapeButton);
@@ -203,6 +245,7 @@ public class TrianglePerformanceTest extends Application {
         {
             // Start/Stop animation toggle button:
             animButton = new ToggleButton("Start/Stop Animation");
+            animButton.setFont(font);
             animButton.setSelected(true);
             animButton.setOnAction(animationActionHandler);
             toolBar.getItems().add(animButton);
@@ -273,8 +316,7 @@ public class TrianglePerformanceTest extends Application {
         Path p;
         if (oneShape) {
             p = new Path();
-            p.setFill(randomColors ? randomColor() : Color.BLUE);
-            p.setStroke(STROKE_COLOR);
+            setShapeAttrs(p);
             graphics.getChildren().add(p);
         } else {
             p = null;
@@ -285,16 +327,25 @@ public class TrianglePerformanceTest extends Application {
         }
     }
 
+    private void setShapeAttrs(Shape shape) {
+        shape.setFill(randomColors ? randomColor() : Color.BLUE);
+        if (STROKE_COLOR != null) {
+            shape.setStroke(STROKE_COLOR);
+            shape.setStrokeType(StrokeType.INSIDE);
+            shape.setStrokeWidth(0.5);
+        }
+    }
+
     private void addShape(Group graphics, double width, double height,
                           Path p,
                           boolean showRectangles, boolean randomColors)
     {
-        final double px0 = Math.random() * width;
-        final double py0 = Math.random() * height;
-        final double px1 = px0 - SIZE/2 + Math.random() * SIZE;
-        final double py1 = py0 - SIZE/2 + Math.random() * SIZE;
-        final double px2 = px0 - SIZE/2 + Math.random() * SIZE;
-        final double py2 = py0 - SIZE/2 + Math.random() * SIZE;
+        final double px0 = random() * width;
+        final double py0 = random() * height;
+        final double px1 = px0 - SIZE/2 + random() * SIZE;
+        final double py1 = py0 - SIZE/2 + random() * SIZE;
+        final double px2 = px0 - SIZE/2 + random() * SIZE;
+        final double py2 = py0 - SIZE/2 + random() * SIZE;
 
         Shape shape = null;
 
@@ -322,14 +373,17 @@ public class TrianglePerformanceTest extends Application {
         }
 
         if (shape != null) {
-            shape.setFill(randomColors ? randomColor() : Color.BLUE);
-            shape.setStroke(STROKE_COLOR);
+            setShapeAttrs(shape);
             graphics.getChildren().add(shape);
         }
     }
 
+    private double random() {
+        return random.nextDouble();
+    }
+
     private Color randomColor() {
-        return new Color(Math.random(), Math.random(), Math.random(), 1.0);
+        return new Color(random2.nextDouble(), random2.nextDouble(), random2.nextDouble(), 1.0);
     }
 
     public static void main(String[] args) {
