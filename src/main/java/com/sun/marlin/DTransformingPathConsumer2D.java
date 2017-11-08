@@ -324,6 +324,7 @@ public final class DTransformingPathConsumer2D {
             out.pathDone();
         }
     }
+
     static final class Path2DWrapper implements DPathConsumer2D {
         private Path2D p2d;
 
