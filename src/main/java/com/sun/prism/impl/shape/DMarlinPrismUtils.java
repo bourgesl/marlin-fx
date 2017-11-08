@@ -44,8 +44,8 @@ public final class DMarlinPrismUtils {
 
     private static final boolean FORCE_NO_AA = false;
 
-    static final double UPPER_BND = Float.MAX_VALUE / 2.0d;
-    static final double LOWER_BND = -UPPER_BND;
+    static final float UPPER_BND = Float.MAX_VALUE / 2.0f;
+    static final float LOWER_BND = -UPPER_BND;
 
     static final boolean DO_CLIP = MarlinProperties.isDoClip();
     static final boolean DO_TRACE = false;
