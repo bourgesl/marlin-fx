@@ -128,7 +128,7 @@ public final class MarlinRasterizer implements ShapeRasterizer {
             final Path2D p2d = rdrCtx.getPath2D();
 
             MarlinPrismUtils.strokeTo(rdrCtx, s, stroke, lw,
-                     rdrCtx.transformerPC2D.wrapPath2d(p2d)
+                     rdrCtx.transformerPC2D.wrapPath2D(p2d)
             );
 
             // Use Path2D copy constructor (trim)

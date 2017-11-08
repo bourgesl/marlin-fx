@@ -59,8 +59,7 @@ public final class TransformingPathConsumer2D {
         this.cpDetector = new ClosedPathDetector(rdrCtx);
     }
 
-    public PathConsumer2D wrapPath2d(Path2D p2d)
-    {
+    public PathConsumer2D wrapPath2D(Path2D p2d) {
         return wp_Path2DWrapper.init(p2d);
     }
 
@@ -76,8 +75,7 @@ public final class TransformingPathConsumer2D {
         return tracerStroker.init(out);
     }
 
-    public PathConsumer2D detectClosedPath(PathConsumer2D out)
-    {
+    public PathConsumer2D detectClosedPath(PathConsumer2D out) {
         return cpDetector.init(out);
     }
 
