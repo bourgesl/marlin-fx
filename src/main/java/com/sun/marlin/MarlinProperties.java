@@ -136,6 +136,14 @@ public final class MarlinProperties {
         return getBoolean("prism.marlin.clip", "true");
     }
 
+    public static boolean isDoClipRuntimeFlag() {
+        return getBoolean("prism.marlin.clip.runtime.enable", "false");
+    }
+
+    public static boolean isDoClipAtRuntime() {
+        return getBoolean("prism.marlin.clip.runtime", "true");
+    }
+
     // debugging parameters
 
     public static boolean isDoStats() {

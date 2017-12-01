@@ -138,7 +138,7 @@ public final class MarlinRasterizer implements ShapeRasterizer {
                 s = ((NGCanvasPath)s).getGeometry(); // use internal Path2D
             }
             MarlinPrismUtils.strokeTo(rdrCtx, s, stroke, lw,
-                     rdrCtx.transformerPC2D.wrapPath2d(p2d)
+                     rdrCtx.transformerPC2D.wrapPath2D(p2d)
             );
 
             // Use Path2D copy constructor (trim)

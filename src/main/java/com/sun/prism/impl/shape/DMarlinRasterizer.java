@@ -84,7 +84,6 @@ public final class DMarlinRasterizer implements ShapeRasterizer {
             final Rectangle rclip = rdrCtx.clip;
             rclip.setBounds(xformBounds);
 
-            // Try using Path2D directly ?
             if (shape instanceof NGCanvasPath) {
                 final NGCanvasPath path = (NGCanvasPath)shape;
                 shape = path.getGeometry(); // use internal Path2D
@@ -139,7 +138,7 @@ public final class DMarlinRasterizer implements ShapeRasterizer {
                 s = ((NGCanvasPath)s).getGeometry(); // use internal Path2D
             }
             DMarlinPrismUtils.strokeTo(rdrCtx, s, stroke, lw,
-                     rdrCtx.transformerPC2D.wrapPath2d(p2d)
+                     rdrCtx.transformerPC2D.wrapPath2D(p2d)
             );
 
             // Use Path2D copy constructor (trim)

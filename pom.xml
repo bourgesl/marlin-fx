@@ -8,7 +8,7 @@
     <groupId>org.marlin</groupId>
     <artifactId>marlinfx</artifactId>
     <packaging>jar</packaging>
-    <version>0.8.0-Unsafe</version>
+    <version>0.8.2-Unsafe</version>
     <name>Marlin software rasterizer</name>
 
     <url>https://github.com/bourgesl/marlin-renderer</url>
@@ -43,7 +43,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.6.1</version>
+                <version>3.6.2</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
