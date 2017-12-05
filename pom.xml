@@ -8,7 +8,7 @@
     <groupId>org.marlin</groupId>
     <artifactId>marlinfx</artifactId>
     <packaging>jar</packaging>
-    <version>0.8.0-Unsafe-OpenJDK</version>
+    <version>0.8.2-Unsafe-OpenJDK9</version>
     <name>Marlin software rasterizer</name>
 
     <url>https://github.com/bourgesl/marlin-renderer</url>
@@ -19,6 +19,8 @@
 
     <properties>
         <maven.build.timestamp.format>yyyy/MM/dd HH:mm:ss</maven.build.timestamp.format>
+        <integration.skip>true</integration.skip>
+        <integration.skip.long>true</integration.skip.long>
     </properties>
 
     <build>
@@ -37,6 +39,30 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
+
+            <!-- To copy dependencies into target/test-libs (used by javac -module-path) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.0.2</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies-libs</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeScope>test</includeScope>
+                            <outputDirectory>${project.build.directory}/test-libs</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -44,35 +70,90 @@
                 <configuration>
                     <source>9</source>
                     <target>9</target>
-                    <release>9</release>
                     <debug>true</debug>
                     <encoding>UTF-8</encoding>
+                    <showDeprecation>true</showDeprecation>
+                    <showWarnings>true</showWarnings>
+                    <forceJavacCompilerUse>true</forceJavacCompilerUse>
+                    <compilerArgs>
+                        <arg>--patch-module</arg>
+                        <arg>javafx.graphics=src</arg>
+                    </compilerArgs>
                 </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.3</version>
                 <executions>
                     <execution>
-                        <phase>package</phase>
+                        <id>default-testCompile</id>
+                        <phase>test-compile</phase>
                         <goals>
-                            <goal>shade</goal>
+                            <goal>testCompile</goal>
                         </goals>
                         <configuration>
-                            <minimizeJar>false</minimizeJar>
-                            <filters>
-                                <filter>
-                                    <artifact>org.marlin:marlinfx</artifact>
-                                    <includes>
-                                        <include>**/*</include>
-                                    </includes>
-                                    <excludes>
-                                        <exclude>test/**</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
+                            <compilerArgs>
+                                <arg>--patch-module</arg>
+                                <arg>javafx.graphics=src</arg>
+                                <arg>--module-path</arg>
+                                <arg>${project.build.directory}/test-libs</arg>
+                                <arg>--add-modules</arg>
+                                <arg>java.logging,junit,hamcrest.core</arg>
+                                <arg>--add-reads</arg>
+                                <arg>javafx.graphics=java.logging,junit,hamcrest.core</arg>
+                            </compilerArgs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                        <manifestEntries>
+                            <BuildTime>${maven.build.timestamp}</BuildTime>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.20.1</version>
+                <!--
+                CrashTest may need large heap: -Xms4g -Xmx4g
+                -->
+                <executions>
+                    <execution>
+                        <id>default-test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>integration-test-double</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${integration.skip}</skip>
+                            <includes>
+                                <include>**/RunJUnitTest.java</include>
+                            </includes>
+                            <argLine>
+                                -Xms1g -Xmx1g
+                                -Dsun.java2d.renderer.log=true
+                                -Dsun.java2d.renderer=sun.java2d.marlin.DMarlinRenderingEngine
+                                --add-exports java.desktop/sun.java2d.marlin=ALL-UNNAMED
+                                --patch-module java.desktop=${basedir}/target/${project.build.finalName}.jar</argLine>
                         </configuration>
                     </execution>
                 </executions>

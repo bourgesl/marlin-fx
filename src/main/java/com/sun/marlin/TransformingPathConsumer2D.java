@@ -28,6 +28,7 @@ package com.sun.marlin;
 import com.sun.javafx.geom.Path2D;
 import com.sun.javafx.geom.PathConsumer2D;
 import com.sun.javafx.geom.transform.BaseTransform;
+import com.sun.marlin.Helpers.IndexStack;
 import com.sun.marlin.Helpers.PolyStack;
 
 public final class TransformingPathConsumer2D {
@@ -37,7 +38,10 @@ public final class TransformingPathConsumer2D {
     // recycled ClosedPathDetector instance from detectClosedPath()
     private final ClosedPathDetector   cpDetector;
 
-    // recycled PathConsumer2D instance from wrapPath2d()
+    // recycled PathClipFilter instance from pathClipper()
+    private final PathClipFilter       pathClipper;
+
+    // recycled PathConsumer2D instance from wrapPath2D()
     private final Path2DWrapper        wp_Path2DWrapper        = new Path2DWrapper();
 
     // recycled PathConsumer2D instances from deltaTransformConsumer()
@@ -51,12 +55,14 @@ public final class TransformingPathConsumer2D {
     // recycled PathTracer instances from tracer...() methods
     private final PathTracer tracerInput      = new PathTracer("[Input]");
     private final PathTracer tracerCPDetector = new PathTracer("ClosedPathDetector");
+    private final PathTracer tracerFiller     = new PathTracer("Filler");
     private final PathTracer tracerStroker    = new PathTracer("Stroker");
 
     TransformingPathConsumer2D(final RendererContext rdrCtx) {
         // used by RendererContext
         this.rdrCtx = rdrCtx;
         this.cpDetector = new ClosedPathDetector(rdrCtx);
+        this.pathClipper = new PathClipFilter(rdrCtx);
     }
 
     public PathConsumer2D wrapPath2D(Path2D p2d) {
@@ -71,12 +77,23 @@ public final class TransformingPathConsumer2D {
         return tracerCPDetector.init(out);
     }
 
+    public PathConsumer2D traceFiller(PathConsumer2D out) {
+        return tracerFiller.init(out);
+    }
+
     public PathConsumer2D traceStroker(PathConsumer2D out) {
         return tracerStroker.init(out);
     }
 
     public PathConsumer2D detectClosedPath(PathConsumer2D out) {
         return cpDetector.init(out);
+    }
+
+    public PathConsumer2D pathClipper(PathConsumer2D out,
+                                      final float rdrOffX,
+                                      final float rdrOffY)
+    {
+        return pathClipper.init(out, rdrOffX, rdrOffY);
     }
 
     public PathConsumer2D deltaTransformConsumer(PathConsumer2D out,
@@ -446,6 +463,276 @@ public final class TransformingPathConsumer2D {
         @Override
         public void quadTo(float x2, float y2, float x1, float y1) {
             stack.pushQuad(x1, y1, x2, y2);
+        }
+    }
+
+    static final class PathClipFilter implements PathConsumer2D {
+
+        private PathConsumer2D out;
+
+        // Bounds of the drawing region, at pixel precision.
+        private final float[] clipRect;
+
+        private final float[] corners = new float[8];
+        private boolean init_corners = false;
+
+        private final IndexStack stack;
+
+        // the current outcode of the current sub path
+        private int cOutCode = 0;
+
+        // the cumulated (and) outcode of the complete path
+        private int gOutCode = MarlinConst.OUTCODE_MASK_T_B_L_R;
+
+        private boolean outside = false;
+
+        // The current point OUTSIDE
+        private float cx0, cy0;
+
+        PathClipFilter(final RendererContext rdrCtx) {
+            this.clipRect = rdrCtx.clipRect;
+            this.stack = (rdrCtx.stats != null) ?
+                new IndexStack(rdrCtx,
+                        rdrCtx.stats.stat_pcf_idxstack_indices,
+                        rdrCtx.stats.hist_pcf_idxstack_indices,
+                        rdrCtx.stats.stat_array_pcf_idxstack_indices)
+                : new IndexStack(rdrCtx);
+        }
+
+        PathClipFilter init(final PathConsumer2D out,
+                            final double rdrOffX,
+                            final double rdrOffY)
+        {
+            this.out = out;
+
+            // add a small rounding error:
+            final float margin = 1e-3f;
+
+            final float[] _clipRect = this.clipRect;
+            // Adjust the clipping rectangle with the renderer offsets
+            _clipRect[0] -= margin - rdrOffY;
+            _clipRect[1] += margin + rdrOffY;
+            _clipRect[2] -= margin - rdrOffX;
+            _clipRect[3] += margin + rdrOffX;
+
+            this.init_corners = true;
+            this.gOutCode = MarlinConst.OUTCODE_MASK_T_B_L_R;
+
+            return this; // fluent API
+        }
+
+        /**
+         * Disposes this instance:
+         * clean up before reusing this instance
+         */
+        void dispose() {
+            stack.dispose();
+        }
+
+        private void finishPath() {
+            if (outside) {
+                // criteria: inside or totally outside ?
+                if (gOutCode == 0) {
+                    finish();
+                } else {
+                    this.outside = false;
+                    stack.reset();
+                }
+            }
+        }
+
+        private void finish() {
+            this.outside = false;
+
+            if (!stack.isEmpty()) {
+                if (init_corners) {
+                    init_corners = false;
+
+                    final float[] _corners = corners;
+                    final float[] _clipRect = clipRect;
+                    // Top Left (0):
+                    _corners[0] = _clipRect[2];
+                    _corners[1] = _clipRect[0];
+                    // Bottom Left (1):
+                    _corners[2] = _clipRect[2];
+                    _corners[3] = _clipRect[1];
+                    // Top right (2):
+                    _corners[4] = _clipRect[3];
+                    _corners[5] = _clipRect[0];
+                    // Bottom Right (3):
+                    _corners[6] = _clipRect[3];
+                    _corners[7] = _clipRect[1];
+                }
+                stack.pullAll(corners, out);
+            }
+            out.lineTo(cx0, cy0);
+        }
+
+        @Override
+        public void pathDone() {
+            finishPath();
+
+            out.pathDone();
+
+            // TODO: fix possible leak if exception happened
+            // Dispose this instance:
+            dispose();
+        }
+
+        @Override
+        public void closePath() {
+            finishPath();
+
+            out.closePath();
+        }
+
+        @Override
+        public void moveTo(final float x0, final float y0) {
+            finishPath();
+
+            final int outcode = Helpers.outcode(x0, y0, clipRect);
+            this.cOutCode = outcode;
+            this.outside = false;
+            out.moveTo(x0, y0);
+        }
+
+        @Override
+        public void lineTo(final float xe, final float ye) {
+            final int outcode0 = this.cOutCode;
+            final int outcode1 = Helpers.outcode(xe, ye, clipRect);
+            this.cOutCode = outcode1;
+
+            final int sideCode = (outcode0 & outcode1);
+
+            // basic rejection criteria:
+            if (sideCode == 0) {
+                this.gOutCode = 0;
+            } else {
+                this.gOutCode &= sideCode;
+                // keep last point coordinate before entering the clip again:
+                this.outside = true;
+                this.cx0 = xe;
+                this.cy0 = ye;
+
+                clip(sideCode, outcode0, outcode1);
+                return;
+            }
+            if (outside) {
+                finish();
+            }
+            // clipping disabled:
+            out.lineTo(xe, ye);
+        }
+
+        private void clip(final int sideCode,
+                          final int outcode0,
+                          final int outcode1)
+        {
+            // corner or cross-boundary on left or right side:
+            if ((outcode0 != outcode1)
+                    && ((sideCode & MarlinConst.OUTCODE_MASK_L_R) != 0))
+            {
+                // combine outcodes:
+                final int mergeCode = (outcode0 | outcode1);
+                final int tbCode = mergeCode & MarlinConst.OUTCODE_MASK_T_B;
+                final int lrCode = mergeCode & MarlinConst.OUTCODE_MASK_L_R;
+                final int off = (lrCode == MarlinConst.OUTCODE_LEFT) ? 0 : 2;
+
+                // add corners to outside stack:
+                switch (tbCode) {
+                    case MarlinConst.OUTCODE_TOP:
+// System.out.println("TOP "+ ((off == 0) ? "LEFT" : "RIGHT"));
+                        stack.push(off); // top
+                        return;
+                    case MarlinConst.OUTCODE_BOTTOM:
+// System.out.println("BOTTOM "+ ((off == 0) ? "LEFT" : "RIGHT"));
+                        stack.push(off + 1); // bottom
+                        return;
+                    default:
+                        // both TOP / BOTTOM:
+                        if ((outcode0 & MarlinConst.OUTCODE_TOP) != 0) {
+// System.out.println("TOP + BOTTOM "+ ((off == 0) ? "LEFT" : "RIGHT"));
+                            // top to bottom
+                            stack.push(off); // top
+                            stack.push(off + 1); // bottom
+                        } else {
+// System.out.println("BOTTOM + TOP "+ ((off == 0) ? "LEFT" : "RIGHT"));
+                            // bottom to top
+                            stack.push(off + 1); // bottom
+                            stack.push(off); // top
+                        }
+                }
+            }
+        }
+
+        @Override
+        public void curveTo(final float x1, final float y1,
+                            final float x2, final float y2,
+                            final float xe, final float ye)
+        {
+            final int outcode0 = this.cOutCode;
+            final int outcode3 = Helpers.outcode(xe, ye, clipRect);
+            this.cOutCode = outcode3;
+
+            int sideCode = outcode0 & outcode3;
+
+            if (sideCode == 0) {
+                this.gOutCode = 0;
+            } else {
+                sideCode &= Helpers.outcode(x1, y1, clipRect);
+                sideCode &= Helpers.outcode(x2, y2, clipRect);
+                this.gOutCode &= sideCode;
+
+                // basic rejection criteria:
+                if (sideCode != 0) {
+                    // keep last point coordinate before entering the clip again:
+                    this.outside = true;
+                    this.cx0 = xe;
+                    this.cy0 = ye;
+
+                    clip(sideCode, outcode0, outcode3);
+                    return;
+                }
+            }
+            if (outside) {
+                finish();
+            }
+            // clipping disabled:
+            out.curveTo(x1, y1, x2, y2, xe, ye);
+        }
+
+        @Override
+        public void quadTo(final float x1, final float y1,
+                           final float xe, final float ye)
+        {
+            final int outcode0 = this.cOutCode;
+            final int outcode2 = Helpers.outcode(xe, ye, clipRect);
+            this.cOutCode = outcode2;
+
+            int sideCode = outcode0 & outcode2;
+
+            if (sideCode == 0) {
+                this.gOutCode = 0;
+            } else {
+                sideCode &= Helpers.outcode(x1, y1, clipRect);
+                this.gOutCode &= sideCode;
+
+                // basic rejection criteria:
+                if (sideCode != 0) {
+                    // keep last point coordinate before entering the clip again:
+                    this.outside = true;
+                    this.cx0 = xe;
+                    this.cy0 = ye;
+
+                    clip(sideCode, outcode0, outcode2);
+                    return;
+                }
+            }
+            if (outside) {
+                finish();
+            }
+            // clipping disabled:
+            out.quadTo(x1, y1, xe, ye);
         }
     }
 

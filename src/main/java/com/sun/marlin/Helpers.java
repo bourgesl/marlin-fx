@@ -27,12 +27,7 @@ package com.sun.marlin;
 
 import com.sun.javafx.geom.PathConsumer2D;
 import static java.lang.Math.PI;
-import static java.lang.Math.cos;
-import static java.lang.Math.sqrt;
-import static java.lang.Math.cbrt;
-import static java.lang.Math.acos;
 import java.util.Arrays;
-import static com.sun.marlin.MarlinConst.INITIAL_EDGES_COUNT;
 import com.sun.marlin.stats.Histogram;
 import com.sun.marlin.stats.StatLong;
 
@@ -125,17 +120,17 @@ final class Helpers implements MarlinConst {
         int num;
         if (D < 0.0d) {
             // see: http://en.wikipedia.org/wiki/Cubic_function#Trigonometric_.28and_hyperbolic.29_method
-            final double phi = (1.0d/3.0d) * acos(-q / sqrt(-cb_p));
-            final double t = 2.0d * sqrt(-p);
+            final double phi = (1.0d/3.0d) * Math.acos(-q / Math.sqrt(-cb_p));
+            final double t = 2.0d * Math.sqrt(-p);
 
-            pts[ off+0 ] = (float) ( t * cos(phi));
-            pts[ off+1 ] = (float) (-t * cos(phi + (PI / 3.0d)));
-            pts[ off+2 ] = (float) (-t * cos(phi - (PI / 3.0d)));
+            pts[ off+0 ] = (float) ( t * Math.cos(phi));
+            pts[ off+1 ] = (float) (-t * Math.cos(phi + (PI / 3.0d)));
+            pts[ off+2 ] = (float) (-t * Math.cos(phi - (PI / 3.0d)));
             num = 3;
         } else {
-            final double sqrt_D = sqrt(D);
-            final double u = cbrt(sqrt_D - q);
-            final double v = - cbrt(sqrt_D + q);
+            final double sqrt_D = Math.sqrt(D);
+            final double u =   Math.cbrt(sqrt_D - q);
+            final double v = - Math.cbrt(sqrt_D + q);
 
             pts[ off ] = (float) (u + v);
             num = 1;
@@ -437,11 +432,6 @@ final class Helpers implements MarlinConst {
 
     // From sun.java2d.loops.GeneralRenderer:
 
-    static final int OUTCODE_TOP     = 1;
-    static final int OUTCODE_BOTTOM  = 2;
-    static final int OUTCODE_LEFT    = 4;
-    static final int OUTCODE_RIGHT   = 8;
-
     static int outcode(final float x, final float y,
                        final float[] clipRect)
     {
@@ -494,17 +484,17 @@ final class Helpers implements MarlinConst {
         private final StatLong stat_array_polystack_curves;
         private final StatLong stat_array_polystack_curveTypes;
 
-       PolyStack(final RendererContext rdrCtx) {
-           this(rdrCtx, null, null, null, null, null);
-       }
+        PolyStack(final RendererContext rdrCtx) {
+            this(rdrCtx, null, null, null, null, null);
+        }
 
-       PolyStack(final RendererContext rdrCtx,
-                 final StatLong stat_polystack_types,
-                 final StatLong stat_polystack_curves,
-                 final Histogram hist_polystack_curves,
-                 final StatLong stat_array_polystack_curves,
-                 final StatLong stat_array_polystack_curveTypes)
-       {
+        PolyStack(final RendererContext rdrCtx,
+                  final StatLong stat_polystack_types,
+                  final StatLong stat_polystack_curves,
+                  final Histogram hist_polystack_curves,
+                  final StatLong stat_array_polystack_curves,
+                  final StatLong stat_array_polystack_curveTypes)
+        {
             curves_ref = rdrCtx.newDirtyFloatArrayRef(INITIAL_CURVES_COUNT); // 32K
             curves     = curves_ref.initial;
 
@@ -711,6 +701,116 @@ final class Helpers implements MarlinConst {
                                        + "\n";
             }
             return ret;
+        }
+    }
+
+    // a stack of integer indices
+    static final class IndexStack {
+
+        // integer capacity = edges count / 4 ~ 1024
+        private static final int INITIAL_COUNT = INITIAL_EDGES_COUNT >> 2;
+
+        private int end;
+        private int[] indices;
+
+        // indices ref (dirty)
+        private final IntArrayCache.Reference indices_ref;
+
+        // used marks (stats only)
+        private int indicesUseMark;
+
+        private final StatLong stat_idxstack_indices;
+        private final Histogram hist_idxstack_indices;
+        private final StatLong stat_array_idxstack_indices;
+
+        IndexStack(final RendererContext rdrCtx) {
+            this(rdrCtx, null, null, null);
+        }
+
+        IndexStack(final RendererContext rdrCtx,
+                   final StatLong stat_idxstack_indices,
+                   final Histogram hist_idxstack_indices,
+                   final StatLong stat_array_idxstack_indices)
+        {
+            indices_ref = rdrCtx.newDirtyIntArrayRef(INITIAL_COUNT); // 4K
+            indices     = indices_ref.initial;
+            end = 0;
+
+            if (DO_STATS) {
+                indicesUseMark = 0;
+            }
+            this.stat_idxstack_indices = stat_idxstack_indices;
+            this.hist_idxstack_indices = hist_idxstack_indices;
+            this.stat_array_idxstack_indices = stat_array_idxstack_indices;
+        }
+
+        /**
+         * Disposes this PolyStack:
+         * clean up before reusing this instance
+         */
+        void dispose() {
+            end = 0;
+
+            if (DO_STATS) {
+                stat_idxstack_indices.add(indicesUseMark);
+                hist_idxstack_indices.add(indicesUseMark);
+
+                // reset marks
+                indicesUseMark = 0;
+            }
+
+            // Return arrays:
+            // values is kept dirty
+            indices = indices_ref.putArray(indices);
+        }
+
+        boolean isEmpty() {
+            return (end == 0);
+        }
+
+        void reset() {
+            end = 0;
+        }
+
+        void push(final int v) {
+            // remove redundant values (reverse order):
+            int[] _values = indices;
+            final int nc = end;
+            if (nc != 0) {
+                if (_values[nc - 1] == v) {
+                    // remove both duplicated values:
+                    end--;
+                    return;
+                }
+            }
+            if (_values.length <= nc) {
+                if (DO_STATS) {
+                    stat_array_idxstack_indices.add(nc + 1);
+                }
+                indices = _values = indices_ref.widenArray(_values, nc, nc + 1);
+            }
+            _values[end++] = v;
+
+            if (DO_STATS) {
+                // update used marks:
+                if (end > indicesUseMark) {
+                    indicesUseMark = end;
+                }
+            }
+        }
+
+        void pullAll(final float[] points, final PathConsumer2D io) {
+            final int nc = end;
+            if (nc == 0) {
+                return;
+            }
+            final int[] _values = indices;
+
+            for (int i = 0, j; i < nc; i++) {
+                j = _values[i] << 1;
+                io.lineTo(points[j], points[j + 1]);
+            }
+            end = 0;
         }
     }
 }

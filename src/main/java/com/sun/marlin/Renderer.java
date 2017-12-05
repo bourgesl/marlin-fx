@@ -43,8 +43,8 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
     static final int SUBPIXEL_MASK_X = SUBPIXEL_POSITIONS_X - 1;
     static final int SUBPIXEL_MASK_Y = SUBPIXEL_POSITIONS_Y - 1;
 
-    private static final float RDR_OFFSET_X = 0.501f / SUBPIXEL_SCALE_X;
-    private static final float RDR_OFFSET_Y = 0.501f / SUBPIXEL_SCALE_Y;
+    private static final float RDR_OFFSET_X = 0.5f / SUBPIXEL_SCALE_X;
+    private static final float RDR_OFFSET_Y = 0.5f / SUBPIXEL_SCALE_Y;
 
     // common to all types of input path segments.
     // OFFSET as bytes
@@ -1478,11 +1478,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
             // ie number of primitives:
 
             // fast check min width:
-            if (width <= RLE_MIN_WIDTH) {
-                useRLE = false;
-            } else {
-                useRLE = true;
-            }
+            useRLE = (width > RLE_MIN_WIDTH);
         }
     }
 

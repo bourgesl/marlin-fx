@@ -29,9 +29,6 @@ import com.sun.javafx.geom.PathConsumer2D;
 
 public interface MarlinRenderer extends PathConsumer2D {
 
-    public static final int WIND_EVEN_ODD = 0;
-    public static final int WIND_NON_ZERO = 1;
-
     public MarlinRenderer init(final int pix_boundsX, final int pix_boundsY,
                                final int pix_boundsWidth, final int pix_boundsHeight,
                                final int windingRule);

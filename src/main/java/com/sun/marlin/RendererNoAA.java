@@ -37,8 +37,8 @@ public final class RendererNoAA implements MarlinRenderer, MarlinConst {
 
     private static final double POWER_2_TO_32 = 0x1.0p32d;
 
-    private static final float RDR_OFFSET_X = 0.501f;
-    private static final float RDR_OFFSET_Y = 0.501f;
+    private static final float RDR_OFFSET_X = 0.5f;
+    private static final float RDR_OFFSET_Y = 0.5f;
 
     // common to all types of input path segments.
     // OFFSET as bytes
@@ -1409,11 +1409,7 @@ public final class RendererNoAA implements MarlinRenderer, MarlinConst {
             // ie number of primitives:
 
             // fast check min width:
-            if (width <= RLE_MIN_WIDTH) {
-                useRLE = false;
-            } else {
-                useRLE = true;
-            }
+            useRLE = (width > RLE_MIN_WIDTH);
         }
     }
 
