@@ -37,9 +37,9 @@ public class TrianglePerformanceTest extends Application {
     private final static double NOMINAL_SCALE = 0.5;
     private final static boolean CONTINUOUS_ROTATION = true;
     private final static boolean CONTINUOUS_SCALING = true;
-    private final static boolean AVERAGE_FRAME_RATE = false;
+
     // null to disable stroke (inner)
-    private final static Color STROKE_COLOR = Color.BLACK;
+    private final static Color STROKE_COLOR = null; // Color.BLACK;
 
     private final StackPane graphicsPane = new StackPane();
     private final Pane drawingPane = new Pane();
@@ -110,7 +110,7 @@ public class TrianglePerformanceTest extends Application {
             nbFrames++;
 
             if (nowNanos > nextInstant) {
-                final String fps = String.format("%.2f", ((double)(INSTANT_TO_NANOS * nbFrames)) / (nowNanos - lastInstant));
+                final String fps = String.format("%.2f", (SECONDS_TO_NANOS * nbFrames) / (nowNanos - lastInstant));
                 frameRate.setText(fps);
 
                 System.out.println(fps);
@@ -199,7 +199,7 @@ public class TrianglePerformanceTest extends Application {
             frameRate = new TextField();
             frameRate.setFont(font);
             frameRate.setAlignment(Pos.BASELINE_RIGHT);
-            frameRate.setPrefColumnCount(3);
+            frameRate.setPrefColumnCount(4);
             frameRate.setEditable(false);
             toolBar.getItems().addAll(label, frameRate);
         }
