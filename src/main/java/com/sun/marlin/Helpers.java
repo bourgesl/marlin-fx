@@ -28,7 +28,6 @@ package com.sun.marlin;
 import com.sun.javafx.geom.PathConsumer2D;
 import static java.lang.Math.PI;
 import java.util.Arrays;
-import static com.sun.marlin.MarlinConst.INITIAL_EDGES_COUNT;
 import com.sun.marlin.stats.Histogram;
 import com.sun.marlin.stats.StatLong;
 

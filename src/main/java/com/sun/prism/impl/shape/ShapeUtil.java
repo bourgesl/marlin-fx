@@ -75,6 +75,7 @@ public class ShapeUtil {
             }
             return MarlinRasterizer.createCenteredStrokedShape(s, stroke);
         }
+        // JavaPisces fallback:
         return createCenteredStrokedShapeOpenPisces(s, stroke);
     }
 
