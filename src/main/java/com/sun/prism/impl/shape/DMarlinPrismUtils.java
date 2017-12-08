@@ -153,7 +153,7 @@ public final class DMarlinPrismUtils {
             rdrOffX = renderer.getOffsetX();
             rdrOffY = renderer.getOffsetY();
         }
-        
+
         // Prepare the pipeline:
         DPathConsumer2D pc = out;
 
@@ -232,9 +232,9 @@ public final class DMarlinPrismUtils {
         }
 
         if (stroke != null) {
-            renderer.init(clip.x, clip.y, clip.width, clip.height, 
+            renderer.init(clip.x, clip.y, clip.width, clip.height,
                           MarlinConst.WIND_NON_ZERO);
-            
+
             return initStroker(rdrCtx, stroke, stroke.getLineWidth(), tx, renderer);
         } else {
             // Filler:
@@ -246,11 +246,11 @@ public final class DMarlinPrismUtils {
             DPathConsumer2D pc = renderer;
 
             final DTransformingPathConsumer2D transformerPC2D = rdrCtx.transformerPC2D;
-        
+
             if (DO_CLIP_FILL && rdrCtx.doClip) {
                 double rdrOffX = renderer.getOffsetX();
                 double rdrOffY = renderer.getOffsetY();
-                
+
                 if (DO_TRACE_PATH) {
                     // trace Filler:
                     pc = rdrCtx.transformerPC2D.traceFiller(pc);
