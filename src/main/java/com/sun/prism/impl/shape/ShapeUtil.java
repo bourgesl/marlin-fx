@@ -32,21 +32,26 @@ import com.sun.javafx.geom.Shape;
 import com.sun.javafx.geom.transform.BaseTransform;
 import com.sun.prism.BasicStroke;
 import com.sun.prism.impl.PrismSettings;
+import com.sun.prism.impl.PrismSettings.RasterizerType;
 
 public class ShapeUtil {
 
     private static final ShapeRasterizer shapeRasterizer;
     static {
-        if (PrismSettings.useMarlinRasterizer) {
-            if (PrismSettings.useMarlinRasterizerDP) {
-                shapeRasterizer = new DMarlinRasterizer();
-            } else {
+        switch (PrismSettings.rasterizerSpec) {
+            case JavaPisces:
+                shapeRasterizer = new OpenPiscesRasterizer();
+                break;
+            case NativePisces:
+                shapeRasterizer = new NativePiscesRasterizer();
+                break;
+            case FloatMarlin:
                 shapeRasterizer = new MarlinRasterizer();
-            }
-        } else if (PrismSettings.doNativePisces) {
-            shapeRasterizer = new NativePiscesRasterizer();
-        } else {
-            shapeRasterizer = new OpenPiscesRasterizer();
+                break;
+            default:
+            case DoubleMarlin:
+                shapeRasterizer = new DMarlinRasterizer();
+                break;
         }
     }
 
@@ -61,10 +66,10 @@ public class ShapeUtil {
 
     public static Shape createCenteredStrokedShape(Shape s, BasicStroke stroke)
     {
-        if (PrismSettings.useMarlinRasterizer) {
-            if (PrismSettings.useMarlinRasterizerDP) {
-                return DMarlinRasterizer.createCenteredStrokedShape(s, stroke);
-            }
+        if (PrismSettings.rasterizerSpec == RasterizerType.DoubleMarlin) {
+            return DMarlinRasterizer.createCenteredStrokedShape(s, stroke);
+        }
+        if (PrismSettings.rasterizerSpec == RasterizerType.FloatMarlin) {
             return MarlinRasterizer.createCenteredStrokedShape(s, stroke);
         }
         // JavaPisces fallback:
