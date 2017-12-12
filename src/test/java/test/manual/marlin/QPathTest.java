@@ -23,7 +23,7 @@
  * questions.
  */
 
-package test.com.sun.marlin;
+package test.manual.marlin;
 
 import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
