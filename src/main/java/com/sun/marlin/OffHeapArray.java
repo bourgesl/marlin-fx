@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2018, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -36,7 +36,6 @@ import sun.misc.Unsafe;
 
 /**
  *
- * @author bourgesl
  */
 final class OffHeapArray  {
 
@@ -46,17 +45,21 @@ final class OffHeapArray  {
     static final int SIZE_INT;
 
     static {
-        Unsafe ref = null;
-        try {
-            final Field field = Unsafe.class.getDeclaredField("theUnsafe");
-// TODO: Méthode invoquée alors qu'elle ne devrait l'être qu'à partir d'un block doPrivileged
-            field.setAccessible(true);
-            ref = (Unsafe) field.get(null);
-        } catch (Exception e) {
-            MarlinUtils.logInfo("Unable to get sun.misc.Unsafe; exit now.");
-            System.exit(1);
-        }
-        UNSAFE   = ref;
+        UNSAFE = AccessController.doPrivileged(new PrivilegedAction<Unsafe>() {
+            @Override
+            public Unsafe run() {
+                Unsafe ref = null;
+                try {
+                    final Field field = Unsafe.class.getDeclaredField("theUnsafe");
+                    field.setAccessible(true);
+                    ref = (Unsafe) field.get(null);
+                } catch (Exception e) {
+                    throw new InternalError("Unable to get sun.misc.Unsafe instance", e);
+                }
+                return ref;
+            }
+        });
+
         SIZE_INT = Unsafe.ARRAY_INT_INDEX_SCALE;
 
         // Mimics Java2D Disposer:
@@ -67,9 +70,9 @@ final class OffHeapArray  {
                  * which will not get GCed before VM exit.
                  * Make its parent the top-level thread group.
                  */
-                final ThreadGroup rootTG
-                    = MarlinUtils.getRootThreadGroup();
-                final Thread t = new Thread(rootTG, new OffHeapDisposer(),
+                final Thread t = new Thread(
+                    MarlinUtils.getRootThreadGroup(), 
+                    new OffHeapDisposer(),
                     "MarlinRenderer Disposer");
                 t.setContextClassLoader(null);
                 t.setDaemon(true);

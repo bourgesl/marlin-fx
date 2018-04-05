@@ -106,6 +106,7 @@ public final class DMarlinRasterizer implements ShapeRasterizer {
             MaskMarlinAlphaConsumer consumer = rdrCtx.consumer;
             if (consumer == null || (w * h) > consumer.getAlphaLength()) {
                 final int csize = (w * h + 0xfff) & (~0xfff);
+                // TODO: use larger (1/16th more memory) + 4K page alignment ?
                 rdrCtx.consumer = consumer = new MaskMarlinAlphaConsumer(csize);
                 if (PrismSettings.verbose) {
                     System.out.println("new alphas with length = " + csize);

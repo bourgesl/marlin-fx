@@ -36,6 +36,7 @@ import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 
 public class TestNonAARasterization extends Application {
+
     static enum ShapeMode {
         TWO_CUBICS,
         FOUR_QUADS,
@@ -47,8 +48,10 @@ public class TestNonAARasterization extends Application {
     }
     static final double OCT_C = 1.0 / (2.0 + Math.sqrt(2.0));
 
+    // original thresholds: 
     static double tolerance = 0.0001;
-    static double warn = 0.0005;
+    static double warn      = 0.0005;
+
     static ShapeMode shapemode = ShapeMode.OVALS; // TWO_CUBICS;
     static boolean useJava2D = false;
     static boolean useJava2DClip = false;
@@ -76,7 +79,8 @@ public class TestNonAARasterization extends Application {
         RAND = new Random(SEED);
     }
 
-    public static class Result {
+    public static final class Result {
+
         final Path2D path2d;
         final int numerrors;
         final int numwarnings;
@@ -88,9 +92,15 @@ public class TestNonAARasterization extends Application {
         }
 
         public boolean worseThan(Result other) {
-            if (other == null) return true;
-            if (numerrors > other.numerrors) return true;
-            if (numerrors < other.numerrors) return false;
+            if (other == null) {
+                return true;
+            }
+            if (numerrors > other.numerrors) {
+                return true;
+            }
+            if (numerrors < other.numerrors) {
+                return false;
+            }
             return numwarnings > other.numwarnings;
         }
     }
@@ -141,7 +151,7 @@ public class TestNonAARasterization extends Application {
 
         Scene scene = new Scene(root);
         stage.setScene(scene);
-        stage.setTitle("Testing "+shapemode);
+        stage.setTitle("Testing " + shapemode);
         stage.show();
 
         resultcv.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
@@ -157,43 +167,99 @@ public class TestNonAARasterization extends Application {
     }
 
     static final String svgcommand = "MLQCZ";
-    static final int[] coordcount = { 2, 2, 4, 6, 0 };
+    static final int[] coordcount = {2, 2, 4, 6, 0};
+    static final String[] pathCommands = new String[] {"moveTo", "lineTo", "quadTo", "curveTo", "closePath"};
+
     public void dumpTest() {
-        if (worst != null) {
-            Path2D p2d = worst.path2d;
-            PathIterator pi = p2d.getPathIterator(null);
+        dumpResult(worst);
+    }
+    
+    static void dumpResult(Result r) {
+        if (r != null) {
+            Path2D p2d = r.path2d;
             double[] coords = new double[6];
-            System.out.println("test case with "+
-                               worst.numerrors+" errors and "+
-                               worst.numwarnings+" warnings:");
+            System.out.println("test case with "
+                    + r.numerrors + " errors and "
+                    + r.numwarnings + " warnings:");
             System.out.print("Path=");
+            PathIterator pi = p2d.getPathIterator(null);
             while (!pi.isDone()) {
                 int type = pi.currentSegment(coords);
                 System.out.print(' ');
                 System.out.print(svgcommand.charAt(type));
                 for (int i = 0; i < coordcount[type]; i++) {
-                    if (i > 0) System.out.print(',');
+                    if (i > 0) {
+                        System.out.print(',');
+                    }
                     System.out.print(coords[i]);
                 }
                 pi.next();
             }
             System.out.println();
+            // Path2D:
+            System.out.println("Path2D p = new Path2D.Double();");
+            pi = p2d.getPathIterator(null);
+            while (!pi.isDone()) {
+                int type = pi.currentSegment(coords);
+                System.out.print("p.");
+                System.out.print(pathCommands[type]);
+                System.out.print("(");
+                for (int i = 0; i < coordcount[type]; i++) {
+                    if (i > 0) {
+                        System.out.print(", ");
+                    }
+                    System.out.print(coords[i]);
+                }
+                System.out.println(");");
+                pi.next();
+            }
         }
     }
+
     public void clear() {
         GraphicsContext gc = resultcv.getGraphicsContext2D();
         gc.clearRect(0, 0, resultcv.getWidth(), resultcv.getHeight());
     }
 
-    public void renderPath(Path2D p2d, Path p, WritableImage wimg) {
+    private BufferedImage bimgT = null;
+    private Graphics2D g2dT = null;
+
+    private BufferedImage bimgD = null;
+    private Graphics2D g2dD = null;
+    
+    public void renderPath(Path2D p2d, Path p, WritableImage wimg, boolean test) {
         if (useJava2D) {
-            BufferedImage bimg = new BufferedImage(TESTW, TESTH, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D g2d = bimg.createGraphics();
-            g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,
-                                 RenderingHints.VALUE_STROKE_PURE);
-            g2d.setColor(java.awt.Color.WHITE);
-            g2d.fillRect(0, 0, TESTW, TESTH);
-            g2d.setColor(java.awt.Color.BLACK);
+            final BufferedImage bimg;
+            final Graphics2D g2d;
+            if (test) {
+                if (bimgT == null) {
+                    bimgT = new BufferedImage(TESTW, TESTH, BufferedImage.TYPE_INT_ARGB);
+                    g2dT = bimgT.createGraphics();
+                    if (true) {
+                        g2dT.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                RenderingHints.VALUE_ANTIALIAS_ON);
+                    }
+                    g2dT.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,
+                            RenderingHints.VALUE_STROKE_PURE);
+                    g2dT.setBackground(java.awt.Color.WHITE);
+                    g2dT.setColor(java.awt.Color.BLACK);
+                }
+                bimg = bimgT;
+                g2d = g2dT;
+            } else {
+                // use another image:
+                if (bimgD == null) {
+                    bimgD = new BufferedImage(TESTW, TESTH, BufferedImage.TYPE_INT_ARGB);
+                    g2dD = bimgD.createGraphics();
+                    g2dD.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,
+                            RenderingHints.VALUE_STROKE_PURE);
+                    g2dD.setBackground(java.awt.Color.WHITE);
+                    g2dD.setColor(java.awt.Color.BLACK);
+                }
+                bimg = bimgD;
+                g2d = g2dD;
+            }
+            g2d.clearRect(0, 0, TESTW, TESTH);
             if (useJava2DClip) {
                 g2d.setClip(p2d);
                 g2d.fillRect(0, 0, TESTW, TESTH);
@@ -214,15 +280,15 @@ public class TestNonAARasterization extends Application {
         if (err == 0.0) {
             return false;
         }
-        return p.intersects(x - err, y - err, err * 2.0, err * 2.0) &&
-                !p.contains(x - err, y - err, err * 2.0, err * 2.0);
+        return p.intersects(x - err, y - err, err * 2.0, err * 2.0)
+                && !p.contains(x - err, y - err, err * 2.0, err * 2.0);
     }
 
     public void update(Path2D p2d) {
         setPath(resultpath, p2d);
         Path p = makePath();
         WritableImage wimg = new WritableImage(TESTW, TESTH);
-        renderPath(p2d, p, wimg);
+        renderPath(p2d, p, wimg, false);
         PixelReader pr = wimg.getPixelReader();
         GraphicsContext gc = resultcv.getGraphicsContext2D();
         gc.save();
@@ -277,8 +343,8 @@ public class TestNonAARasterization extends Application {
         gc.fillRect(x * MAG, y * MAG, MAG, MAG);
         if (cross != null) {
             gc.setFill(cross);
-            gc.fillRect(x * MAG + 2, y * MAG + MAG/2, MAG - 4, 1);
-            gc.fillRect(x * MAG + MAG/2, y * MAG + 2, 1, MAG - 4);
+            gc.fillRect(x * MAG + 2, y * MAG + MAG / 2, MAG - 4, 1);
+            gc.fillRect(x * MAG + MAG / 2, y * MAG + 2, 1, MAG - 4);
         }
         if (circle != null) {
             gc.setStroke(circle);
@@ -292,8 +358,9 @@ public class TestNonAARasterization extends Application {
         double avgbadpixels = (totalerrors == 0) ? 0.0 : totalerrors * 1.0 / numbadpaths;
         double avgwarnings = (totalwarnings == 0) ? 0.0 : totalwarnings * 1.0 / numbadpaths;
         String progress = String.format("bad paths (%d/%d == %3.2f%%",
-                                        numbadpaths, numpathstested, percentbadpaths);
-        progress += String.format(", %d bad pixels (avg = %3.2f)", totalerrors, avgbadpixels);
+                numbadpaths, numpathstested, percentbadpaths);
+        progress += String.format(", %d bad pixels (avg = %3.2f - max =  %d)", totalerrors, avgbadpixels, 
+                (worst != null) ? worst.numerrors : 0);
         progress += String.format(", %d warnings (avg = %3.2f)", totalwarnings, avgwarnings);
         progressLabel.setText(progress);
     }
@@ -302,7 +369,7 @@ public class TestNonAARasterization extends Application {
         clear();
         if (worst != null) {
             update(worst.path2d);
-            resulttext.setText(worst.numerrors+" bad pixels, "+worst.numwarnings+" iffy pixels");
+            resulttext.setText(worst.numerrors + " bad pixels, " + worst.numwarnings + " iffy pixels");
         }
     }
 
@@ -320,12 +387,12 @@ public class TestNonAARasterization extends Application {
                     break;
                 case PathIterator.SEG_QUADTO:
                     p.getElements().add(new QuadCurveTo(coords[0], coords[1],
-                                                        coords[2], coords[3]));
+                            coords[2], coords[3]));
                     break;
                 case PathIterator.SEG_CUBICTO:
                     p.getElements().add(new CubicCurveTo(coords[0], coords[1],
-                                                         coords[2], coords[3],
-                                                         coords[4], coords[5]));
+                            coords[2], coords[3],
+                            coords[4], coords[5]));
                     break;
                 case PathIterator.SEG_CLOSE:
                     p.getElements().add(new ClosePath());
@@ -351,6 +418,7 @@ public class TestNonAARasterization extends Application {
         numBadPaths++;
         if (r.worseThan(worst)) {
             worst = r;
+//            dumpTest();
         }
         totalerrors += r.numerrors;
         totalwarnings += r.numwarnings;
@@ -369,10 +437,12 @@ public class TestNonAARasterization extends Application {
     }
 
     boolean done;
+
     public synchronized void signalDone() {
         done = true;
         notifyAll();
     }
+
     public synchronized void waitDone() throws InterruptedException {
         while (!done) {
             wait();
@@ -388,7 +458,8 @@ public class TestNonAARasterization extends Application {
         }
     }
 
-    static Ellipse2D e2d = new Ellipse2D.Double();
+    static final Ellipse2D e2d = new Ellipse2D.Double();
+
     static void genShape(Path2D p2d, ShapeMode mode) {
         double rx, ry, rw, rh;
         p2d.reset();
@@ -427,10 +498,10 @@ public class TestNonAARasterization extends Application {
                 rh = rand(TESTH);
                 rx = rand(TESTW - rw);
                 ry = rand(TESTH - rh);
-                p2d.moveTo(rx,      ry);
+                p2d.moveTo(rx, ry);
                 p2d.lineTo(rx + rw, ry);
                 p2d.lineTo(rx + rw, ry + rh);
-                p2d.lineTo(rx,      ry + rh);
+                p2d.lineTo(rx, ry + rh);
                 break;
             case OVALS:
                 rw = rand(TESTW);
@@ -447,29 +518,29 @@ public class TestNonAARasterization extends Application {
                 ry = rand(TESTH - rh);
                 double ow = rw * OCT_C;
                 double oh = rh * OCT_C;
-                p2d.moveTo(rx      + ow, ry);
+                p2d.moveTo(rx + ow, ry);
                 p2d.lineTo(rx + rw - ow, ry);
-                p2d.lineTo(rx + rw     , ry      + oh);
-                p2d.lineTo(rx + rw     , ry + rh - oh);
+                p2d.lineTo(rx + rw, ry + oh);
+                p2d.lineTo(rx + rw, ry + rh - oh);
                 p2d.lineTo(rx + rw - ow, ry + rh);
-                p2d.lineTo(rx      + ow, ry + rh);
-                p2d.lineTo(rx          , ry + rh - oh);
-                p2d.lineTo(rx          , ry      + oh);
+                p2d.lineTo(rx + ow, ry + rh);
+                p2d.lineTo(rx, ry + rh - oh);
+                p2d.lineTo(rx, ry + oh);
                 break;
         }
     }
 
     public void generatePaths() {
-        Path2D p2d = new Path2D.Double();
-        Path p = makePath();
-        WritableImage wimg = new WritableImage(TESTW, TESTH);
-        PixelReader pr = wimg.getPixelReader();
+        final Path2D p2d = new Path2D.Double();
+        final Path p = makePath();
+        final WritableImage wimg = new WritableImage(TESTW, TESTH);
+        final PixelReader pr = wimg.getPixelReader();
         int n = 0;
         while (n < NUMTESTS) {
             genShape(p2d, shapemode);
             done = false;
             Platform.runLater(() -> {
-                renderPath(p2d, p, wimg);
+                renderPath(p2d, p, wimg, true);
                 signalDone();
             });
             try {
@@ -486,7 +557,9 @@ public class TestNonAARasterization extends Application {
                     if (pixel == FGPIXEL) {
                         if (!inpath) {
                             if (near(p2d, x + 0.5, y + 0.5, warn)) {
-                                if (!near(p2d, x + 0.5, y + 0.5, tolerance)) warnings++;
+                                if (!near(p2d, x + 0.5, y + 0.5, tolerance)) {
+                                    warnings++;
+                                }
                             } else {
                                 errors++;
                             }
@@ -494,7 +567,9 @@ public class TestNonAARasterization extends Application {
                     } else if (pixel == BGPIXEL) {
                         if (inpath) {
                             if (near(p2d, x + 0.5, y + 0.5, warn)) {
-                                if (!near(p2d, x + 0.5, y + 0.5, tolerance)) warnings++;
+                                if (!near(p2d, x + 0.5, y + 0.5, tolerance)) {
+                                    warnings++;
+                                }
                             } else {
                                 errors++;
                             }
@@ -574,6 +649,21 @@ public class TestNonAARasterization extends Application {
                 }
             }
         }
+
+        if (false) {
+            // 2018 - lower thresholds: 
+            final Double dec = Double.parseDouble(System.getProperty("sun.java2d.renderer.cubic_dec_d2", "1.0"));
+            System.out.println("dec bind: "+dec);
+
+            warn = dec / 8; // e = 8 x dec_binD
+            tolerance = warn * 0.9;
+        }
+
+        System.out.println("useJava2D: " + useJava2D);
+        System.out.println("shapemode: " + shapemode);
+        System.out.println("tolerance: " + tolerance);
+        System.out.println("warn val : " + warn);
+
         launch(argv);
     }
 }
