@@ -8,7 +8,7 @@
     <groupId>org.marlin</groupId>
     <artifactId>marlinfx</artifactId>
     <packaging>jar</packaging>
-    <version>0.8.2-Unsafe-OpenJDK9</version>
+    <version>0.9.1-Unsafe-OpenJDK9</version>
     <name>Marlin software rasterizer</name>
 
     <url>https://github.com/bourgesl/marlin-renderer</url>
@@ -62,7 +62,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -78,6 +78,10 @@
                     <compilerArgs>
                         <arg>--patch-module</arg>
                         <arg>javafx.graphics=src</arg>
+                        <arg>--add-modules</arg>
+                        <arg>jdk.unsupported,java.logging</arg>
+                        <arg>--add-reads</arg>
+                        <arg>javafx.graphics=jdk.unsupported,java.logging</arg>
                     </compilerArgs>
                 </configuration>
                 <executions>
@@ -94,15 +98,15 @@
                                 <arg>--module-path</arg>
                                 <arg>${project.build.directory}/test-libs</arg>
                                 <arg>--add-modules</arg>
-                                <arg>java.logging,junit,hamcrest.core</arg>
+                                <arg>jdk.unsupported,java.logging,junit,hamcrest.core</arg>
                                 <arg>--add-reads</arg>
-                                <arg>javafx.graphics=java.logging,junit,hamcrest.core</arg>
+                                <arg>javafx.graphics=jdk.unsupported,java.logging,junit,hamcrest.core</arg>
                             </compilerArgs>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -118,7 +122,7 @@
                     </archive>
                 </configuration>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>

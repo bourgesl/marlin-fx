@@ -247,8 +247,8 @@ final class SWContext {
                                               final int pix_from, final int pix_to)
         {
             // pix_from indicates the first alpha coverage != 0 within [x; pix_to[
-// JDK9 compatibility issue (new method only available in JDK10):
-//            pr.emitAndClearAlphaRow(alpha_map, alphaDeltas, pix_y, pix_from, pix_to, (pix_from - x), rowNum);
+            // JDK9 compatibility issue (new method only available in JDK10):
+            // pr.emitAndClearAlphaRow(alpha_map, alphaDeltas, pix_y, pix_from, pix_to, (pix_from - x), rowNum);
             pr.emitAndClearAlphaRow(alpha_map, alphaDeltas, pix_y, x, pix_to, rowNum);
             rowNum++;
 
