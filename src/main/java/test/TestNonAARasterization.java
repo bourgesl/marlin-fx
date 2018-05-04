@@ -48,7 +48,7 @@ public class TestNonAARasterization extends Application {
     }
     static final double OCT_C = 1.0 / (2.0 + Math.sqrt(2.0));
 
-    // original thresholds: 
+    // original thresholds:
     static double tolerance = 0.0001;
     static double warn      = 0.0005;
 
@@ -173,7 +173,7 @@ public class TestNonAARasterization extends Application {
     public void dumpTest() {
         dumpResult(worst);
     }
-    
+
     static void dumpResult(Result r) {
         if (r != null) {
             Path2D p2d = r.path2d;
@@ -226,7 +226,7 @@ public class TestNonAARasterization extends Application {
 
     private BufferedImage bimgD = null;
     private Graphics2D g2dD = null;
-    
+
     public void renderPath(Path2D p2d, Path p, WritableImage wimg, boolean test) {
         if (useJava2D) {
             final BufferedImage bimg;
@@ -359,7 +359,7 @@ public class TestNonAARasterization extends Application {
         double avgwarnings = (totalwarnings == 0) ? 0.0 : totalwarnings * 1.0 / numbadpaths;
         String progress = String.format("bad paths (%d/%d == %3.2f%%",
                 numbadpaths, numpathstested, percentbadpaths);
-        progress += String.format(", %d bad pixels (avg = %3.2f - max =  %d)", totalerrors, avgbadpixels, 
+        progress += String.format(", %d bad pixels (avg = %3.2f - max =  %d)", totalerrors, avgbadpixels,
                 (worst != null) ? worst.numerrors : 0);
         progress += String.format(", %d warnings (avg = %3.2f)", totalwarnings, avgwarnings);
         progressLabel.setText(progress);
@@ -651,7 +651,7 @@ public class TestNonAARasterization extends Application {
         }
 
         if (false) {
-            // 2018 - lower thresholds: 
+            // 2018 - lower thresholds:
             final Double dec = Double.parseDouble(System.getProperty("sun.java2d.renderer.cubic_dec_d2", "1.0"));
             System.out.println("dec bind: "+dec);
 
