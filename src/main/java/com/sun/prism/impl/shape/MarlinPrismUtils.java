@@ -177,7 +177,7 @@ public final class MarlinPrismUtils {
 
         // Curve Monotizer:
         rdrCtx.monotonizer.init(width);
-        
+
         if (dashes != null) {
             if (!recycleDashes) {
                 dashLen = dashes.length;
@@ -226,7 +226,7 @@ public final class MarlinPrismUtils {
     private static boolean nearZero(final double num) {
         return Math.abs(num) < 2.0d * Math.ulp(num);
     }
-    
+
     private static PathConsumer2D initRenderer(
             final RendererContext rdrCtx,
             final BasicStroke stroke,
@@ -332,8 +332,8 @@ public final class MarlinPrismUtils {
             // Use path simplifier at the first step
             // to remove useless points
             pc2d = rdrCtx.pathSimplifier.init(pc2d);
-        }                
-        
+        }
+
         // mark context as DIRTY:
         rdrCtx.dirty = true;
 
@@ -459,8 +459,8 @@ public final class MarlinPrismUtils {
             // Use path simplifier at the first step
             // to remove useless points
             pc2d = rdrCtx.pathSimplifier.init(pc2d);
-        }                
-        
+        }
+
         // mark context as DIRTY:
         rdrCtx.dirty = true;
 

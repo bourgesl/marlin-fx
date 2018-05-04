@@ -228,7 +228,7 @@ public final class DMarlinPrismUtils {
     private static boolean nearZero(final double num) {
         return Math.abs(num) < 2.0d * Math.ulp(num);
     }
-    
+
     private static DPathConsumer2D initRenderer(
             final DRendererContext rdrCtx,
             final BasicStroke stroke,
@@ -334,8 +334,8 @@ public final class DMarlinPrismUtils {
             // Use path simplifier at the first step
             // to remove useless points
             pc2d = rdrCtx.pathSimplifier.init(pc2d);
-        }                
-        
+        }
+
         // mark context as DIRTY:
         rdrCtx.dirty = true;
 
@@ -461,8 +461,8 @@ public final class DMarlinPrismUtils {
             // Use path simplifier at the first step
             // to remove useless points
             pc2d = rdrCtx.pathSimplifier.init(pc2d);
-        }                
-        
+        }
+
         // mark context as DIRTY:
         rdrCtx.dirty = true;
 
