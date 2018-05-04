@@ -139,7 +139,7 @@ public final class Dasher implements PathConsumer2D, MarlinConst {
      * @return this instance
      */
     public Dasher init(final PathConsumer2D out, final float[] dash, final int dashLen,
-                float phase, final boolean recycleDashes)
+                       float phase, final boolean recycleDashes)
     {
         this.out = out;
 

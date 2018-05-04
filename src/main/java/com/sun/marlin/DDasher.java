@@ -138,7 +138,7 @@ public final class DDasher implements DPathConsumer2D, MarlinConst {
      * @return this instance
      */
     public DDasher init(final DPathConsumer2D out, final double[] dash, final int dashLen,
-                double phase, final boolean recycleDashes)
+                        double phase, final boolean recycleDashes)
     {
         this.out = out;
 
