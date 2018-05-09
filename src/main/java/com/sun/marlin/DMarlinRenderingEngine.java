@@ -156,6 +156,10 @@ public final class DMarlinRenderingEngine implements MarlinConst
         logInfo("prism.marlin.pixelHeight      = "
                 + MarlinConst.INITIAL_PIXEL_HEIGHT);
 
+        logInfo("prism.marlin.profile          = "
+                + (MarlinProperties.isProfileQuality() ?
+                    "quality" : "speed"));
+
         logInfo("prism.marlin.subPixel_log2_X  = "
                 + MarlinConst.SUBPIXEL_LG_POSITIONS_X);
         logInfo("prism.marlin.subPixel_log2_Y  = "
@@ -185,7 +189,7 @@ public final class DMarlinRenderingEngine implements MarlinConst
         logInfo("prism.marlin.pathSimplifier.pixTol = "
                 + MarlinProperties.getPathSimplifierPixelTolerance());
 
-        logInfo("sun.java2d.renderer.clip             = "
+        logInfo("prism.marlin.clip             = "
                 + MarlinProperties.isDoClip());
         logInfo("prism.marlin.clip.runtime.enable = "
                 + MarlinProperties.isDoClipRuntimeFlag());
