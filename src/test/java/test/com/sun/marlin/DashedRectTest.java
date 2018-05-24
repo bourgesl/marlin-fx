@@ -55,9 +55,11 @@ import org.junit.Test;
 import static test.util.Util.TIMEOUT;
 
 /**
+ * Simple Dashed Rect rendering test
+ *
  * @test
- * @bug
- * @summary TODO
+ * @summary verify that dashed rectangle is properly rasterized
+ * @bug 8202743
  */
 public class DashedRectTest {
 
