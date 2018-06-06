@@ -122,6 +122,7 @@
                     <skip>true</skip>
                     <argLine>
                         -Dprism.marlin=true
+                        -Djava.util.logging.config.file=src/test/resources/logging.properties
                         -Xbootclasspath/p:${basedir}/target/${project.build.finalName}.jar</argLine>
                 </configuration>
                 <executions>
@@ -135,7 +136,7 @@
                             <!-- Run tests when the integration-test phase is invoked (after the big jar is built) -->
                             <skip>false</skip>
                             <includes>
-                                <include>**/*Test.java</include>
+                                <include>**/ClipShapeTest.java</include>
                             </includes>
                         </configuration>
                     </execution>
