@@ -20,7 +20,6 @@
     <properties>
         <maven.build.timestamp.format>yyyy/MM/dd HH:mm:ss</maven.build.timestamp.format>
         <integration.skip>false</integration.skip>
-        <integration.skip.long>false</integration.skip.long>
     </properties>
 
     <build>
@@ -98,9 +97,9 @@
                                 <arg>--module-path</arg>
                                 <arg>${project.build.directory}/test-libs</arg>
                                 <arg>--add-modules</arg>
-                                <arg>jdk.unsupported,java.logging,junit,hamcrest.core</arg>
+                                <arg>jdk.unsupported,java.logging,junit,hamcrest.core,javafx.swing</arg>
                                 <arg>--add-reads</arg>
-                                <arg>javafx.graphics=jdk.unsupported,java.logging,junit,hamcrest.core</arg>
+                                <arg>javafx.graphics=jdk.unsupported,java.logging,junit,hamcrest.core,javafx.swing</arg>
                             </compilerArgs>
                         </configuration>
                     </execution>
@@ -157,6 +156,7 @@
                                 -Dsun.java2d.renderer.log=true
                                 -Dsun.java2d.renderer=sun.java2d.marlin.DMarlinRenderingEngine
                                 --add-exports javafx.graphics/com.sun=ALL-UNNAMED
+                                --add-reads javafx.graphics=jdk.unsupported,java.logging,junit,hamcrest.core,javafx.swing
                                 --patch-module javafx.graphics=${basedir}/target/${project.build.finalName}.jar</argLine>
                         </configuration>
                     </execution>
