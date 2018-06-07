@@ -136,6 +136,7 @@
                             <!-- Run tests when the integration-test phase is invoked (after the big jar is built) -->
                             <skip>false</skip>
                             <includes>
+                                <!-- single App running so select your test here -->
                                 <include>**/ClipShapeTest.java</include>
                             </includes>
                         </configuration>
