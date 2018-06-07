@@ -263,7 +263,7 @@ public final class ClipShapeTest {
     }
 
     private static void resetOptions() {
-        NUM_TESTS = 5;
+        NUM_TESTS = 5000;
 
         // shape settings:
         SHAPE_MODE = ShapeMode.NINE_LINE_POLYS;
