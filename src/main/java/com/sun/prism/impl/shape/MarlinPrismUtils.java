@@ -234,7 +234,7 @@ public final class MarlinPrismUtils {
             // Adjust the clipping rectangle with the renderer offsets
             final float rdrOffX = renderer.getOffsetX();
             final float rdrOffY = renderer.getOffsetY();
-            
+
             // add a small rounding error:
             final float margin = 1e-3f;
 

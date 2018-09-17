@@ -329,9 +329,9 @@ public class TrianglePerformanceTest extends Application {
 
     private void setShapeAttrs(Shape shape) {
         shape.setFill(randomColors ? randomColor() : Color.BLUE);
+        shape.setStroke(STROKE_COLOR);
         if (STROKE_COLOR != null) {
-            shape.setStroke(STROKE_COLOR);
-            shape.setStrokeType(StrokeType.INSIDE);
+            shape.setStrokeType(StrokeType.CENTERED);
             shape.setStrokeWidth(0.5);
         }
     }
