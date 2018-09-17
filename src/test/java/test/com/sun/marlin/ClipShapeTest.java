@@ -4,7 +4,9 @@
  *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.
+ * published by the Free Software Foundation.  Oracle designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Oracle in the LICENSE file that accompanied this code.
  *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -219,12 +221,10 @@ public final class ClipShapeTest {
 
         // cubic min/max error:
         System.setProperty("prism.marlin.cubic_dec_d2", "1e-3");
-        System.setProperty("prism.marlin.cubic_inc_d1", "1e-4"); // or disabled ~ 1e-6
+        System.setProperty("prism.marlin.cubic_inc_d1", "1e-4");
 
         // quad max error:
         System.setProperty("prism.marlin.quad_dec_d2", "5e-4");
-
-        System.setProperty("javafx.animation.fullspeed", "true"); // full speed
     }
 
     // Application class. An instance is created and initialized before running
@@ -273,7 +273,7 @@ public final class ClipShapeTest {
     }
 
     private static void resetOptions() {
-        NUM_TESTS = 5000;
+        NUM_TESTS = Integer.getInteger("ClipShapeTest.numTests", 100);
 
         // shape settings:
         SHAPE_MODE = ShapeMode.NINE_LINE_POLYS;
