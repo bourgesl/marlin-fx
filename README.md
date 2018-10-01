@@ -3,6 +3,17 @@ MarlinFX renderer
 
 MarlinFX is the JavaFX port of the [Marlin-renderer](https://github.com/bourgesl/marlin-renderer) (scanline rasterizer only) aimed to be faster than Open/Native Pisces.
 
+Release history
+===============
+
+Latest release: https://github.com/bourgesl/marlin-fx/releases/latest
+
+| JDK | Default renderer | Available MarlinFX release |
+| --- | --- | --- |
+| Oracle / Open JDK 9      | MarlinFX 0.7.5 | [MarlinFX 0.9.3 for JDK9+](https://github.com/bourgesl/marlin-fx/releases/tag/v0.9.3) |
+| Oracle / Open JDK 10     | MarlinFX 0.8.2 | [MarlinFX 0.9.3 for JDK9+](https://github.com/bourgesl/marlin-fx/releases/tag/v0.9.3) |
+| Oracle / Open JDK 11       | MarlinFX 0.9.2 | [MarlinFX 0.9.3 for JDK9+](https://github.com/bourgesl/marlin-fx/releases/tag/v0.9.3)
+
 License
 =======
 
