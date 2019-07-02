@@ -1,6 +1,3 @@
-/*******************************************************************************
- * JMMC project ( http://www.jmmc.fr ) - Copyright (C) CNRS.
- ******************************************************************************/
 package com.sun.javafx.sg.prism;
 
 import com.sun.javafx.geom.Path2D;

@@ -8,7 +8,7 @@
     <groupId>org.marlin</groupId>
     <artifactId>marlinfx</artifactId>
     <packaging>jar</packaging>
-    <version>0.9.3-Unsafe</version>
+    <version>0.9.3.1-Unsafe</version>
     <name>Marlin software rasterizer</name>
 
     <url>https://github.com/bourgesl/marlin-renderer</url>
@@ -119,9 +119,10 @@
                     <forkCount>1</forkCount>
                     <threadCount>1</threadCount>
                     <!-- Skip the default running of this plug-in -->
-                    <skip>false</skip>
+                    <skip>true</skip>
                     <argLine>
                         -Dprism.marlin=true
+                        -DClipShapeTest.numTests=5000
                         -Djava.util.logging.config.file=src/test/resources/logging.properties
                         -Xbootclasspath/p:${basedir}/target/${project.build.finalName}.jar</argLine>
                 </configuration>

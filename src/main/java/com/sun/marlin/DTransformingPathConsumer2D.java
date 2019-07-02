@@ -512,6 +512,9 @@ public final class DTransformingPathConsumer2D {
 
         private boolean outside = false;
 
+        // The starting point of the path
+        private double sx0, sy0;
+
         // The current point (TODO stupid repeated info)
         private double cx0, cy0;
 
@@ -612,17 +615,26 @@ public final class DTransformingPathConsumer2D {
             finishPath();
 
             out.closePath();
+
+            // back to starting point:
+            this.cOutCode = DHelpers.outcode(sx0, sy0, clipRect);
+            this.cx0 = sx0;
+            this.cy0 = sy0;
         }
 
         @Override
         public void moveTo(final double x0, final double y0) {
             finishPath();
 
-            this.cOutCode = DHelpers.outcode(x0, y0, clipRect);
-            this.outside = false;
             out.moveTo(x0, y0);
+
+            // update starting point:
+            this.cOutCode = DHelpers.outcode(x0, y0, clipRect);
             this.cx0 = x0;
             this.cy0 = y0;
+
+            this.sx0 = x0;
+            this.sy0 = y0;
         }
 
         @Override

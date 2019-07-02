@@ -634,6 +634,9 @@ public final class DStroker implements DPathConsumer2D, MarlinConst {
         emitReverse();
 
         this.prev = CLOSE;
+        this.cx0 = sx0;
+        this.cy0 = sy0;
+        this.cOutCode = sOutCode;
 
         if (opened) {
             // do not emit close
@@ -668,7 +671,9 @@ public final class DStroker implements DPathConsumer2D, MarlinConst {
         //          i.e. if caps must be drawn or not ?
         // Solution: use the ClosedPathDetector before Stroker to determine
         // if the path is a closed path or not
-        if (!rdrCtx.closedPath) {
+        if (rdrCtx.closedPath) {
+            emitReverse();
+        } else {
             if (outcode == 0) {
                 // current point = end's cap:
                 if (capStyle == CAP_ROUND) {
@@ -693,8 +698,6 @@ public final class DStroker implements DPathConsumer2D, MarlinConst {
                     }
                 }
             }
-        } else {
-            emitReverse();
         }
         emitClose();
     }

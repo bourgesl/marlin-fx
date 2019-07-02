@@ -114,8 +114,6 @@ public final class ClipShapeTest {
     static final int TESTW = 100;
     static final int TESTH = 100;
 
-    static final boolean SHAPE_REPEAT = true;
-
     // dump path on console:
     static final boolean DUMP_SHAPE = true;
 
@@ -721,16 +719,24 @@ DASH: Diff Pixels [Worst(All Test setups)][n: 7] sum: 8 avg: 1.142 [1 | 2] {
     static void genShape(final Path2D p2d, final TestSetup ts) {
         p2d.reset();
 
-        final int end = (SHAPE_REPEAT) ? 2 : 1;
+        /*
+            Test closed path:
+            0: moveTo + (draw)To + closePath
+            1: (draw)To + closePath (closePath + (draw)To sequence)
+        */
+        final int end  = (ts.closed) ? 2 : 1;
 
         for (int p = 0; p < end; p++) {
-            p2d.moveTo(randX(), randY());
+            if (p <= 0) {
+                p2d.moveTo(randX(), randY());
+            }
 
             switch (ts.shapeMode) {
                 case MIXED:
-                case FIFTY_LINE_POLYS:
-                case NINE_LINE_POLYS:
                 case FIVE_LINE_POLYS:
+                case NINE_LINE_POLYS:
+                case FIFTY_LINE_POLYS:
+                    p2d.lineTo(randX(), randY());
                     p2d.lineTo(randX(), randY());
                     p2d.lineTo(randX(), randY());
                     p2d.lineTo(randX(), randY());
