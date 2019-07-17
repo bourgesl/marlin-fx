@@ -10,10 +10,12 @@ Latest release: https://github.com/bourgesl/marlin-fx/releases/latest
 
 | JDK | Default renderer | Available MarlinFX release |
 | --- | --- | --- |
-| Oracle / Open JDK 9  | MarlinFX 0.7.5 | [MarlinFX 0.9.3 for JDK9+](https://github.com/bourgesl/marlin-fx/releases/tag/v0.9.3) |
-| Oracle / Open JDK 10 | MarlinFX 0.8.2 | [MarlinFX 0.9.3 for JDK9+](https://github.com/bourgesl/marlin-fx/releases/tag/v0.9.3) |
+| Open JDK 9  | MarlinFX 0.7.5 | [MarlinFX 0.9.3 for JDK9+](https://github.com/bourgesl/marlin-fx/releases/tag/v0.9.3) |
+| Open JDK 10 | MarlinFX 0.8.2 | [MarlinFX 0.9.3 for JDK9+](https://github.com/bourgesl/marlin-fx/releases/tag/v0.9.3) |
 | Open JFX 11 | MarlinFX 0.9.2 | [MarlinFX 0.9.3 for JDK9+](https://github.com/bourgesl/marlin-fx/releases/tag/v0.9.3) |
 | Open JFX 12 | MarlinFX 0.9.3 | [MarlinFX 0.9.3 for JDK9+](https://github.com/bourgesl/marlin-fx/releases/tag/v0.9.3) |
+| Open JFX 13 | MarlinFX 0.9.3 | [MarlinFX 0.9.3 for JDK9+](https://github.com/bourgesl/marlin-fx/releases/tag/v0.9.3) |
+| Open JFX 14 (EA) | MarlinFX 0.9.3 | [MarlinFX 0.9.3 for JDK9+](https://github.com/bourgesl/marlin-fx/releases/tag/v0.9.3) |
 
 
 License
