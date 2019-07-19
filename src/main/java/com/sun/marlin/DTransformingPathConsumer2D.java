@@ -649,7 +649,7 @@ public final class DTransformingPathConsumer2D {
 
                 // basic rejection criteria:
                 if (sideCode == 0) {
-                    // ovelap clip:
+                    // overlap clip:
                     if (subdivide) {
                         // avoid reentrance
                         subdivide = false;
@@ -748,7 +748,7 @@ public final class DTransformingPathConsumer2D {
 
                 // basic rejection criteria:
                 if (sideCode == 0) {
-                    // ovelap clip:
+                    // overlap clip:
                     if (subdivide) {
                         // avoid reentrance
                         subdivide = false;
@@ -810,7 +810,7 @@ public final class DTransformingPathConsumer2D {
 
                 // basic rejection criteria:
                 if (sideCode == 0) {
-                    // ovelap clip:
+                    // overlap clip:
                     if (subdivide) {
                         // avoid reentrance
                         subdivide = false;
@@ -1142,13 +1142,13 @@ public final class DTransformingPathConsumer2D {
 
         @Override
         public void moveTo(double x0, double y0) {
-            log("moveTo (" + x0 + ", " + y0 + ')');
+            log("p.moveTo(" + x0 + ", " + y0 + ");");
             out.moveTo(x0, y0);
         }
 
         @Override
         public void lineTo(double x1, double y1) {
-            log("lineTo (" + x1 + ", " + y1 + ')');
+            log("p.lineTo(" + x1 + ", " + y1 + ");");
             out.lineTo(x1, y1);
         }
 
@@ -1157,25 +1157,26 @@ public final class DTransformingPathConsumer2D {
                             double x2, double y2,
                             double x3, double y3)
         {
-            log("curveTo P1(" + x1 + ", " + y1 + ") P2(" + x2 + ", " + y2  + ") P3(" + x3 + ", " + y3 + ')');
+            log("p.curveTo(" + x1 + ", " + y1 + ", " + x2 + ", " + y2  + ", " + x3 + ", " + y3 + ");");
             out.curveTo(x1, y1, x2, y2, x3, y3);
         }
 
         @Override
-        public void quadTo(double x1, double y1, double x2, double y2) {
-            log("quadTo P1(" + x1 + ", " + y1 + ") P2(" + x2 + ", " + y2  + ')');
+        public void quadTo(double x1, double y1,
+                           double x2, double y2) {
+            log("p.quadTo(" + x1 + ", " + y1 + ", " + x2 + ", " + y2  + ");");
             out.quadTo(x1, y1, x2, y2);
         }
 
         @Override
         public void closePath() {
-            log("closePath");
+            log("p.closePath();");
             out.closePath();
         }
 
         @Override
         public void pathDone() {
-            log("pathDone");
+            log("p.pathDone();");
             out.pathDone();
         }
 

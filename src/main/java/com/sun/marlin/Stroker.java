@@ -542,7 +542,7 @@ public final class Stroker implements PathConsumer2D, MarlinConst {
 
                 // basic rejection criteria:
                 if (sideCode == 0) {
-                    // ovelap clip:
+                    // overlap clip:
                     if (subdivide) {
                         // avoid reentrance
                         subdivide = false;
@@ -1063,7 +1063,7 @@ public final class Stroker implements PathConsumer2D, MarlinConst {
 
                 // basic rejection criteria:
                 if (sideCode == 0) {
-                    // ovelap clip:
+                    // overlap clip:
                     if (subdivide) {
                         // avoid reentrance
                         subdivide = false;
@@ -1211,7 +1211,7 @@ public final class Stroker implements PathConsumer2D, MarlinConst {
 
                 // basic rejection criteria:
                 if (sideCode == 0) {
-                    // ovelap clip:
+                    // overlap clip:
                     if (subdivide) {
                         // avoid reentrance
                         subdivide = false;
