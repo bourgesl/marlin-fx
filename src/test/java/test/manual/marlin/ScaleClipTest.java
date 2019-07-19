@@ -59,7 +59,6 @@ import static test.util.Util.TIMEOUT;
  */
 public class ScaleClipTest {
 
-    static final boolean SAVE_IMAGE = false;
     static final int SIZE = 50;
 
     enum SCALE_MODE {
@@ -214,14 +213,6 @@ public class ScaleClipTest {
 
         final WritableImage img = scene.getRoot().snapshot(sp, new WritableImage(SIZE, SIZE));
 
-        if (SAVE_IMAGE) {
-            try {
-                saveImage(img, new File("."), "ScaleClipTest-testNegativeScale-" + mode + ".png");
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
-        }
-
         // Check image:
         // 25, 25 = black
         checkPixel(img.getPixelReader(), 25, 25, Color.BLACK.getRGB());
@@ -271,14 +262,6 @@ public class ScaleClipTest {
 
         final WritableImage img = scene.getRoot().snapshot(sp, new WritableImage(SIZE, SIZE));
 
-        if (SAVE_IMAGE) {
-            try {
-                saveImage(img, new File("."), "ScaleClipTest-testMarginScale-" + mode + ".png");
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
-        }
-
         // Check image:
         // 0, 25 = black
         checkPixel(img.getPixelReader(), 0, 25, Color.BLACK.getRGB());
@@ -294,44 +277,4 @@ public class ScaleClipTest {
                     + ") = " + rgb + " expected: " + expected);
         }
     }
-
-    static void saveImage(final WritableImage image, final File resDirectory, final String imageFileName) throws IOException {
-//        saveImage(SwingFXUtils.fromFXImage(image, null), resDirectory, imageFileName);
-    }
-/*
-    static void saveImage(final BufferedImage image, final File resDirectory, final String imageFileName) throws IOException {
-        final Iterator<ImageWriter> itWriters = ImageIO.getImageWritersByFormatName("PNG");
-        if (itWriters.hasNext()) {
-            final ImageWriter writer = itWriters.next();
-
-            final ImageWriteParam writerParams = writer.getDefaultWriteParam();
-            writerParams.setProgressiveMode(ImageWriteParam.MODE_DISABLED);
-
-            final File imgFile = new File(resDirectory, imageFileName);
-
-            if (!imgFile.exists() || imgFile.canWrite()) {
-                System.out.println("saveImage: saving image as PNG [" + imgFile + "]...");
-                imgFile.delete();
-
-                // disable cache in temporary files:
-                ImageIO.setUseCache(false);
-
-                final long start = System.nanoTime();
-
-                // PNG uses already buffering:
-                final ImageOutputStream imgOutStream = ImageIO.createImageOutputStream(new FileOutputStream(imgFile));
-
-                writer.setOutput(imgOutStream);
-                try {
-                    writer.write(null, new IIOImage(image, null, null), writerParams);
-                } finally {
-                    imgOutStream.close();
-
-                    final long time = System.nanoTime() - start;
-                    System.out.println("saveImage: duration= " + (time / 1000000l) + " ms.");
-                }
-            }
-        }
-    }
-*/
 }
