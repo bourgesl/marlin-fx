@@ -25,13 +25,11 @@
 
 package com.sun.marlin;
 
-import com.sun.javafx.geom.PathConsumer2D;
-
-public interface MarlinRenderer extends PathConsumer2D {
+public interface MarlinRenderer extends DPathConsumer2D {
 
     public MarlinRenderer init(final int pix_boundsX, final int pix_boundsY,
-                               final int pix_boundsWidth, final int pix_boundsHeight,
-                               final int windingRule);
+                                final int pix_boundsWidth, final int pix_boundsHeight,
+                                final int windingRule);
 
     /**
      * Disposes this renderer and recycle it clean up before reusing this instance
@@ -45,6 +43,7 @@ public interface MarlinRenderer extends PathConsumer2D {
 
     public void produceAlphas(MarlinAlphaConsumer ac);
 
-    public float getOffsetX();
-    public float getOffsetY();
+    public double getOffsetX();
+    public double getOffsetY();
+
 }

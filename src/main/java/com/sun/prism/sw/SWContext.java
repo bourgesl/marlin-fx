@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2017, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2020, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -29,16 +29,15 @@ import com.sun.javafx.geom.Path2D;
 import com.sun.javafx.geom.Rectangle;
 import com.sun.javafx.geom.Shape;
 import com.sun.javafx.geom.transform.BaseTransform;
-import com.sun.marlin.DMarlinRenderer;
+import com.sun.javafx.util.Logging;
 import com.sun.marlin.DMarlinRenderingEngine;
-import com.sun.marlin.DRendererContext;
+import com.sun.marlin.RendererContext;
 import com.sun.marlin.IntArrayCache;
 import com.sun.marlin.MarlinAlphaConsumer;
 import com.sun.marlin.MarlinConst;
 import com.sun.marlin.MarlinRenderer;
 import com.sun.marlin.MarlinRenderingEngine;
 import com.sun.marlin.RendererContext;
-import com.sun.openpisces.Renderer;
 import com.sun.pisces.PiscesRenderer;
 import com.sun.prism.BasicStroke;
 import com.sun.prism.PixelFormat;
@@ -48,10 +47,10 @@ import com.sun.prism.impl.PrismSettings;
 import com.sun.prism.impl.shape.DMarlinPrismUtils;
 import com.sun.prism.impl.shape.MarlinPrismUtils;
 import com.sun.prism.impl.shape.MaskData;
-import com.sun.prism.impl.shape.OpenPiscesPrismUtils;
 import com.sun.prism.impl.shape.ShapeUtil;
 
 import java.lang.ref.SoftReference;
+import com.sun.marlin.MarlinRenderer;
 
 final class SWContext {
 
@@ -63,74 +62,6 @@ final class SWContext {
     interface ShapeRenderer {
         void renderShape(PiscesRenderer pr, Shape shape, BasicStroke stroke, BaseTransform tr, Rectangle clip, boolean antialiasedShape);
         void dispose();
-    }
-
-    class NativeShapeRenderer implements ShapeRenderer {
-        private SoftReference<SWMaskTexture> maskTextureRef;
-
-        public void renderShape(PiscesRenderer pr, Shape shape, BasicStroke stroke, BaseTransform tr, Rectangle clip, boolean antialiasedShape) {
-            final MaskData mask = ShapeUtil.rasterizeShape(shape, stroke, clip.toRectBounds(), tr, true, antialiasedShape);
-            final SWMaskTexture tex = this.validateMaskTexture(mask.getWidth(), mask.getHeight());
-            mask.uploadToTexture(tex, 0, 0, false);
-            pr.fillAlphaMask(tex.getDataNoClone(), mask.getOriginX(), mask.getOriginY(),
-                             mask.getWidth(), mask.getHeight(), 0, tex.getPhysicalWidth());
-        }
-
-        private SWMaskTexture initMaskTexture(int width, int height) {
-            final SWMaskTexture tex = (SWMaskTexture)factory.createMaskTexture(width, height, Texture.WrapMode.CLAMP_NOT_NEEDED);
-            maskTextureRef = new SoftReference<SWMaskTexture>(tex);
-            return tex;
-        }
-
-        private void disposeMaskTexture() {
-            if (maskTextureRef != null){
-                maskTextureRef.clear();
-                maskTextureRef = null;
-            }
-        }
-
-        private SWMaskTexture validateMaskTexture(int width, int height) {
-            SWMaskTexture tex;
-            if (maskTextureRef == null) {
-                tex = this.initMaskTexture(width, height);
-            } else {
-                tex = maskTextureRef.get();
-                if (tex == null ||
-                    tex.getPhysicalWidth() < width ||
-                    tex.getPhysicalHeight() < height)
-                {
-                    this.disposeMaskTexture();
-                    tex = this.initMaskTexture(width, height);
-                }
-            }
-            return tex;
-        }
-
-        public void dispose() {
-            this.disposeMaskTexture();
-        }
-    }
-
-    static final class JavaShapeRenderer implements ShapeRenderer {
-        private final DirectRTPiscesAlphaConsumer alphaConsumer = new DirectRTPiscesAlphaConsumer();
-
-        public void renderShape(PiscesRenderer pr, Shape shape, BasicStroke stroke, BaseTransform tr, Rectangle clip, boolean antialiasedShape) {
-            if (stroke != null && stroke.getType() != BasicStroke.TYPE_CENTERED) {
-                // RT-27427
-                // TODO: Optimize the combinatorial strokes for simple
-                // shapes and/or teach the rasterizer to be able to
-                // do a "differential fill" between two shapes.
-                // Note that most simple shapes will use a more optimized path
-                // than this method for the INNER/OUTER strokes anyway.
-                shape = stroke.createStrokedShape(shape);
-                stroke = null;
-            }
-            final Renderer r = OpenPiscesPrismUtils.setupRenderer(shape, stroke, tr, clip, antialiasedShape);
-            alphaConsumer.initConsumer(r, pr);
-            r.produceAlphas(alphaConsumer);
-        }
-
-        public void dispose() { }
     }
 
     static final class MarlinShapeRenderer implements ShapeRenderer {
@@ -247,9 +178,7 @@ final class SWContext {
                                               final int pix_from, final int pix_to)
         {
             // pix_from indicates the first alpha coverage != 0 within [x; pix_to[
-            // JDK9 compatibility issue (new method only available in JDK10):
-            // pr.emitAndClearAlphaRow(alpha_map, alphaDeltas, pix_y, pix_from, pix_to, (pix_from - x), rowNum);
-            pr.emitAndClearAlphaRow(alpha_map, alphaDeltas, pix_y, x, pix_to, rowNum);
+            pr.emitAndClearAlphaRow(alpha_map, alphaDeltas, pix_y, pix_from, pix_to, (pix_from - x), rowNum);
             rowNum++;
 
             // clear properly the end of the alphaDeltas:
@@ -288,8 +217,8 @@ final class SWContext {
                 shape = stroke.createStrokedShape(shape);
                 stroke = null;
             }
-            final DRendererContext rdrCtx = DMarlinRenderingEngine.getRendererContext();
-            DMarlinRenderer renderer = null;
+            final RendererContext rdrCtx = DMarlinRenderingEngine.getRendererContext();
+            MarlinRenderer renderer = null;
             try {
                 if (shape instanceof Path2D) {
                     renderer = DMarlinPrismUtils.setupRenderer(rdrCtx, (Path2D) shape, stroke, tr, clip,
@@ -326,15 +255,6 @@ final class SWContext {
     SWContext(ResourceFactory factory) {
         this.factory = factory;
         switch (PrismSettings.rasterizerSpec) {
-            case JavaPisces:
-                this.shapeRenderer = new JavaShapeRenderer();
-                break;
-            case NativePisces:
-                this.shapeRenderer = new NativeShapeRenderer();
-                break;
-            case FloatMarlin:
-                this.shapeRenderer = new MarlinShapeRenderer();
-                break;
             default:
             case DoubleMarlin:
                 this.shapeRenderer = new DMarlinShapeRenderer();
