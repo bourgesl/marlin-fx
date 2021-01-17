@@ -31,11 +31,11 @@ import com.sun.javafx.geom.Rectangle;
 import com.sun.javafx.geom.Shape;
 import com.sun.javafx.geom.transform.BaseTransform;
 import com.sun.marlin.DMarlinRenderingEngine;
+import com.sun.marlin.MarlinRenderer;
 import com.sun.marlin.MaskMarlinAlphaConsumer;
 import com.sun.marlin.RendererContext;
 import com.sun.prism.BasicStroke;
 import com.sun.prism.impl.PrismSettings;
-import com.sun.marlin.MarlinRenderer;
 
 /**
  * Thread-safe Marlin rasterizer (TL or CLQ storage)

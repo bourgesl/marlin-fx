@@ -33,6 +33,7 @@ import com.sun.javafx.geom.Shape;
 import com.sun.javafx.geom.transform.BaseTransform;
 import com.sun.marlin.MarlinConst;
 import com.sun.marlin.MarlinProperties;
+import com.sun.marlin.MarlinRenderer;
 import com.sun.marlin.DPathConsumer2D;
 import com.sun.marlin.RendererContext;
 import com.sun.marlin.Stroker;
@@ -40,7 +41,6 @@ import com.sun.marlin.TransformingPathConsumer2D;
 import com.sun.marlin.MarlinUtils;
 import com.sun.prism.BasicStroke;
 import java.util.Arrays;
-import com.sun.marlin.MarlinRenderer;
 
 public final class DMarlinPrismUtils {
 

@@ -50,7 +50,6 @@ import com.sun.prism.impl.shape.MaskData;
 import com.sun.prism.impl.shape.ShapeUtil;
 
 import java.lang.ref.SoftReference;
-import com.sun.marlin.MarlinRenderer;
 
 final class SWContext {
 
