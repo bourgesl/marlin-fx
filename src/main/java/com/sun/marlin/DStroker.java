@@ -522,15 +522,9 @@ public final class DStroker implements DPathConsumer2D, MarlinConst {
 
     @Override
     public void lineTo(final double x1, final double y1) {
-        lineTo(x1, y1, false);
-    }
-
-    private void lineTo(final double x1, final double y1,
-                        final boolean force)
-    {
         final int outcode0 = this.cOutCode;
 
-        if (!force && clipRect != null) {
+        if (clipRect != null) {
             final int outcode1 = DHelpers.outcode(x1, y1, clipRect);
 
             // Should clip
@@ -617,17 +611,21 @@ public final class DStroker implements DPathConsumer2D, MarlinConst {
         // basic acceptance criteria
         if ((sOutCode & cOutCode) == 0) {
             if (cx0 != sx0 || cy0 != sy0) {
-                lineTo(sx0, sy0, true);
+                // may subdivide line:
+                lineTo(sx0, sy0);
             }
 
-            drawJoin(cdx, cdy, cx0, cy0, sdx, sdy, cmx, cmy, smx, smy, sOutCode);
+            // ignore starting point outside:
+            if (sOutCode == 0) {
+                drawJoin(cdx, cdy, cx0, cy0, sdx, sdy, cmx, cmy, smx, smy, sOutCode);
 
-            emitLineTo(sx0 + smx, sy0 + smy);
+                emitLineTo(sx0 + smx, sy0 + smy);
 
-            if (opened) {
-                emitLineTo(sx0 - smx, sy0 - smy);
-            } else {
-                emitMoveTo(sx0 - smx, sy0 - smy);
+                if (opened) {
+                    emitLineTo(sx0 - smx, sy0 - smy);
+                } else {
+                    emitMoveTo(sx0 - smx, sy0 - smy);
+                }
             }
         }
         // Ignore caps like finish(false)
