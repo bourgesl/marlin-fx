@@ -25,6 +25,7 @@ package test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
@@ -42,18 +43,22 @@ import javafx.stage.Stage;
  *
  */
 public class PolylineWideClipTest extends Application {
-    
-    private static final boolean TEST_FILL = false;
+
+    private static final boolean TEST_FILL = true;
     private static final boolean TEST_STROKE = true; // stroker passes (2021.10.17)
+    
+    private static final boolean CLOSE = false;
+
+    private static final int SPEED = 10; // 60 means 1s
 
     // (2^31 = 1073741824) / 256 = 4194304 => overflow in DRenderer
     // private static final double LARGE_X_COORDINATE = 4194304.250 + 1000.0013;
-    
     // max precision limited by CurveClipSplitter: 0.9999999999999997 ~ 1E-15 EPS
     // => coords > ~1E15 will cause troubles (solver will give incorrect intersections 
     //   that could be fixed using recursive subdivision or newton root refinement)
     private static final double LARGE_X_COORDINATE = 1E15; // not ideal = Float.MAX_VALUE / 2.0
-    
+//    private static final double LARGE_X_COORDINATE = 1E12;
+
     private static final double SCENE_WIDTH = 1000.0;
 
     private static final int[][] combPts = new int[3][];
@@ -62,6 +67,10 @@ public class PolylineWideClipTest extends Application {
     private static final double[][] ptsIn = new double[4][2];
     private static final double[][] ptsOut = new double[8][2];
 
+    static final long SEED = 1666133789L;
+    // Fixed seed to avoid any difference between runs:
+    static final Random RANDOM = new Random(SEED);
+    
     static {
         // 0 1 2 or 1 2 0 or 2 0 1
         combPts[0] = new int[]{0, 1, 2};
@@ -70,17 +79,17 @@ public class PolylineWideClipTest extends Application {
         // System.out.println("comb2PtsIn8: " + Arrays.deepToString(combPts));
 
         // Generate 1 pt inside:
-        ptsIn[0][0] = SCENE_WIDTH * 1 / 3 + (SCENE_WIDTH / 10) * Math.random();
-        ptsIn[0][1] = SCENE_WIDTH * 1 / 3 + (SCENE_WIDTH / 10) * Math.random();
+        ptsIn[0][0] = SCENE_WIDTH * 1 / 3 + (SCENE_WIDTH / 10) * RANDOM.nextDouble();
+        ptsIn[0][1] = SCENE_WIDTH * 1 / 3 + (SCENE_WIDTH / 10) * RANDOM.nextDouble();
 
-        ptsIn[1][0] = SCENE_WIDTH * 2 / 3 + (SCENE_WIDTH / 10) * Math.random();
-        ptsIn[1][1] = SCENE_WIDTH * 1 / 3 + (SCENE_WIDTH / 10) * Math.random();
+        ptsIn[1][0] = SCENE_WIDTH * 2 / 3 + (SCENE_WIDTH / 10) * RANDOM.nextDouble();
+        ptsIn[1][1] = SCENE_WIDTH * 1 / 3 + (SCENE_WIDTH / 10) * RANDOM.nextDouble();
 
-        ptsIn[2][0] = SCENE_WIDTH * 2 / 3 + (SCENE_WIDTH / 10) * Math.random();
-        ptsIn[2][1] = SCENE_WIDTH * 2 / 3 + (SCENE_WIDTH / 10) * Math.random();
+        ptsIn[2][0] = SCENE_WIDTH * 2 / 3 + (SCENE_WIDTH / 10) * RANDOM.nextDouble();
+        ptsIn[2][1] = SCENE_WIDTH * 2 / 3 + (SCENE_WIDTH / 10) * RANDOM.nextDouble();
 
-        ptsIn[3][0] = SCENE_WIDTH * 1 / 3 + (SCENE_WIDTH / 10) * Math.random();
-        ptsIn[3][1] = SCENE_WIDTH * 2 / 3 + (SCENE_WIDTH / 10) * Math.random();
+        ptsIn[3][0] = SCENE_WIDTH * 1 / 3 + (SCENE_WIDTH / 10) * RANDOM.nextDouble();
+        ptsIn[3][1] = SCENE_WIDTH * 2 / 3 + (SCENE_WIDTH / 10) * RANDOM.nextDouble();
 
         System.out.println("ptsIn: " + Arrays.deepToString(ptsIn));
 
@@ -95,68 +104,70 @@ public class PolylineWideClipTest extends Application {
 
         int i = 0;
         // LEFT
-        ptsOut[i][0] = -(LARGE_X_COORDINATE + SCENE_WIDTH * Math.random());
-        ptsOut[i][1] = (SCENE_WIDTH / 3 + (SCENE_WIDTH / 10) * Math.random());
+        ptsOut[i][0] = -(LARGE_X_COORDINATE + SCENE_WIDTH * RANDOM.nextDouble());
+        ptsOut[i][1] = (SCENE_WIDTH / 3 + (SCENE_WIDTH / 10) * RANDOM.nextDouble());
         i++;
 
         // TOP LEFT
-        ptsOut[i][0] = -(LARGE_X_COORDINATE + SCENE_WIDTH * Math.random());
-        ptsOut[i][1] = -(LARGE_X_COORDINATE + SCENE_WIDTH * Math.random());
+        ptsOut[i][0] = -(LARGE_X_COORDINATE + SCENE_WIDTH * RANDOM.nextDouble());
+        ptsOut[i][1] = -(LARGE_X_COORDINATE + SCENE_WIDTH * RANDOM.nextDouble());
         i++;
 
         // TOP
-        ptsOut[i][0] = (SCENE_WIDTH / 3 + (SCENE_WIDTH / 10) * Math.random());
-        ptsOut[i][1] = -(LARGE_X_COORDINATE + SCENE_WIDTH * Math.random());
+        ptsOut[i][0] = (SCENE_WIDTH / 3 + (SCENE_WIDTH / 10) * RANDOM.nextDouble());
+        ptsOut[i][1] = -(LARGE_X_COORDINATE + SCENE_WIDTH * RANDOM.nextDouble());
         i++;
 
         // TOP RIGHT
-        ptsOut[i][0] = +(LARGE_X_COORDINATE + SCENE_WIDTH * Math.random());
-        ptsOut[i][1] = -(LARGE_X_COORDINATE + SCENE_WIDTH * Math.random());
+        ptsOut[i][0] = +(LARGE_X_COORDINATE + SCENE_WIDTH * RANDOM.nextDouble());
+        ptsOut[i][1] = -(LARGE_X_COORDINATE + SCENE_WIDTH * RANDOM.nextDouble());
         i++;
 
         // RIGHT
-        ptsOut[i][0] = +(LARGE_X_COORDINATE + SCENE_WIDTH * Math.random());
-        ptsOut[i][1] = (SCENE_WIDTH / 3 + (SCENE_WIDTH / 10) * Math.random());
+        ptsOut[i][0] = +(LARGE_X_COORDINATE + SCENE_WIDTH * RANDOM.nextDouble());
+        ptsOut[i][1] = (SCENE_WIDTH / 3 + (SCENE_WIDTH / 10) * RANDOM.nextDouble());
         i++;
 
         // BOTTOM RIGHT
-        ptsOut[i][0] = +(LARGE_X_COORDINATE + SCENE_WIDTH * Math.random());
-        ptsOut[i][1] = +(LARGE_X_COORDINATE + SCENE_WIDTH * Math.random());
+        ptsOut[i][0] = +(LARGE_X_COORDINATE + SCENE_WIDTH * RANDOM.nextDouble());
+        ptsOut[i][1] = +(LARGE_X_COORDINATE + SCENE_WIDTH * RANDOM.nextDouble());
         i++;
 
         // BOTTOM
-        ptsOut[i][0] = (SCENE_WIDTH / 3 + (SCENE_WIDTH / 10) * Math.random());
-        ptsOut[i][1] = +(LARGE_X_COORDINATE + SCENE_WIDTH * Math.random());
+        ptsOut[i][0] = (SCENE_WIDTH / 3 + (SCENE_WIDTH / 10) * RANDOM.nextDouble());
+        ptsOut[i][1] = +(LARGE_X_COORDINATE + SCENE_WIDTH * RANDOM.nextDouble());
         i++;
 
         // BOTTOM LEFT
-        ptsOut[i][0] = -(LARGE_X_COORDINATE + SCENE_WIDTH * Math.random());
-        ptsOut[i][1] = +(LARGE_X_COORDINATE + SCENE_WIDTH * Math.random());
+        ptsOut[i][0] = -(LARGE_X_COORDINATE + SCENE_WIDTH * RANDOM.nextDouble());
+        ptsOut[i][1] = +(LARGE_X_COORDINATE + SCENE_WIDTH * RANDOM.nextDouble());
         i++;
 
         System.out.println("ptsOut: " + Arrays.deepToString(ptsOut));
 
-        System.out.println("Max tests: "+ (combPts.length * ptsIn.length * comb2PtsIn8.size()));
+        System.out.println("Max tests: " + (combPts.length * ptsIn.length * comb2PtsIn8.size()));
 
         // Set Marlin properties:
         /*
         -Dprism.marlin=true
         -Dprism.marlin.double=true
-        */
+         */
         System.setProperty("prism.marlin.log", "true");
-        
+
         System.setProperty("prism.marlin.subPixel_log2_X", "8");
         System.setProperty("prism.marlin.clip", "true");
-        System.setProperty("prism.marlin.clip.subdivider.minLength", "-1");
+
+//        System.setProperty("prism.marlin.clip.subdivider.minLength", "-1");
+//        System.setProperty("prism.marlin.clip.subdivider.minLength", "100");
     }
 
     @Override
     public void start(Stage stage) {
         final Path p = new Path();
         p.setFill((TEST_FILL) ? Color.STEELBLUE : null);
-        
+
         p.setStroke((TEST_STROKE) ? Color.RED : null);
-        p.setStrokeWidth(6);
+        p.setStrokeWidth(4);
         p.setCache(false);
 
         final Scene scene = new Scene(new Group(p), SCENE_WIDTH, SCENE_WIDTH);
@@ -175,7 +186,7 @@ public class PolylineWideClipTest extends Application {
 
             @Override
             public void handle(long now) {
-                if ((numHandle++) % 20 == 0) {
+                if ((numHandle++) % SPEED == 0) {
                     System.out.println("Test[" + numTest + "] i = " + i + " j = " + j + " k = " + k + " ----");
 
                     // 0 is inside
@@ -193,12 +204,20 @@ public class PolylineWideClipTest extends Application {
                     final int[] idxPt = combPts[i];
 
                     final ObservableList<PathElement> pathElements = p.getElements();
-                    pathElements.setAll(
-                            new MoveTo(pts[idxPt[0]][0], pts[idxPt[0]][1]),
-                            new LineTo(pts[idxPt[1]][0], pts[idxPt[1]][1]),
-                            new LineTo(pts[idxPt[2]][0], pts[idxPt[2]][1]),
-                            new ClosePath()
-                    );
+                    if (CLOSE) {
+                        pathElements.setAll(
+                                new MoveTo(pts[idxPt[0]][0], pts[idxPt[0]][1]),
+                                new LineTo(pts[idxPt[1]][0], pts[idxPt[1]][1]),
+                                new LineTo(pts[idxPt[2]][0], pts[idxPt[2]][1]),
+                                new ClosePath()
+                        );
+                    } else {
+                        pathElements.setAll(
+                                new MoveTo(pts[idxPt[0]][0], pts[idxPt[0]][1]),
+                                new LineTo(pts[idxPt[1]][0], pts[idxPt[1]][1]),
+                                new LineTo(pts[idxPt[2]][0], pts[idxPt[2]][1])
+                        );
+                    }
 
                     numTest++;
                     if ((++i) >= combPts.length) {
@@ -208,6 +227,9 @@ public class PolylineWideClipTest extends Application {
                             if ((++k) >= comb2PtsIn8.size()) {
                                 k = 0;
                                 System.out.println("All tests done !");
+
+                                p.setFill((TEST_FILL) ? Color.GREEN : null);
+                                p.setStroke((TEST_STROKE) ? Color.GREEN : null);
                             }
                         }
                     }

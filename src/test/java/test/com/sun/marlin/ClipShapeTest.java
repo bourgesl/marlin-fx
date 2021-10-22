@@ -27,8 +27,6 @@ package test.com.sun.marlin;
 import java.awt.BasicStroke;
 import java.awt.Shape;
 import java.awt.geom.CubicCurve2D;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.QuadCurve2D;
@@ -311,6 +309,8 @@ public final class ClipShapeTest {
                 // shape mode:
                 if (arg.equalsIgnoreCase("-poly")) {
                     SHAPE_MODE = ShapeMode.NINE_LINE_POLYS;
+                } else if (arg.equalsIgnoreCase("-poly5")) {
+                    SHAPE_MODE = ShapeMode.FIVE_LINE_POLYS;
                 } else if (arg.equalsIgnoreCase("-bigpoly")) {
                     SHAPE_MODE = ShapeMode.FIFTY_LINE_POLYS;
                 } else if (arg.equalsIgnoreCase("-quad")) {
