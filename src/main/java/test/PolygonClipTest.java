@@ -41,7 +41,7 @@ import javafx.stage.Stage;
 public class PolygonClipTest extends Application {
 
     private static final boolean TEST_STROKE = false;
-    private static final int TEST_CASE = 4;
+    private static final int TEST_CASE = 13;
 
     private static final int SPEED = 60;
 
@@ -161,6 +161,59 @@ public class PolygonClipTest extends Application {
                         new MoveTo(-99.77336, 35.190475),
                         new CubicCurveTo(-25.539629, 180.36601, 52.512184, 42.104904, -66.391945, -7.1875143),
                         new CubicCurveTo(97.41586, 79.37796, 102.07544, 10.436856, -7.376722, 18.136734)
+                );
+                break;
+            case 5:
+                // move / close outside:
+                p.getElements().setAll(
+                        new MoveTo(-99.77336, 35.190475),
+                        new ClosePath()
+                );
+                break;
+            case 6:
+                // move / close inside:
+                p.getElements().setAll(
+                        new MoveTo(13.77336, 35.190475),
+                        new ClosePath()
+                );
+                break;
+            case 7:
+                // move / close outside:
+                p.getElements().setAll(
+                        new MoveTo(-99.77336, 35.190475)
+                );
+                break;
+            case 8:
+                // move / close outside:
+                p.getElements().setAll(
+                        new MoveTo(-99.77336, 35.190475),
+                        new LineTo(-133,-100)
+                );
+                break;
+            case 9:
+                // move / close outside:
+                p.getElements().setAll(
+                        new MoveTo(-99.77336, 35.190475),
+                        new LineTo(-133,-100),
+                        new ClosePath()
+                );
+                break;
+            case 10:
+                // move / close inside:
+                p.getElements().setAll(
+                        new MoveTo(13.77336, 35.190475),
+                        new LineTo(73, 60),
+                        new ClosePath()
+                );
+                break;
+            case 13:
+                // move / line (outside over corners) then close => inside:
+                p.getElements().setAll(
+                        new MoveTo(-99.77336, 35.190475),
+                        new LineTo(-23, -37),
+                        new LineTo(173, -37),
+                        new LineTo(173, 57),
+                        new ClosePath()
                 );
                 break;
             default:
