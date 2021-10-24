@@ -571,14 +571,12 @@ public final class DTransformingPathConsumer2D {
         }
 
         private void finishPath() {
-            if (outside) {
-                // criteria: inside or totally outside ?
-                if (gOutCode == 0) {
-                    finish();
-                } else {
-                    this.outside = false;
-                    stack.reset();
-                }
+            // criteria: inside or totally outside ?
+            if (gOutCode == 0) {
+                finish();
+            } else {
+                this.outside = false;
+                stack.reset();
             }
         }
 
@@ -619,6 +617,7 @@ public final class DTransformingPathConsumer2D {
             }
             _closePath();
 
+            // note: renderer's pathDone() must handle missing moveTo() if outside
             out.pathDone();
 
             // this shouldn't matter since this object won't be used
@@ -637,7 +636,9 @@ public final class DTransformingPathConsumer2D {
             }
             _closePath();
 
-            out.closePath();
+            if (prev == DRAWING_OP_TO) {
+                out.closePath();
+            }
 
             // if outside, moveTo is needed
             if (sOutCode != 0) {
@@ -655,21 +656,26 @@ public final class DTransformingPathConsumer2D {
         private void _closePath() {
             // preserve outside flag for the lineTo call below
             final boolean prevOutside = outside;
-            finishPath();
+            if (prevOutside) {
+                finishPath();
+            }
 
             if (prev == DRAWING_OP_TO) {
                 // Should clip
                 final int orCode = (cOutCode | sOutCode);
                 if (orCode != 0) {
-                    if (cx0 != sx0 || cy0 != sy0) {
+                    if ((cx0 != sx0) || (cy0 != sy0)) {
                         // restore outside flag before lineTo:
                         this.outside = prevOutside;
                         // may subdivide line:
                         lineTo(sx0, sy0);
+                        // finish if outside caused by lineTo:
+                        if (outside) {
+                            finishPath();
+                        }
                     }
                 }
             }
-            finishPath();
         }
 
         @Override
@@ -687,7 +693,6 @@ public final class DTransformingPathConsumer2D {
             this.sOutCode = outcode;
             this.cx0 = x0;
             this.cy0 = y0;
-
             this.sx0 = x0;
             this.sy0 = y0;
         }

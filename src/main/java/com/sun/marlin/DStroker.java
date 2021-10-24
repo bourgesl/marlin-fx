@@ -610,7 +610,7 @@ public final class DStroker implements DPathConsumer2D, MarlinConst {
 
         // basic acceptance criteria
         if ((sOutCode & cOutCode) == 0) {
-            if (cx0 != sx0 || cy0 != sy0) {
+            if ((cx0 != sx0) || (cy0 != sy0)) {
                 // may subdivide line:
                 lineTo(sx0, sy0);
             }
@@ -779,6 +779,7 @@ public final class DStroker implements DPathConsumer2D, MarlinConst {
                 this.smx = mx;
                 this.smy = my;
             }
+            prev = DRAWING_OP_TO;
         } else {
             final boolean cw = isCW(pdx, pdy, dx, dy);
             if (outcode == 0) {
@@ -790,7 +791,6 @@ public final class DStroker implements DPathConsumer2D, MarlinConst {
             }
             emitLineTo(x0, y0, !cw);
         }
-        prev = DRAWING_OP_TO;
     }
 
     private static boolean within(final double x1, final double y1,

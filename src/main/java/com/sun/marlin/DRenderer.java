@@ -704,7 +704,7 @@ public final class DRenderer implements DMarlinRenderer, MarlinConst {
 
     @Override
     public void closePath() {
-        if (x0 != sx0 || y0 != sy0) {
+        if ((x0 != sx0) || (y0 != sy0)) {
             addLine(x0, y0, sx0, sy0);
             x0 = sx0;
             y0 = sy0;
