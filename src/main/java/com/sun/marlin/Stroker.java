@@ -781,7 +781,6 @@ public final class Stroker implements PathConsumer2D, MarlinConst {
                 this.smx = mx;
                 this.smy = my;
             }
-            prev = DRAWING_OP_TO;
         } else {
             final boolean cw = isCW(pdx, pdy, dx, dy);
             if (outcode == 0) {
@@ -793,6 +792,7 @@ public final class Stroker implements PathConsumer2D, MarlinConst {
             }
             emitLineTo(x0, y0, !cw);
         }
+        prev = DRAWING_OP_TO;
     }
 
     private static boolean within(final float x1, final float y1,
