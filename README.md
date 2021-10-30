@@ -12,10 +12,14 @@ Latest release: https://github.com/bourgesl/marlin-fx/releases/latest
 | --- | --- | --- |
 | Open JDK 9  | MarlinFX 0.7.5 | [MarlinFX 0.9.3.1 for JDK9+](https://github.com/bourgesl/marlin-fx/releases/tag/v0.9.3.1) |
 | Open JDK 10 | MarlinFX 0.8.2 | [MarlinFX 0.9.3.1 for JDK9+](https://github.com/bourgesl/marlin-fx/releases/tag/v0.9.3.1) |
-| Open JFX 11 | MarlinFX 0.9.2 | [MarlinFX 0.9.3.1 for JDK9+](https://github.com/bourgesl/marlin-fx/releases/tag/v0.9.3.1) |
-| Open JFX 12 | MarlinFX 0.9.3 | [MarlinFX 0.9.3.1 for JDK9+](https://github.com/bourgesl/marlin-fx/releases/tag/v0.9.3.1) |
-| Open JFX 13 | MarlinFX 0.9.3.1 | no MarlinFX update yet |
-| Open JFX 14 (EA) | MarlinFX 0.9.3.1 | no MarlinFX update yet |
+| Open JFX 11 | MarlinFX 0.9.2 | [MarlinFX 0.9.4.5 for JFX11+](https://github.com/bourgesl/marlin-fx/releases/tag/v0.9.4.5) |
+| Open JFX 12 | MarlinFX 0.9.3 | [MarlinFX 0.9.4.5 for JFX11+](https://github.com/bourgesl/marlin-fx/releases/tag/v0.9.4.5) |
+| Open JFX 13 | MarlinFX 0.9.3.1 | [MarlinFX 0.9.4.5 for JFX11+](https://github.com/bourgesl/marlin-fx/releases/tag/v0.9.4.5) |
+| Open JFX 14 | MarlinFX 0.9.3.1 | [MarlinFX 0.9.4.5 for JFX11+](https://github.com/bourgesl/marlin-fx/releases/tag/v0.9.4.5) |
+| Open JFX 15 | MarlinFX 0.9.3.1 | [MarlinFX 0.9.4.5 for JFX11+](https://github.com/bourgesl/marlin-fx/releases/tag/v0.9.4.5) |
+| Open JFX 16 | MarlinFX 0.9.3.1 | [MarlinFX 0.9.4.5 for JFX11+](https://github.com/bourgesl/marlin-fx/releases/tag/v0.9.4.5) |
+| Open JFX 17 | MarlinFX 0.9.3.1 | [MarlinFX 0.9.4.5 for JFX11+](https://github.com/bourgesl/marlin-fx/releases/tag/v0.9.4.5) |
+| Open JFX 18 | MarlinFX 0.9.3.1 | [MarlinFX 0.9.4.5 for JFX11+](https://github.com/bourgesl/marlin-fx/releases/tag/v0.9.4.5) |
 
 
 License
