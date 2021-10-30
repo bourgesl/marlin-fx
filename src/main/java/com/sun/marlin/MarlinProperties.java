@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2021, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -189,6 +189,10 @@ public final class MarlinProperties {
         return getFloat("prism.marlin.clip.subdivider.minLength", 100.0f, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
     }
 
+    public static boolean isUseDPQS() {
+        return getBoolean("prism.marlin.useDPQS", "true");
+    }
+
     // debugging parameters
 
     public static boolean isDoStats() {
@@ -222,6 +226,7 @@ public final class MarlinProperties {
     }
 
     // quality settings
+
     public static float getCurveLengthError() {
         return getFloat("prism.marlin.curve_len_err", 0.01f, 1e-6f, 1.0f);
     }
