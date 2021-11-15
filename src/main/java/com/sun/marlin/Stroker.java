@@ -29,11 +29,12 @@ import java.util.Arrays;
 import com.sun.marlin.Helpers.PolyStack;
 import com.sun.marlin.TransformingPathConsumer2D.CurveBasicMonotonizer;
 import com.sun.marlin.TransformingPathConsumer2D.CurveClipSplitter;
+import com.sun.marlin.TransformingPathConsumer2D.StartFlagPathConsumer2D;
 
 // TODO: some of the arithmetic here is too verbose and prone to hard to
 // debug typos. We should consider making a small Point/Vector class that
 // has methods like plus(Point), minus(Point), dot(Point), cross(Point)and such
-public final class Stroker implements DPathConsumer2D, MarlinConst {
+public final class Stroker implements StartFlagPathConsumer2D, MarlinConst {
 
     private static final int MOVE_TO = 0;
     private static final int DRAWING_OP_TO = 1; // ie. curve, line, or quad
@@ -520,6 +521,17 @@ public final class Stroker implements DPathConsumer2D, MarlinConst {
         }
     }
 
+    /* Callback from CurveClipSplitter */
+    @Override
+    public void setStartFlag(boolean first) {
+        if (first) {
+            // reset flag:
+            rdrCtx.firstFlags &= 0b110;
+        } else {
+            rdrCtx.firstFlags |= 0b001;
+        }
+    }
+
     @Override
     public void lineTo(final double x1, final double y1) {
         final int outcode0 = this.cOutCode;
@@ -772,6 +784,7 @@ public final class Stroker implements DPathConsumer2D, MarlinConst {
                           final int outcode)
     {
         if (prev != DRAWING_OP_TO) {
+            prev = DRAWING_OP_TO;
             emitMoveTo(x0 + mx, y0 + my);
             if (!opened) {
                 this.sdx = dx;
@@ -779,7 +792,7 @@ public final class Stroker implements DPathConsumer2D, MarlinConst {
                 this.smx = mx;
                 this.smy = my;
             }
-        } else if (rdrCtx.isFirstSegment) {
+        } else if (rdrCtx.firstFlags == 0) {
             // Precision on isCW is causing instabilities with Dasher !
             final boolean cw = isCW(pdx, pdy, dx, dy);
             if (outcode == 0) {
@@ -791,11 +804,6 @@ public final class Stroker implements DPathConsumer2D, MarlinConst {
             }
             emitLineTo(x0, y0, !cw);
         }
-        if (!rdrCtx.isFirstSegment) {
-            // reset trigger to process further joins (normal operations)
-            rdrCtx.isFirstSegment = true;
-        }
-        prev = DRAWING_OP_TO;
     }
 
     private int getLineOffsets(final double x1, final double y1,

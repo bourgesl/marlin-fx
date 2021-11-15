@@ -492,7 +492,7 @@ public final class TransformingPathConsumer2D {
         }
     }
 
-    static final class PathClipFilter implements DPathConsumer2D {
+    static final class PathClipFilter implements StartFlagPathConsumer2D {
 
         private static final boolean TRACE = false;
 
@@ -689,6 +689,12 @@ public final class TransformingPathConsumer2D {
             this.cy0 = y0;
             this.sx0 = x0;
             this.sy0 = y0;
+        }
+
+        /* Callback from CurveClipSplitter */
+        @Override
+        public void setStartFlag(boolean first) {
+            // no-op
         }
 
         @Override
@@ -992,6 +998,11 @@ public final class TransformingPathConsumer2D {
         }
     }
 
+    interface StartFlagPathConsumer2D extends DPathConsumer2D {
+
+        void setStartFlag(boolean first);
+    }
+
     static final class CurveClipSplitter {
 
         static final double LEN_TH = MarlinProperties.getSubdividerMinLength();
@@ -1060,10 +1071,11 @@ public final class TransformingPathConsumer2D {
             }
         }
 
+        // Use a specific interface to make recursion more obvious
         boolean splitLine(final double x0, final double y0,
                           final double x1, final double y1,
                           final int outCodeOR,
-                          final DPathConsumer2D out)
+                          final StartFlagPathConsumer2D out)
         {
             if (TRACE) {
                 MarlinUtils.logInfo("divLine P0(" + x0 + ", " + y0 + ") P1(" + x1 + ", " + y1 + ")");
@@ -1084,7 +1096,7 @@ public final class TransformingPathConsumer2D {
                           final double x1, final double y1,
                           final double x2, final double y2,
                           final int outCodeOR,
-                          final DPathConsumer2D out)
+                          final StartFlagPathConsumer2D out)
         {
             if (TRACE) {
                 MarlinUtils.logInfo("divQuad P0(" + x0 + ", " + y0 + ") P1(" + x1 + ", " + y1 + ") P2(" + x2 + ", " + y2 + ")");
@@ -1107,7 +1119,7 @@ public final class TransformingPathConsumer2D {
                            final double x2, final double y2,
                            final double x3, final double y3,
                            final int outCodeOR,
-                           final DPathConsumer2D out)
+                           final StartFlagPathConsumer2D out)
         {
             if (TRACE) {
                 MarlinUtils.logInfo("divCurve P0(" + x0 + ", " + y0 + ") P1(" + x1 + ", " + y1 + ") P2(" + x2 + ", " + y2 + ") P3(" + x3 + ", " + y3 + ")");
@@ -1127,7 +1139,7 @@ public final class TransformingPathConsumer2D {
         }
 
         private boolean subdivideAtIntersections(final int type, final int outCodeOR,
-                                                 final DPathConsumer2D out)
+                                                 final StartFlagPathConsumer2D out)
         {
             final double[] mid = middle;
             final double[] subTs = subdivTs;
@@ -1163,12 +1175,19 @@ public final class TransformingPathConsumer2D {
                     MarlinUtils.logInfo("Part Curve " + Arrays.toString(Arrays.copyOfRange(mid, off, off + type)));
                 }
                 emitCurrent(type, mid, off, out);
+
+                if (i == 0) {
+                    // disable start flag:
+                    out.setStartFlag(false);
+                }
             }
+            // reset start flag:
+            out.setStartFlag(true);
             return true;
         }
 
         static void emitCurrent(final int type, final double[] pts,
-                                final int off, final DPathConsumer2D out)
+                                final int off, final StartFlagPathConsumer2D out)
         {
             // if instead of switch (perf + most probable cases first)
             if (type == 8) {
@@ -1176,10 +1195,10 @@ public final class TransformingPathConsumer2D {
                             pts[off + 4], pts[off + 5],
                             pts[off + 6], pts[off + 7]);
             } else if (type == 4) {
-                out.lineTo(pts[off + 2], pts[off + 3]);
+                out.lineTo( pts[off + 2], pts[off + 3]);
             } else {
-                out.quadTo(pts[off + 2], pts[off + 3],
-                           pts[off + 4], pts[off + 5]);
+                out.quadTo( pts[off + 2], pts[off + 3],
+                            pts[off + 4], pts[off + 5]);
             }
         }
     }

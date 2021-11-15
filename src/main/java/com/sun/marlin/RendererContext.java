@@ -83,8 +83,11 @@ public final class RendererContext extends ReentrantContext implements MarlinCon
     public double clipInvScale = 0.0d;
     // CurveBasicMonotonizer instance
     public final CurveBasicMonotonizer monotonizer;
-    // flag indicating to force the stroker to process joins
-    public boolean isFirstSegment = true;
+    // bit flags indicating to skip the stroker to process joins
+    // bits: 2 : Dasher CurveClipSplitter
+    // bits: 1 : Dasher CurveBasicMonotonizer
+    // bits: 0 : Stroker CurveClipSplitter
+    public int firstFlags = 0;
     // CurveClipSplitter instance
     final CurveClipSplitter curveClipSplitter;
     // DPQS Sorter context
@@ -168,7 +171,7 @@ public final class RendererContext extends ReentrantContext implements MarlinCon
         doClip     = false;
         closedPath = false;
         clipInvScale = 0.0d;
-        isFirstSegment = true;
+        firstFlags = 0;
 
         // if context is maked as DIRTY:
         if (dirty) {
