@@ -22,7 +22,7 @@ jobs:
 
       - name: Build (Maven)
         run: |
-          mvn verify
+          mvn verify -Dintegration.skip=true
           echo "That's All, folks !"
 
       - name: Upload
