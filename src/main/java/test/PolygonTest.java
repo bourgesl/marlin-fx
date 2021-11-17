@@ -38,7 +38,7 @@ public class PolygonTest extends Application {
     // (2^31 = 1073741824) / 256 = 4194304 => overflow in DRenderer
     private static final double LARGE_X_COORDINATE = 4194304.250; // -Dprism.marlin.subPixel_log2_X=8
 //    private static final Double LARGE_X_COORDINATE = 134217728.250; // -Dprism.marlin.subPixel_log2_X=3
-    
+
 //    private static final double epsilon = 1.5E10; // max power of ten before translation into viewport is wrong
     private static final double epsilon = 1000;
 

@@ -46,7 +46,7 @@ public class PolylineWideClipTest extends Application {
 
     private static final boolean TEST_FILL = true;
     private static final boolean TEST_STROKE = true; // stroker passes (2021.10.17)
-    
+
     private static final boolean CLOSE = false;
 
     private static final int SPEED = 10; // 60 means 1s
@@ -54,7 +54,7 @@ public class PolylineWideClipTest extends Application {
     // (2^31 = 1073741824) / 256 = 4194304 => overflow in DRenderer
     // private static final double LARGE_X_COORDINATE = 4194304.250 + 1000.0013;
     // max precision limited by CurveClipSplitter: 0.9999999999999997 ~ 1E-15 EPS
-    // => coords > ~1E15 will cause troubles (solver will give incorrect intersections 
+    // => coords > ~1E15 will cause troubles (solver will give incorrect intersections
     //   that could be fixed using recursive subdivision or newton root refinement)
     private static final double LARGE_X_COORDINATE = 1E15; // not ideal = Float.MAX_VALUE / 2.0
 //    private static final double LARGE_X_COORDINATE = 1E12;
@@ -70,7 +70,7 @@ public class PolylineWideClipTest extends Application {
     static final long SEED = 1666133789L;
     // Fixed seed to avoid any difference between runs:
     static final Random RANDOM = new Random(SEED);
-    
+
     static {
         // 0 1 2 or 1 2 0 or 2 0 1
         combPts[0] = new int[]{0, 1, 2};
