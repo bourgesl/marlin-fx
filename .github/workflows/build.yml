@@ -10,6 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Install packages
+        run: |
+          sudo apt-get install xvfb tigervnc-standalone-server tigervnc-common
+
       - uses: actions/checkout@v2
 
       - name: Set up JDK 11
@@ -22,7 +26,16 @@ jobs:
 
       - name: Build (Maven)
         run: |
-          mvn verify -Dintegration.skip=true
+          echo "starting vnc server on DISPLAY:90"
+          export DISPLAY=:90
+          mkdir /home/runner/.vnc
+          echo 123456 | vncpasswd -f > /home/runner/.vnc/passwd
+          chmod -v 600 /home/runner/.vnc/passwd
+          vncserver :90 -localhost -nolisten tcp
+          echo "run maven build"
+          mvn verify -Dintegration.skip=false
+          echo "stopping vnc server"
+          vncserver -kill :90
           echo "That's All, folks !"
 
       - name: Upload
