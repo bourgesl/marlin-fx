@@ -157,6 +157,7 @@
                             </includes>
                             <argLine>
                                 -Xms1g -Xmx1g
+                                -Dprism.verbose=true
                                 -Dprism.marlin=true
                                 -DClipShapeTest.numTests=5000
                                 --add-exports javafx.graphics/com.sun=ALL-UNNAMED

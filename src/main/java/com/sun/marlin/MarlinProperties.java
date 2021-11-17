@@ -247,6 +247,7 @@ public final class MarlinProperties {
     }
 
     // system property utilities
+    @SuppressWarnings("removal")
     static String getString(final String key, final String def) {
         return AccessController.doPrivileged(
             (PrivilegedAction<String>) () -> {
@@ -255,6 +256,7 @@ public final class MarlinProperties {
             });
     }
 
+    @SuppressWarnings("removal")
     static boolean getBoolean(final String key, final String def) {
         return Boolean.valueOf(AccessController.doPrivileged(
             (PrivilegedAction<String>) () -> {
@@ -266,6 +268,7 @@ public final class MarlinProperties {
     static int getInteger(final String key, final int def,
                                  final int min, final int max)
     {
+        @SuppressWarnings("removal")
         final String property = AccessController.doPrivileged(
                     (PrivilegedAction<String>) () -> System.getProperty(key));
 
@@ -296,6 +299,7 @@ public final class MarlinProperties {
                                    final double min, final double max)
     {
         double value = def;
+        @SuppressWarnings("removal")
         final String property = AccessController.doPrivileged(
                     (PrivilegedAction<String>) () -> System.getProperty(key));
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2021, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -64,13 +64,13 @@ final class MergeSort {
                                 final int insertionSortIndex,
                                 final boolean skipISort,
                                 final DPQSSorterContext sorter,
-                                final boolean useDPQS) {
-
+                                final boolean useDPQS)
+    {
         if ((toIndex > x.length) || (toIndex > y.length)
                 || (toIndex > auxX.length) || (toIndex > auxY.length)) {
             // explicit check to avoid bound checks within hot loops (below):
             throw new ArrayIndexOutOfBoundsException("bad arguments: toIndex="
-                    + toIndex);
+                                                     + toIndex);
         }
         if (skipISort) {
             if (useDPQS) {
@@ -115,7 +115,7 @@ final class MergeSort {
 */
         for (int i = 0, p = 0, q = insertionSortIndex; i < toIndex; i++) {
             if ((q >= toIndex) || ((p < insertionSortIndex)
-                    && (auxX[p] <= auxX[q]))) {
+                                   && (auxX[p] <= auxX[q]))) {
                 x[i] = auxX[p];
                 y[i] = auxY[p];
                 p++;
@@ -143,7 +143,8 @@ final class MergeSort {
     private static void mergeSort(final int[] refX, final int[] refY,
                                   final int[] srcX, final int[] dstX,
                                   final int[] srcY, final int[] dstY,
-                                  final int low, final int high) {
+                                  final int low, final int high)
+    {
         final int length = high - low;
 
         /*
@@ -174,6 +175,7 @@ final class MergeSort {
         }
 
         // Recursively sort halves of dest into src
+
         // note: use signed shift (not >>>) for performance
         // as indices are small enough to exceed Integer.MAX_VALUE
         final int mid = (low + high) >> 1;
