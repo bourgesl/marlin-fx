@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2021, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -35,69 +35,48 @@ import javafx.stage.Stage;
  */
 public class PolygonTest extends Application {
 
+    /*
+     // -Dprism.marlin.subPixel_log2_X=8
+     */
     // (2^31 = 1073741824) / 256 = 4194304 => overflow in DRenderer
-    private static final double LARGE_X_COORDINATE = 4194304.250; // -Dprism.marlin.subPixel_log2_X=8
-//    private static final Double LARGE_X_COORDINATE = 134217728.250; // -Dprism.marlin.subPixel_log2_X=3
-
-//    private static final double epsilon = 1.5E10; // max power of ten before translation into viewport is wrong
-    private static final double epsilon = 1000;
-
-    private static final double SCENE_WIDTH = 600.0;
+    private static final double LARGE_X_COORDINATE = 4194304.250;
+    private static final Double SCENE_WIDTH = 600.0;
 
     @Override
     public void start(Stage stage) {
         double dpi = Screen.getPrimary().getDpi();
         System.out.println("dpi: " + dpi);
 
-        double dpiScale = 1.0; // Screen.getPrimary().getOutputScaleX();
+        double dpiScale = Screen.getPrimary().getOutputScaleX();
 
-        double longWidth = LARGE_X_COORDINATE / dpiScale + SCENE_WIDTH + 0.001 + epsilon;
+        // original test case => large moveTo in Filler but no bug in Stroker:
+        final Double longWidth = LARGE_X_COORDINATE / dpiScale + SCENE_WIDTH + 0.001;
 
         final Polygon veryWidePolygon;
-        if (true) {
-            if (true) {
-                veryWidePolygon = new Polygon(
-                        0.0, -1000.0,
-                        100.0, -500.0,
-                        longWidth, 200.0,
-                        longWidth - 1000, 500.0
-                );
 
-            } else {
-                // inverted test case => no large moveTo in Filler but bug in Stroker:
-                if (true) {
-                    veryWidePolygon = new Polygon(
-                            0.0, 100.0,
-                            0.0, 0.0,
-                            longWidth, 50.0,
-                            longWidth, 100.0
-                    );
-                } else {
-                    veryWidePolygon = new Polygon(
-                            longWidth, 50.0,
-                            longWidth, 100.0,
-                            0.0, 100.0,
-                            0.0, 0.0
-                    );
-                }
-            }
-        } else {
-            // original test case => large moveTo in Filler but no bug in Stroker:
+        if (true) {
             veryWidePolygon = new Polygon(
-                    0.0, 0.0,
+                    longWidth, 50.0,
+                    longWidth, 100.0,
+                    0.0, 100.0,
+                    0.0, 0.0
+            );
+        } else {
+            veryWidePolygon = new Polygon(0.0, 0.0,
                     longWidth, 50.0,
                     longWidth, 100.0,
                     0.0, 100.0);
+
         }
 
-        veryWidePolygon.setFill(Color.STEELBLUE);
+        veryWidePolygon.setFill(Color.BLUE);
         veryWidePolygon.setStroke(Color.RED);
-        veryWidePolygon.setStrokeWidth(5);
+        veryWidePolygon.setStrokeWidth(2);
 
         Group group = new Group(veryWidePolygon);
         group.getTransforms().add(new Translate(-longWidth + SCENE_WIDTH, 100.0));
 
-        Scene scene = new Scene(group, SCENE_WIDTH, 400, Color.LIGHTGRAY);
+        Scene scene = new Scene(group, SCENE_WIDTH, 400, Color.WHITE);
         stage.setScene(scene);
         stage.setTitle("DPI scale: " + dpiScale);
         stage.show();
