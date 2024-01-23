@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2007, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -622,7 +622,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
         }
 
         if (edgeMinY != Integer.MAX_VALUE) {
-            // if context is maked as DIRTY:
+            // if context is marked as DIRTY:
             if (rdrCtx.dirty) {
                 // may happen if an exception if thrown in the pipeline processing:
                 // clear completely buckets arrays:
@@ -825,7 +825,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
 
         final int stroking = rdrCtx.stroking;
 
-        int lastY = -1; // last emited row
+        int lastY = -1; // last emitted row
 
         final DPQSSorterContext sorter = rdrCtx.sorterCtx;
         boolean skipISort, useDPQS;
@@ -878,7 +878,7 @@ public final class Renderer implements MarlinRenderer, MarlinConst {
                             rdrCtx.stats.stat_array_renderer_edgePtrs.add(ptrEnd);
                         }
                         this.edgePtrs = _edgePtrs
-                            = edgePtrs_ref.widenArray(_edgePtrs, edgePtrsLen, // bad mark ? TODO: fix edge ptr mark
+                            = edgePtrs_ref.widenArray(_edgePtrs, edgePtrsLen,
                                                       ptrEnd);
 
                         edgePtrsLen = _edgePtrs.length;

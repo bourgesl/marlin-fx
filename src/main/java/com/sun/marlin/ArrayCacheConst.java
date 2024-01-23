@@ -253,20 +253,20 @@ public final class ArrayCacheConst implements MarlinConst {
         }
     }
 
-    static final class BucketStats {
-        int getOp = 0;
-        int createOp = 0;
-        int returnOp = 0;
-        int maxSize = 0;
+    public static final class BucketStats {
+        public int getOp = 0;
+        public int createOp = 0;
+        public int returnOp = 0;
+        public int maxSize = 0;
 
-        void reset() {
+        public void reset() {
             getOp = 0;
             createOp = 0;
             returnOp = 0;
             maxSize = 0;
         }
 
-        void updateMaxSize(final int size) {
+        public void updateMaxSize(final int size) {
             if (size > maxSize) {
                 maxSize = size;
             }
