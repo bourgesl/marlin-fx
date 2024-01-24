@@ -8,7 +8,7 @@
     <groupId>org.marlin</groupId>
     <artifactId>marlinfx</artifactId>
     <packaging>jar</packaging>
-    <version>0.9.4.6-Unsafe-OpenJFX11</version>
+    <version>0.9.4.8-Unsafe-OpenJFX11</version>
     <name>Marlin software rasterizer</name>
 
     <url>https://github.com/bourgesl/marlin-renderer</url>
@@ -78,9 +78,9 @@
                         <arg>--patch-module</arg>
                         <arg>javafx.graphics=src</arg>
                         <arg>--add-modules</arg>
-                        <arg>jdk.unsupported,java.logging</arg>
+                        <arg>jdk.unsupported,java.logging,javafx.controls</arg>
                         <arg>--add-reads</arg>
-                        <arg>javafx.graphics=jdk.unsupported,java.logging</arg>
+                        <arg>javafx.graphics=jdk.unsupported,java.logging,javafx.controls</arg>
                     </compilerArgs>
                 </configuration>
                 <executions>
@@ -97,9 +97,9 @@
                                 <arg>--module-path</arg>
                                 <arg>${project.build.directory}/test-libs</arg>
                                 <arg>--add-modules</arg>
-                                <arg>jdk.unsupported,java.logging,junit,hamcrest.core,javafx.swing</arg>
+                                <arg>jdk.unsupported,java.logging,junit,hamcrest.core,javafx.swing,javafx.controls</arg>
                                 <arg>--add-reads</arg>
-                                <arg>javafx.graphics=jdk.unsupported,java.logging,junit,hamcrest.core,javafx.swing</arg>
+                                <arg>javafx.graphics=jdk.unsupported,java.logging,junit,hamcrest.core,javafx.swing,javafx.controls</arg>
                             </compilerArgs>
                         </configuration>
                     </execution>

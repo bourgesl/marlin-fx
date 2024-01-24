@@ -29,14 +29,12 @@ import com.sun.javafx.geom.Path2D;
 import com.sun.javafx.geom.Rectangle;
 import com.sun.javafx.geom.Shape;
 import com.sun.javafx.geom.transform.BaseTransform;
-import com.sun.javafx.util.Logging;
 import com.sun.marlin.ArrayCacheIntClean;
 import com.sun.marlin.DMarlinRenderingEngine;
 import com.sun.marlin.RendererContext;
 import com.sun.marlin.MarlinAlphaConsumer;
 import com.sun.marlin.MarlinConst;
 import com.sun.marlin.MarlinRenderer;
-import com.sun.marlin.RendererContext;
 import com.sun.pisces.PiscesRenderer;
 import com.sun.prism.BasicStroke;
 import com.sun.prism.PixelFormat;
@@ -44,9 +42,6 @@ import com.sun.prism.ResourceFactory;
 import com.sun.prism.Texture;
 import com.sun.prism.impl.PrismSettings;
 import com.sun.prism.impl.shape.DMarlinPrismUtils;
-import com.sun.prism.impl.shape.MaskData;
-import com.sun.prism.impl.shape.ShapeUtil;
-
 import java.lang.ref.SoftReference;
 
 final class SWContext {
@@ -215,7 +210,7 @@ final class SWContext {
 
     private SWRTTexture initRBBuffer(int width, int height) {
         final SWRTTexture tex = (SWRTTexture)factory.createRTTexture(width, height, Texture.WrapMode.CLAMP_NOT_NEEDED);
-        readBackBufferRef = new SoftReference<SWRTTexture>(tex);
+        readBackBufferRef = new SoftReference<>(tex);
         return tex;
     }
 
@@ -248,7 +243,7 @@ final class SWContext {
     private SWArgbPreTexture initImagePaintTexture(int width, int height) {
         final SWArgbPreTexture tex = (SWArgbPreTexture)factory.createTexture(PixelFormat.INT_ARGB_PRE,
                 Texture.Usage.DEFAULT, Texture.WrapMode.REPEAT, width, height);
-        imagePaintTextureRef = new SoftReference<SWArgbPreTexture>(tex);
+        imagePaintTextureRef = new SoftReference<>(tex);
         return tex;
     }
 

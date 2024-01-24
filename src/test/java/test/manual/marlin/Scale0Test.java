@@ -24,6 +24,8 @@
  */
 package test.manual.marlin;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Method;
 import static org.junit.Assert.assertEquals;
 
@@ -35,16 +37,12 @@ import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Button;
 import javafx.scene.control.Labeled;
 import javafx.scene.control.Slider;
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.WritableImage;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -54,7 +52,6 @@ import javafx.stage.Stage;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
-import static org.junit.Assert.fail;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -62,14 +59,12 @@ import test.util.Util;
 
 /**
  * @test
- * @bug 
+ * @bug 8312603
  * @summary Check the crash with MarlinFX renderer
  */
 public class Scale0Test {
 
     private final static int SIZE = 800;
-
-    static final int WHITE_PIXEL = 0xffffffff;
 
     // Used to launch the application before running any test
     private static final CountDownLatch launchLatch = new CountDownLatch(1);
@@ -77,16 +72,16 @@ public class Scale0Test {
     // Singleton Application instance
     static MyApp myApp;
 
-    static boolean failed = false;
+    static final ByteArrayOutputStream out = new ByteArrayOutputStream(2048 * 1024);
+    static final PrintStream defaultErrorStream = System.err;
 
     static {
         Locale.setDefault(Locale.US);
 
+        System.setProperty("prism.verbose", "false");
         // enable Marlin logging & internal checks:
         System.setProperty("prism.marlin.log", "true");
     }
-
-    private CountDownLatch latch = new CountDownLatch(1);
 
     // Application class. An instance is created and initialized before running
     // the first test, and it lives through the execution of all tests.
@@ -112,6 +107,9 @@ public class Scale0Test {
 
     @BeforeClass
     public static void setupOnce() throws Exception {
+        // Capture stderr:
+        System.setErr(new PrintStream(out, true));
+
         Util.launch(launchLatch, MyApp.class);
         assertEquals(0, launchLatch.getCount());
     }
@@ -123,67 +121,40 @@ public class Scale0Test {
 
     @Test(timeout = 15000)
     public void TestBug() {
+
         Platform.runLater(() -> {
-            final Scene scene = createScene();
-            myApp.stage.setScene(scene);
+            myApp.stage.setScene(createScene());
             myApp.stage.show();
-
-            final SnapshotParameters sp = new SnapshotParameters();
-            sp.setViewport(new Rectangle2D(0, 0, SIZE, SIZE));
-
-            final WritableImage img = scene.getRoot().snapshot(sp, new WritableImage(SIZE, SIZE));
-
-            // Check image on few pixels:
-            final PixelReader pr = img.getPixelReader();
-
-            final int total = countNonWhitePixels(pr);
-
-            System.out.println("total: " + total);
-            // total: 640000
-            if (total < 1000) {
-                fail("bad image");
-            }
         });
 
         try {
-            Thread.sleep(1000L);
+            Thread.sleep(2000L);
         } catch (InterruptedException ie) {
             Logger.getLogger(Scale0Test.class.getName()).log(Level.SEVERE, "interrupted", ie);
         }
 
-        Platform.runLater(() -> {
-            latch.countDown();
-            myApp.stage.close();
-        });
+        // Restore stderr:
+        System.setErr(defaultErrorStream);
 
-        try {
-            latch.await();
-        } catch (InterruptedException ie) {
-            Logger.getLogger(Scale0Test.class.getName()).log(Level.SEVERE, "interrupted", ie);
+        // Get stderr to check exception:
+        final String stdErr = out.toString();
+
+        if (!stdErr.isEmpty()) {
+            System.err.println("Captured System.err output (" + stdErr.length() + " chars):");
+            System.err.println("---------------------------------------");
+            System.err.println(stdErr);
+            System.err.println("---------------------------------------");
         }
-        Assert.assertFalse("DoChecks detected a problem.", failed);
-    }
 
-    private static int countNonWhitePixels(final PixelReader pr) {
-        int total = 0;
-
-        for (int y = 0; y < SIZE; y++) {
-            for (int x = 0; x < SIZE; x++) {
-                final int rgb = pr.getArgb(x, y);
-                if (rgb != WHITE_PIXEL) {
-                    total++;
-                }
-            }
+        if (stdErr.contains("ArrayIndexOutOfBoundsException")) {
+            Assert.fail("ArrayIndexOutOfBoundsException thrown !");
         }
-        return total;
     }
 
     private Group leftPane;
-
     private Slider slider;
 
     private Scene createScene() {
-
         slider = new Slider(0, 2, 0) {
             {
                 setBlockIncrement((getMax() - getMin()) / 4);
@@ -194,7 +165,6 @@ public class Scale0Test {
                 setShowTickMarks(true);
             }
         };
-
         leftPane = new Group();
 
         final NodeAndGraphic leftNode = create();
@@ -210,8 +180,7 @@ public class Scale0Test {
             Logger.getLogger(Scale0Test.class.getName()).log(Level.SEVERE, "bind exception", th);
         }
 
-        final Pane leftContainer
-                   = new Pane() {
+        final Pane leftContainer = new Pane() {
             {
                 setStyle("-fx-border-color: rosybrown;");
                 getChildren().add(leftPane);
